@@ -1,5 +1,10 @@
 const { useState, useEffect, useRef } = React;
 
+// --- GELİŞTİRİCİ FOTOĞRAFI AYARI ---
+// GitHub'a "images" klasörü açıp içine "profil.png" adında resim yüklediğinizi varsayıyoruz.
+// Dosya yolunu buraya yazıyoruz. (Resminizin adı farklıysa burayı düzeltin)
+const DEVELOPER_PHOTO_URL = "images/profil.png"; 
+
 // --- DUYURU VERİLERİ ---
 const ANNOUNCEMENTS = [
     "📢 Yeni kayıtlar için son gün 15 Mart!",
@@ -65,7 +70,7 @@ const EMERGENCY_NUMBERS = [
     { title: "T.C. Cidde Başkonsolosluğu", number: "+966126601607", icon: "building-2" },
     { title: "T.C. Riyad Büyükelçiliği", number: "+966114820101", icon: "flag" },
     { title: "Mekke Diyanet Ekibi", number: "+966500000000", icon: "phone" },
-    { title: "Suudi Arabistan Polis", number: "999", icon: "alert-triangle" }, // Icon güncellendi
+    { title: "Suudi Arabistan Polis", number: "999", icon: "alert-triangle" },
     { title: "Suudi Arabistan Ambulans", number: "997", icon: "ambulance" },
     { title: "Trafik Kazası", number: "993", icon: "car" }
 ];
@@ -499,8 +504,12 @@ const About = () => {
                 {/* Üst Dekoratif Alan */}
                 <div className="h-32 bg-gradient-to-r from-emerald-600 to-emerald-900 relative">
                      <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]"></div>
-                     <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full border-4 border-white dark:border-slate-800 bg-gold-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
-                        SG
+                     <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full border-4 border-white dark:border-slate-800 bg-gold-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg overflow-hidden">
+                        {DEVELOPER_PHOTO_URL ? (
+                            <img src={DEVELOPER_PHOTO_URL} alt="Geliştirici" className="w-full h-full object-cover" />
+                        ) : (
+                            "SG"
+                        )}
                      </div>
                 </div>
                 
