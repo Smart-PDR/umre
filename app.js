@@ -1,6 +1,6 @@
 const { useState, useEffect, useRef } = React;
 
-// --- DUYURU VERİLERİ (BURADAN YENİ DUYURU EKLEYEBİLİRSİNİZ) ---
+// --- DUYURU VERİLERİ ---
 const ANNOUNCEMENTS = [
     "📢 Yeni kayıtlar için son gün 15 Mart!",
     "⚠️ Pasaport sürelerinizi (en az 6 ay) kontrol ediniz.",
@@ -38,7 +38,7 @@ const CHECKLISTS_DATA = {
     ]
 };
 
-// --- NAMAZ VAKİTLERİ VERİSİ (Ümmü'l-Kurra Bazlı Mock Data) ---
+// --- NAMAZ VAKİTLERİ VERİSİ ---
 const PRAYER_DATA = {
     Mekke: { 
         Imsak: "05:12", Gunes: "06:30", Ogle: "12:25", Ikindi: "15:48", Aksam: "18:15", Yatsi: "19:45" 
@@ -47,6 +47,28 @@ const PRAYER_DATA = {
         Imsak: "05:18", Gunes: "06:38", Ogle: "12:30", Ikindi: "15:52", Aksam: "18:20", Yatsi: "19:50" 
     }
 };
+
+// --- ESMA-ÜL HÜSNA VERİSİ (Kısa Örnek) ---
+const ESMA_DATA = [
+    { name: "Allah (C.C.)", meaning: "Eşi ve benzeri olmayan, bütün noksan sıfatlardan münezzeh." },
+    { name: "Er-Rahman", meaning: "Dünyada bütün mahlükata merhamet eden, şefkat gösteren." },
+    { name: "Er-Rahim", meaning: "Ahirette sadece müminlere acıyan, merhamet eden." },
+    { name: "El-Melik", meaning: "Mülkün, kâinatın sahibi, mülk ve saltanatı devamlı olan." },
+    { name: "El-Kuddüs", meaning: "Her noksanlıktan uzak ve her türlü takdîse lâyık olan." },
+    { name: "Es-Selam", meaning: "Her türlü tehlikelerden selamete çıkaran." },
+    { name: "El-Mü'min", meaning: "Güven veren, emin kılan, koruyan." },
+    { name: "El-Müheymin", meaning: "Her şeyi görüp gözeten." }
+];
+
+// --- ACİL NUMARALAR ---
+const EMERGENCY_NUMBERS = [
+    { title: "T.C. Cidde Başkonsolosluğu", number: "+966126601607", icon: "building-2" },
+    { title: "T.C. Riyad Büyükelçiliği", number: "+966114820101", icon: "flag" },
+    { title: "Mekke Diyanet Ekibi", number: "+966500000000", icon: "phone" },
+    { title: "Suudi Arabistan Polis", number: "999", icon: "siren" },
+    { title: "Suudi Arabistan Ambulans", number: "997", icon: "ambulance" },
+    { title: "Trafik Kazası", number: "993", icon: "car" }
+];
 
 // --- BİLEŞENLER ---
 
@@ -66,19 +88,18 @@ const Header = ({ title, goBack, toggleTheme, isDark }) => (
     </div>
 );
 
-// --- YENİ DUYURU ALANI BİLEŞENİ ---
 const AnnouncementBar = () => {
     const [index, setIndex] = useState(0);
     const [fade, setFade] = useState(true);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setFade(false); // Önce yazıyı silikleştir
+            setFade(false); 
             setTimeout(() => {
                 setIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length);
-                setFade(true); // Yeni yazıyı getir
+                setFade(true); 
             }, 500);
-        }, 5000); // 5 saniyede bir değiştir
+        }, 5000); 
 
         return () => clearInterval(interval);
     }, []);
@@ -95,14 +116,12 @@ const AnnouncementBar = () => {
     );
 };
 
-// --- YENİ: YÜKLEME BANNERI ---
 const InstallBanner = ({ onInstall, onClose }) => (
     <div className="fixed bottom-0 left-0 right-0 z-[60] p-4 animate-fade-in">
         <div className="bg-slate-900 dark:bg-slate-800 text-white p-4 rounded-2xl shadow-2xl border-t-4 border-gold-500 flex flex-col gap-3 relative">
             <button onClick={onClose} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white">
                 <i data-lucide="x" className="w-4 h-4"></i>
             </button>
-            
             <div className="flex items-start gap-3 pr-6">
                 <div className="bg-gold-500 p-2 rounded-xl text-slate-900 shrink-0">
                     <i data-lucide="download" className="w-6 h-6"></i>
@@ -114,11 +133,7 @@ const InstallBanner = ({ onInstall, onClose }) => (
                     </p>
                 </div>
             </div>
-            
-            <button 
-                onClick={onInstall}
-                className="w-full bg-gold-500 hover:bg-gold-600 active:scale-95 text-slate-900 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
-            >
+            <button onClick={onInstall} className="w-full bg-gold-500 hover:bg-gold-600 active:scale-95 text-slate-900 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
                 <i data-lucide="smartphone" className="w-5 h-5"></i>
                 Ücretsiz Yükle
             </button>
@@ -163,11 +178,9 @@ const RouteVisualizer = () => {
                 </div>
                 <i data-lucide="map" className="absolute right-4 bottom-4 w-24 h-24 text-white opacity-5"></i>
             </div>
-
             <div className="relative pl-2">
                 <div className="route-line"></div>
                 <div className="route-active-line" style={{ height: `${progressHeight}%` }}></div>
-
                 <div className="space-y-8 relative z-10">
                     {ROUTE_STOPS.map((stop, index) => (
                         <div key={stop.id} className={`flex items-start gap-4 transition-all duration-500 transform ${index < visibleStops ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
@@ -211,7 +224,7 @@ const Zikirmatik = () => {
 
 const CurrencyConverter = () => {
     const [amount, setAmount] = useState(1);
-    const [rate, setRate] = useState(8.95); // Varsayılan SAR kuru
+    const [rate, setRate] = useState(8.95); 
 
     return (
         <div className="p-6 space-y-6 animate-fade-in">
@@ -266,7 +279,6 @@ const ChecklistManager = ({ type, title }) => {
     );
 };
 
-// --- YENİ GELİŞMİŞ UMRE REHBERİ ---
 const UmrahGuideDetail = () => {
     const [activeStep, setActiveStep] = useState(null);
     const steps = [
@@ -304,10 +316,8 @@ const UmrahGuideDetail = () => {
     );
 };
 
-// --- YENİ GELİŞMİŞ NAMAZ VAKİTLERİ BİLEŞENİ ---
 const PrayerTimesDetail = () => {
     const [city, setCity] = useState("Mekke");
-    // Alarm ayarlarını sakla: { Imsak: 15, Ogle: 0 } gibi (0 = kapalı)
     const [reminders, setReminders] = useState(() => {
         const saved = localStorage.getItem("prayer_reminders");
         return saved ? JSON.parse(saved) : {};
@@ -320,7 +330,6 @@ const PrayerTimesDetail = () => {
     const handleReminderChange = (vakit, minutes) => {
         setReminders(prev => ({ ...prev, [vakit]: parseInt(minutes) }));
         if (parseInt(minutes) > 0) {
-            // İzin iste
             if (Notification.permission !== "granted") {
                 Notification.requestPermission();
             }
@@ -329,7 +338,6 @@ const PrayerTimesDetail = () => {
 
     return (
         <div className="p-4 pb-24 animate-fade-in space-y-4">
-            {/* Şehir Seçimi */}
             <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl mb-4">
                 {["Mekke", "Medine"].map((c) => (
                     <button 
@@ -385,7 +393,89 @@ const PrayerTimesDetail = () => {
     );
 };
 
-// --- HAKKINDA VE BİLDİRİM ---
+// --- YENİ ÖZELLİK: HAVA DURUMU WIDGET ---
+const WeatherWidget = () => {
+    // Gerçek API olmadığı için mock data kullanıyoruz
+    const weathers = [
+        { city: "Mekke", temp: 34, icon: "sun", desc: "Güneşli" },
+        { city: "Medine", temp: 31, icon: "cloud-sun", desc: "Parçalı Bulutlu" }
+    ];
+
+    return (
+        <div className="p-4 pb-20 animate-fade-in space-y-4">
+            <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 px-2">Hava Durumu</h3>
+            <div className="grid grid-cols-2 gap-3">
+                {weathers.map(w => (
+                    <div key={w.city} className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4 text-white shadow-lg relative overflow-hidden">
+                        <div className="relative z-10">
+                            <span className="text-xs font-bold opacity-80 uppercase tracking-wider">{w.city}</span>
+                            <div className="text-3xl font-bold mt-1">{w.temp}°</div>
+                            <div className="text-xs opacity-90 mt-1">{w.desc}</div>
+                        </div>
+                        <i data-lucide={w.icon} className="absolute -right-2 -bottom-2 w-16 h-16 text-white opacity-20"></i>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+// --- YENİ ÖZELLİK: ESMA-ÜL HÜSNA ---
+const EsmaulHusna = () => {
+    const [current, setCurrent] = useState(0);
+
+    return (
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-140px)] p-6 animate-fade-in">
+            <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-8 text-center relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-gold-400 to-gold-600"></div>
+                <h2 className="text-4xl font-serif font-bold text-gold-600 dark:text-gold-400 mb-4">{ESMA_DATA[current].name}</h2>
+                <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed">{ESMA_DATA[current].meaning}</p>
+                
+                <div className="mt-8 flex justify-center gap-4">
+                    <button 
+                        onClick={() => setCurrent(prev => (prev - 1 + ESMA_DATA.length) % ESMA_DATA.length)}
+                        className="p-3 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition"
+                    >
+                        <i data-lucide="arrow-left" className="w-6 h-6"></i>
+                    </button>
+                    <button 
+                        onClick={() => setCurrent(prev => (prev + 1) % ESMA_DATA.length)}
+                        className="p-3 rounded-full bg-gold-500 text-white shadow-lg shadow-gold-500/30 hover:bg-gold-600 transition"
+                    >
+                        <i data-lucide="arrow-right" className="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div className="mt-4 text-xs text-slate-400 font-mono">{current + 1} / {ESMA_DATA.length}</div>
+            </div>
+        </div>
+    );
+};
+
+// --- YENİ ÖZELLİK: ACİL NUMARALAR ---
+const EmergencyContacts = () => {
+    return (
+        <div className="p-4 pb-20 animate-fade-in space-y-4">
+            <h3 className="font-bold text-lg text-slate-800 dark:text-slate-200 px-2">Önemli Numaralar</h3>
+            <div className="space-y-3">
+                {EMERGENCY_NUMBERS.map((item, idx) => (
+                    <a href={`tel:${item.number}`} key={idx} className="flex items-center p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm active:scale-[0.98] transition-transform">
+                        <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center mr-4">
+                            <i data-lucide={item.icon} className="w-5 h-5"></i>
+                        </div>
+                        <div className="flex-1">
+                            <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">{item.title}</h4>
+                            <span className="text-slate-500 dark:text-slate-400 text-xs font-mono">{item.number}</span>
+                        </div>
+                        <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded-full text-green-600">
+                            <i data-lucide="phone" className="w-4 h-4"></i>
+                        </div>
+                    </a>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 const About = () => {
     const handleNotification = () => {
         if (!("Notification" in window)) {
@@ -436,11 +526,10 @@ const App = () => {
             setIsDark(true); document.documentElement.classList.add('dark');
         }
 
-        // PWA Install Event Listener
         const handler = (e) => {
             e.preventDefault();
             setInstallPrompt(e);
-            setShowInstallBanner(true); // Yüklenebilir olduğunda banner'ı göster
+            setShowInstallBanner(true); 
         };
         window.addEventListener('beforeinstallprompt', handler);
         return () => window.removeEventListener('beforeinstallprompt', handler);
@@ -498,10 +587,13 @@ const App = () => {
                     <MenuCard icon="list" label="Zikirmatik" subLabel="Dijital Tesbih" colorClass="bg-gold-500 text-gold-600" onClick={() => setActiveView('zikir')} />
                     <MenuCard icon="map-pin" label="Gezilecekler" subLabel="Mekke & Medine" colorClass="bg-blue-500 text-blue-600" onClick={() => setActiveView('places')} />
                     <MenuCard icon="clock" label="Namaz Vakitleri" subLabel="Ümmü'l-Kurra" colorClass="bg-cyan-500 text-cyan-600" onClick={() => setActiveView('times')} />
+                    <MenuCard icon="sun" label="Hava Durumu" subLabel="Mekke & Medine" colorClass="bg-orange-500 text-orange-600" onClick={() => setActiveView('weather')} />
+                    <MenuCard icon="star" label="Esma-ül Hüsna" subLabel="Zikir & Anlam" colorClass="bg-indigo-500 text-indigo-600" onClick={() => setActiveView('names')} />
                     <MenuCard icon="heart-handshake" label="Dualar" subLabel="Sesli & Metin" colorClass="bg-rose-500 text-rose-600" onClick={() => setActiveView('prayers')} />
                     <MenuCard icon="briefcase" label="İhtiyaç Listesi" subLabel="Bagaj & İlaç" colorClass="bg-purple-500 text-purple-600" onClick={() => setActiveView('luggage')} />
                     <MenuCard icon="arrow-left-right" label="Döviz" subLabel="Çevrimdışı" colorClass="bg-green-600 text-green-700" onClick={() => setActiveView('currency')} />
                     <MenuCard icon="file-text" label="Evraklar" subLabel="Pasaport & Vize" colorClass="bg-slate-500 text-slate-600" onClick={() => setActiveView('documents')} />
+                    <MenuCard icon="phone" label="Acil Numaralar" subLabel="Konsolosluk & Sağlık" colorClass="bg-red-500 text-red-600" onClick={() => setActiveView('contacts')} />
                     <MenuCard icon="info" label="Hakkında" subLabel="Geliştirici" colorClass="bg-slate-400 text-slate-500" onClick={() => setActiveView('about')} />
                 </div>
             );
@@ -513,6 +605,9 @@ const App = () => {
             case 'luggage': return <ChecklistManager type="luggage" title="İhtiyaç Listesi" />;
             case 'documents': return <ChecklistManager type="documents" title="Resmi Evraklar" />;
             case 'times': return <PrayerTimesDetail />;
+            case 'weather': return <WeatherWidget />;
+            case 'names': return <EsmaulHusna />;
+            case 'contacts': return <EmergencyContacts />;
             case 'places': return <SimplePage title="Gezilecekler"><p className="text-slate-600 dark:text-slate-300">Uhud Dağı, Kuba Mescidi, Sevr Mağarası...</p></SimplePage>;
             case 'prayers': return <SimplePage title="Dualar"><p className="text-slate-600 dark:text-slate-300">Burada sesli ve yazılı dualar listelenecek.</p></SimplePage>;
             default: return <div className="p-10 text-center text-slate-500">Yapım aşamasında</div>;
