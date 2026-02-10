@@ -1,4 +1,4 @@
-const CACHE_NAME = 'umre-rehberi-v9'; // Sürüm yükseltildi
+const CACHE_NAME = 'umre-rehberi-v10'; // Sürüm yükseltildi
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -42,6 +42,7 @@ self.addEventListener('fetch', (event) => {
   );
 
 });
+
 
 
 
