@@ -467,15 +467,15 @@ const App = () => {
         switch(activeView) {
             case 'dashboard': return (
                 <div className="p-4 grid grid-cols-2 gap-3 pb-24 animate-fade-in">
-                    {/* APP BRANDING HEADER - Minimalist */}
-                    <div className="col-span-2 py-2 flex justify-center">
-                        <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-full px-5 py-2 shadow-sm flex items-center gap-3">
-                            <div className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></div>
-                            <h1 className="font-serif text-lg text-slate-800 dark:text-slate-100">
-                                <span className="font-light text-slate-500 dark:text-slate-400 mr-1.5">Karayolu İle</span>
-                                <span className="font-bold text-gold-600 dark:text-gold-400">Umre Rehberi</span>
-                            </h1>
-                        </div>
+                    {/* APP BRANDING - Modern & Minimalist Typographic */}
+                    <div className="col-span-2 py-4 px-2 flex flex-col items-center justify-center text-center">
+                        <span className="text-[10px] font-bold tracking-[0.2em] text-gold-600 dark:text-gold-500 uppercase mb-1">
+                            Karayolu İle
+                        </span>
+                        <h1 className="font-serif text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
+                            Umre Rehberi
+                        </h1>
+                        <div className="w-12 h-1 bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent mt-3"></div>
                     </div>
 
                     <div className="col-span-2 mb-2">
@@ -486,7 +486,7 @@ const App = () => {
                                     <h2 className="text-3xl font-serif font-bold text-white mb-1">Yolculuk Rotası</h2>
                                     <p className="text-slate-400 text-sm">Cilvegözü <span className="text-gold-500">➔</span> Mekke</p>
                                 </div>
-                                <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-slate-900 transition-colors"><i data-lucide="arrow-right" className="w-6 h-6"></i></div>
+                                <div className="w-12 h-1 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-slate-900 transition-colors"><i data-lucide="arrow-right" className="w-6 h-6"></i></div>
                             </div>
                             <i data-lucide="map" className="absolute -right-4 -bottom-8 w-40 h-40 text-white opacity-5 rotate-12"></i>
                         </div>
