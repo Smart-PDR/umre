@@ -48,7 +48,7 @@ const PRAYER_DATA = {
     }
 };
 
-// --- ESMA-ÜL HÜSNA VERİSİ (Kısa Örnek) ---
+// --- ESMA-ÜL HÜSNA VERİSİ ---
 const ESMA_DATA = [
     { name: "Allah (C.C.)", meaning: "Eşi ve benzeri olmayan, bütün noksan sıfatlardan münezzeh." },
     { name: "Er-Rahman", meaning: "Dünyada bütün mahlükata merhamet eden, şefkat gösteren." },
@@ -65,7 +65,7 @@ const EMERGENCY_NUMBERS = [
     { title: "T.C. Cidde Başkonsolosluğu", number: "+966126601607", icon: "building-2" },
     { title: "T.C. Riyad Büyükelçiliği", number: "+966114820101", icon: "flag" },
     { title: "Mekke Diyanet Ekibi", number: "+966500000000", icon: "phone" },
-    { title: "Suudi Arabistan Polis", number: "999", icon: "siren" },
+    { title: "Suudi Arabistan Polis", number: "999", icon: "alert-triangle" }, // Icon güncellendi
     { title: "Suudi Arabistan Ambulans", number: "997", icon: "ambulance" },
     { title: "Trafik Kazası", number: "993", icon: "car" }
 ];
