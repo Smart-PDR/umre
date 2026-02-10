@@ -476,6 +476,7 @@ const EmergencyContacts = () => {
     );
 };
 
+// --- HAKKINDA VE BİLDİRİM (YENİ TASARIM) ---
 const About = () => {
     const handleNotification = () => {
         if (!("Notification" in window)) {
@@ -492,21 +493,48 @@ const About = () => {
     };
 
     return (
-        <div className="p-6 text-center space-y-6 animate-fade-in">
-            <div className="w-24 h-24 bg-gold-500 rounded-full mx-auto flex items-center justify-center text-3xl text-white font-bold shadow-lg shadow-gold-500/30">SG</div>
-            <div>
-                <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Sami G.</h2>
-                <p className="text-gold-600 font-medium text-sm">Uygulama Geliştiricisi</p>
+        <div className="p-4 pb-24 animate-fade-in space-y-6">
+            {/* Geliştirici Profil Kartı */}
+            <div className="relative bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-xl border border-slate-100 dark:border-slate-700">
+                {/* Üst Dekoratif Alan */}
+                <div className="h-32 bg-gradient-to-r from-emerald-600 to-emerald-900 relative">
+                     <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]"></div>
+                     <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full border-4 border-white dark:border-slate-800 bg-gold-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg">
+                        SG
+                     </div>
+                </div>
+                
+                <div className="pt-12 pb-6 px-6 text-center">
+                    <h2 className="text-2xl font-serif font-bold text-slate-800 dark:text-white">Sami G.</h2>
+                    <span className="inline-block mt-2 px-3 py-1 rounded-full bg-gold-50 dark:bg-gold-900/30 text-gold-600 dark:text-gold-400 text-xs font-bold uppercase tracking-wider">
+                        Uygulama Geliştiricisi
+                    </span>
+                    
+                    <div className="mt-6 text-left space-y-4">
+                         <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+                            <p className="font-serif text-lg text-emerald-800 dark:text-emerald-400 mb-2 text-center">﷽</p>
+                            <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-serif text-justify">
+                                <span className="font-bold block mb-2 text-slate-800 dark:text-slate-200 text-center">Esselamü Aleyküm ve Rahmetullah,</span>
+                                Kıymetli Allah'ın misafirleri; bu çalışma, Haremeyn-i Şerifeyn'e vuslat yolculuğunda sizlere rehberlik etmek, bu meşakkatli ama kutlu seferde yükünüzü bir nebze olsun hafifletmek gayesiyle "Sadaka-i Cariye" niyetiyle hazırlanmıştır.
+                                <br/><br/>
+                                Dualarınızda bu aciz kardeşinizi de unutmamanız istirhamıyla... Rabbim yolunuzu açık, ibadetlerinizi kabul eylesin.
+                            </p>
+                         </div>
+                    </div>
+
+                    <div className="mt-6 flex flex-col gap-3">
+                         <button onClick={handleNotification} className="w-full p-4 bg-slate-800 dark:bg-slate-700 text-white rounded-xl flex items-center justify-center gap-2 border border-slate-700 active:scale-95 transition-transform shadow-lg shadow-slate-900/20">
+                            <i data-lucide="bell" className="w-5 h-5"></i>
+                            <span className="font-bold">Bildirimleri Aç</span>
+                        </button>
+                    </div>
+                    
+                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                        <p className="text-xs text-slate-400">Karayolu Sürümü v2.1</p>
+                        <p className="text-[10px] text-slate-300 mt-1">Allah Rızası İçin Ücretsizdir</p>
+                    </div>
+                </div>
             </div>
-            <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm text-left text-sm leading-relaxed text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700">
-                <p>Selamun Aleyküm,</p><br/>
-                <p>Gayemiz Allah'ın rızasını kazanmak ve sadaka-i cariye niyetiyle, kutsal topraklara karayolu ile gidecek misafirlerimize bir kolaylık sağlamaktır.</p>
-            </div>
-            <button onClick={handleNotification} className="w-full p-4 bg-slate-800 dark:bg-slate-700 text-white rounded-xl flex items-center justify-center gap-2 border border-slate-700 active:scale-95 transition-transform">
-                <i data-lucide="bell" className="w-5 h-5"></i>
-                <span className="font-bold">Bildirimleri Aç</span>
-            </button>
-            <p className="text-xs text-slate-400 mt-4">v2.1 - Karayolu Sürümü</p>
         </div>
     );
 };
