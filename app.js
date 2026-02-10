@@ -95,6 +95,37 @@ const AnnouncementBar = () => {
     );
 };
 
+// --- YENİ: YÜKLEME BANNERI ---
+const InstallBanner = ({ onInstall, onClose }) => (
+    <div className="fixed bottom-0 left-0 right-0 z-[60] p-4 animate-fade-in">
+        <div className="bg-slate-900 dark:bg-slate-800 text-white p-4 rounded-2xl shadow-2xl border-t-4 border-gold-500 flex flex-col gap-3 relative">
+            <button onClick={onClose} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white">
+                <i data-lucide="x" className="w-4 h-4"></i>
+            </button>
+            
+            <div className="flex items-start gap-3 pr-6">
+                <div className="bg-gold-500 p-2 rounded-xl text-slate-900 shrink-0">
+                    <i data-lucide="download" className="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h4 className="font-bold text-gold-400">Uygulamayı Yükle</h4>
+                    <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                        İnternet bağlantısı olmadan (Offline) kullanabilmek için uygulamayı telefonunuza yüklemeniz gerekmektedir.
+                    </p>
+                </div>
+            </div>
+            
+            <button 
+                onClick={onInstall}
+                className="w-full bg-gold-500 hover:bg-gold-600 active:scale-95 text-slate-900 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+            >
+                <i data-lucide="smartphone" className="w-5 h-5"></i>
+                Ücretsiz Yükle
+            </button>
+        </div>
+    </div>
+);
+
 const MenuCard = ({ icon, label, subLabel, colorClass, onClick, featured }) => (
     <button 
         onClick={onClick}
@@ -296,26 +327,6 @@ const PrayerTimesDetail = () => {
         }
     };
 
-    // Basit Bildirim Simülasyonu (Gerçek uygulamada arka plan servisi gerekir)
-    useEffect(() => {
-        const checkTime = setInterval(() => {
-            const now = new Date();
-            const currentHour = now.getHours().toString().padStart(2, '0');
-            const currentMin = now.getMinutes().toString().padStart(2, '0');
-            const currentTimeStr = `${currentHour}:${currentMin}`;
-
-            Object.entries(PRAYER_DATA[city]).forEach(([vakit, saat]) => {
-                const reminderMin = reminders[vakit] || 0;
-                if (reminderMin > 0) {
-                    // Saat hesaplama mantığı (Basitleştirilmiş)
-                    // Gerçek uygulamada moment.js veya date-fns kullanılmalı
-                    // Burada sadece demo amaçlı tam eşleşme kontrolü yok
-                }
-            });
-        }, 60000); // Her dakika kontrol et
-        return () => clearInterval(checkTime);
-    }, [city, reminders]);
-
     return (
         <div className="p-4 pb-24 animate-fade-in space-y-4">
             {/* Şehir Seçimi */}
@@ -416,13 +427,35 @@ const SimplePage = ({ title, children }) => (<div className="p-4 pb-20 space-y-4
 const App = () => {
     const [activeView, setActiveView] = useState('dashboard');
     const [isDark, setIsDark] = useState(false);
+    const [installPrompt, setInstallPrompt] = useState(null);
+    const [showInstallBanner, setShowInstallBanner] = useState(false);
 
     useEffect(() => {
         if(window.lucide) window.lucide.createIcons();
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             setIsDark(true); document.documentElement.classList.add('dark');
         }
+
+        // PWA Install Event Listener
+        const handler = (e) => {
+            e.preventDefault();
+            setInstallPrompt(e);
+            setShowInstallBanner(true); // Yüklenebilir olduğunda banner'ı göster
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
     }, [activeView]);
+
+    const handleInstallClick = () => {
+        if (!installPrompt) return;
+        installPrompt.prompt();
+        installPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                setShowInstallBanner(false);
+            }
+            setInstallPrompt(null);
+        });
+    };
 
     const toggleTheme = () => {
         setIsDark(!isDark);
@@ -476,9 +509,13 @@ const App = () => {
     };
 
     return (
-        <div className="min-h-screen transition-colors duration-500">
+        <div className="min-h-screen transition-colors duration-500 relative">
             <Header title={activeView === 'dashboard' ? 'Ana Menü' : 'Rehber'} isDark={isDark} toggleTheme={toggleTheme} goBack={activeView !== 'dashboard' ? () => setActiveView('dashboard') : null} />
             <main className="max-w-3xl mx-auto">{renderView()}</main>
+            
+            {showInstallBanner && (
+                <InstallBanner onInstall={handleInstallClick} onClose={() => setShowInstallBanner(false)} />
+            )}
         </div>
     );
 };
