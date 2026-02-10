@@ -526,7 +526,8 @@ const About = () => {
                                 <span className="font-bold block mb-2 text-slate-800 dark:text-slate-200 text-center">Esselamü Aleyküm ve Rahmetullah,</span>
                                 Kıymetli Allah'ın misafirleri; bu çalışma, Haremeyn-i Şerifeyn'e vuslat yolculuğunda sizlere rehberlik etmek, bu meşakkatli ama kutlu seferde yükünüzü bir nebze olsun hafifletmek gayesiyle "Sadaka-i Cariye" niyetiyle hazırlanmıştır.
                                 <br/><br/>
-                                Dualarınızda bu aciz kardeşinizi de unutmamanız istirhamıyla... <br/>Rabbim yolunuzu açık, ibadetlerinizi kabul eylesin.
+                                Dualarınızda bu kardeşinizi de unutmamanız istirhamıyla...<br/>
+                                Rabbim yolunuzu açık, ibadetlerinizi kabul eylesin.
                             </p>
                          </div>
                     </div>
@@ -665,4 +666,5 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
 
