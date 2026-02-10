@@ -467,6 +467,17 @@ const App = () => {
         switch(activeView) {
             case 'dashboard': return (
                 <div className="p-4 grid grid-cols-2 gap-3 pb-24 animate-fade-in">
+                    {/* APP BRANDING HEADER */}
+                    <div className="col-span-2 text-center pt-4 pb-6">
+                        <h1 className="font-serif text-2xl text-slate-700 dark:text-slate-200">
+                            Karayolu İle
+                            <span className="block text-4xl font-bold text-gold-600 dark:text-gold-400 mt-1 drop-shadow-sm">
+                                Umre Rehberi
+                            </span>
+                        </h1>
+                        <div className="h-1 w-24 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mt-4 rounded-full opacity-60"></div>
+                    </div>
+
                     <div className="col-span-2 mb-2">
                         <div onClick={() => setActiveView('route')} className="relative overflow-hidden bg-slate-900 rounded-2xl p-6 text-white shadow-xl cursor-pointer group border border-slate-700">
                             <div className="relative z-10 flex justify-between items-center">
