@@ -467,15 +467,15 @@ const App = () => {
         switch(activeView) {
             case 'dashboard': return (
                 <div className="p-4 grid grid-cols-2 gap-3 pb-24 animate-fade-in">
-                    {/* APP BRANDING HEADER */}
-                    <div className="col-span-2 text-center pt-4 pb-6">
-                        <h1 className="font-serif text-2xl text-slate-700 dark:text-slate-200">
-                            Karayolu İle
-                            <span className="block text-4xl font-bold text-gold-600 dark:text-gold-400 mt-1 drop-shadow-sm">
-                                Umre Rehberi
-                            </span>
-                        </h1>
-                        <div className="h-1 w-24 bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto mt-4 rounded-full opacity-60"></div>
+                    {/* APP BRANDING HEADER - Minimalist */}
+                    <div className="col-span-2 py-2 flex justify-center">
+                        <div className="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-full px-5 py-2 shadow-sm flex items-center gap-3">
+                            <div className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></div>
+                            <h1 className="font-serif text-lg text-slate-800 dark:text-slate-100">
+                                <span className="font-light text-slate-500 dark:text-slate-400 mr-1.5">Karayolu İle</span>
+                                <span className="font-bold text-gold-600 dark:text-gold-400">Umre Rehberi</span>
+                            </h1>
+                        </div>
                     </div>
 
                     <div className="col-span-2 mb-2">
