@@ -573,11 +573,27 @@ const App = () => {
             setShowInstallBanner(true); 
         };
         window.addEventListener('beforeinstallprompt', handler);
-        return () => window.removeEventListener('beforeinstallprompt', handler);
+
+        // --- DÜZELTME: TEST AMAÇLI ZORLAMA ---
+        // Tarayıcı veya önizleme ortamında "beforeinstallprompt" tetiklenmeyebilir.
+        // Tasarımı görebilmeniz için banner'ı 3 saniye sonra otomatik açıyoruz.
+        const timer = setTimeout(() => {
+            setShowInstallBanner(true);
+        }, 3000);
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handler);
+            clearTimeout(timer);
+        };
     }, []);
 
     const handleInstallClick = () => {
-        if (!installPrompt) return;
+        if (!installPrompt) {
+            // Test ortamında olduğumuz için uyarı verip kapatıyoruz
+            alert("Önizleme Modu: Gerçek bir cihazda burada uygulama yükleme penceresi açılacaktır.");
+            setShowInstallBanner(false);
+            return;
+        }
         installPrompt.prompt();
         installPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
