@@ -560,6 +560,9 @@ const App = () => {
 
     useEffect(() => {
         if(window.lucide) window.lucide.createIcons();
+    }, [activeView]);
+
+    useEffect(() => {
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             setIsDark(true); document.documentElement.classList.add('dark');
         }
@@ -571,7 +574,7 @@ const App = () => {
         };
         window.addEventListener('beforeinstallprompt', handler);
         return () => window.removeEventListener('beforeinstallprompt', handler);
-    }, [activeView]);
+    }, []);
 
     const handleInstallClick = () => {
         if (!installPrompt) return;
