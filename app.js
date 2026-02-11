@@ -1,8 +1,6 @@
 const { useState, useEffect, useRef } = React;
 
 // --- GELİŞTİRİCİ FOTOĞRAFI AYARI ---
-// GitHub'a "images" klasörü açıp içine "profil.png" adında resim yüklediğinizi varsayıyoruz.
-// Dosya yolunu buraya yazıyoruz. (Resminizin adı farklıysa burayı düzeltin)
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
 
 // --- DUYURU VERİLERİ ---
@@ -53,18 +51,6 @@ const PRAYER_DATA = {
     }
 };
 
-// --- ESMA-ÜL HÜSNA VERİSİ ---
-const ESMA_DATA = [
-    { name: "Allah (C.C.)", meaning: "Eşi ve benzeri olmayan, bütün noksan sıfatlardan münezzeh." },
-    { name: "Er-Rahman", meaning: "Dünyada bütün mahlükata merhamet eden, şefkat gösteren." },
-    { name: "Er-Rahim", meaning: "Ahirette sadece müminlere acıyan, merhamet eden." },
-    { name: "El-Melik", meaning: "Mülkün, kâinatın sahibi, mülk ve saltanatı devamlı olan." },
-    { name: "El-Kuddüs", meaning: "Her noksanlıktan uzak ve her türlü takdîse lâyık olan." },
-    { name: "Es-Selam", meaning: "Her türlü tehlikelerden selamete çıkaran." },
-    { name: "El-Mü'min", meaning: "Güven veren, emin kılan, koruyan." },
-    { name: "El-Müheymin", meaning: "Her şeyi görüp gözeten." }
-];
-
 // --- ACİL NUMARALAR ---
 const EMERGENCY_NUMBERS = [
     { title: "T.C. Cidde Başkonsolosluğu", number: "+966126601607", icon: "building-2" },
@@ -75,24 +61,138 @@ const EMERGENCY_NUMBERS = [
     { title: "Trafik Kazası", number: "993", icon: "car" }
 ];
 
+// --- AYARLAR MODALI BİLEŞENİ ---
+const SettingsModal = ({ isOpen, onClose, settings, updateSettings }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center animate-fade-in">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform transition-transform duration-300">
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-serif font-bold text-slate-800 dark:text-gold-400">Uygulama Ayarları</h2>
+                    <button onClick={onClose} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-red-500 transition">
+                        <i data-lucide="x" className="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div className="space-y-6 overflow-y-auto max-h-[70vh] pr-2">
+                    {/* Yazı Boyutu */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                            <i data-lucide="type" className="w-4 h-4 text-gold-500"></i> Yazı Boyutu
+                        </label>
+                        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+                            {['small', 'medium', 'large'].map((size) => (
+                                <button
+                                    key={size}
+                                    onClick={() => updateSettings('fontSize', size)}
+                                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${settings.fontSize === size ? 'bg-white dark:bg-slate-700 shadow text-gold-600' : 'text-slate-400'}`}
+                                >
+                                    {size === 'small' ? 'Küçük' : size === 'medium' ? 'Orta' : 'Büyük'}
+                                </button>
+                            ))}
+                        </div>
+                        <p className="text-[10px] text-slate-400">Okuma kolaylığı için metin boyutunu ayarlar.</p>
+                    </div>
+
+                    {/* Tema */}
+                    <div className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-800 rounded-xl">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 rounded-lg">
+                                <i data-lucide={settings.theme === 'dark' ? 'moon' : 'sun'} className="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Gece Modu</h4>
+                                <p className="text-[10px] text-slate-400">Göz yormayan karanlık tema.</p>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={() => updateSettings('theme', settings.theme === 'dark' ? 'light' : 'dark')}
+                            className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.theme === 'dark' ? 'bg-gold-500' : 'bg-slate-300'}`}
+                        >
+                            <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settings.theme === 'dark' ? 'translate-x-6' : ''}`}></div>
+                        </button>
+                    </div>
+
+                    {/* Bildirimler */}
+                    <div className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-800 rounded-xl">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-500 rounded-lg">
+                                <i data-lucide="bell" className="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Bildirimler</h4>
+                                <p className="text-[10px] text-slate-400">Namaz vakti hatırlatıcıları.</p>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={() => updateSettings('notifications', !settings.notifications)}
+                            className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.notifications ? 'bg-gold-500' : 'bg-slate-300'}`}
+                        >
+                            <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settings.notifications ? 'translate-x-6' : ''}`}></div>
+                        </button>
+                    </div>
+
+                    {/* Konum */}
+                    <div className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-800 rounded-xl">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-lg">
+                                <i data-lucide="map-pin" className="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Konum Takibi</h4>
+                                <p className="text-[10px] text-slate-400">Mekke/Medine arası mesafe hesabı.</p>
+                            </div>
+                        </div>
+                        <button 
+                            onClick={() => updateSettings('location', !settings.location)}
+                            className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.location ? 'bg-gold-500' : 'bg-slate-300'}`}
+                        >
+                            <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settings.location ? 'translate-x-6' : ''}`}></div>
+                        </button>
+                    </div>
+
+                    {/* Gizlilik Uyarısı */}
+                    <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800 flex gap-3">
+                        <i data-lucide="shield-check" className="w-6 h-6 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+                        <p className="text-xs text-emerald-800 dark:text-emerald-300 leading-relaxed text-justify">
+                            <strong>Gizlilik Politikası:</strong> Bu uygulamada yaptığınız hiçbir ayar, konum bilgisi veya kişisel veri sunucularımıza yüklenmez. Tüm veriler sadece kendi telefonunuzda (yerel hafızada) saklanır.
+                        </p>
+                    </div>
+
+                    <div className="pt-4 text-center border-t border-slate-100 dark:border-slate-800">
+                        <p className="text-xs font-bold text-slate-400">Karayolu Umre Rehberi</p>
+                        <p className="text-[10px] text-slate-300 font-mono mt-1">Sürüm 2.2 (Karayolu)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // --- BİLEŞENLER ---
 
-const Header = ({ title, goBack, toggleTheme, isDark }) => (
-    <div className="sticky top-0 z-50 glass-header px-4 py-3 flex items-center justify-between shadow-sm transition-all duration-300">
+const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => (
+    <div className="sticky top-0 z-50 glass-header px-4 py-4 flex items-center justify-between shadow-sm transition-all duration-300">
         <div className="flex items-center gap-3">
             {goBack && (
                 <button onClick={goBack} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300">
                     <i data-lucide="arrow-left" className="w-5 h-5"></i>
                 </button>
             )}
-            <h1 className="text-xl font-serif font-bold text-slate-800 dark:text-gold-400 tracking-wide">{title}</h1>
+            <h1 className="text-lg font-serif font-bold text-slate-900 dark:text-gold-400 tracking-wide leading-tight">
+                {title}
+            </h1>
         </div>
-        <button onClick={toggleTheme} className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-gold-600 dark:text-gold-400 hover:scale-105 transition shadow-sm">
-            <i data-lucide={isDark ? "sun" : "moon"} className="w-5 h-5"></i>
-        </button>
+        {showSettingsBtn && (
+            <button onClick={onOpenSettings} className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-gold-600 dark:hover:text-gold-400 transition shadow-sm active:scale-95">
+                <i data-lucide="settings" className="w-5 h-5"></i>
+            </button>
+        )}
     </div>
 );
 
+// --- YENİ MODERN DUYURU ALANI ---
 const AnnouncementBar = () => {
     const [index, setIndex] = useState(0);
     const [fade, setFade] = useState(true);
@@ -110,53 +210,66 @@ const AnnouncementBar = () => {
     }, []);
 
     return (
-        <div className="col-span-2 bg-white dark:bg-slate-800 border-l-4 border-gold-500 rounded-r-xl shadow-sm p-3 flex items-center gap-3 transition-colors duration-300 my-2">
-            <div className="bg-gold-100 dark:bg-gold-900/30 p-2 rounded-full shrink-0">
-                <i data-lucide="megaphone" className="w-4 h-4 text-gold-600 dark:text-gold-400"></i>
-            </div>
-            <div className={`text-sm font-medium text-slate-700 dark:text-slate-300 flex-1 transition-opacity duration-500 ${fade ? 'opacity-100' : 'opacity-0'}`}>
-                {ANNOUNCEMENTS[index]}
+        <div className="col-span-2 my-2">
+            <div className="relative bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 h-12 flex items-center overflow-hidden pr-2">
+                <div className="h-full bg-gold-500 w-12 flex items-center justify-center shrink-0 z-10">
+                    <i data-lucide="megaphone" className="w-5 h-5 text-white animate-pulse-gold"></i>
+                </div>
+                {/* Dekoratif üçgen */}
+                <div className="w-0 h-0 border-t-[48px] border-t-gold-500 border-r-[20px] border-r-transparent absolute left-0 top-0 z-0"></div>
+                
+                <div className={`flex-1 ml-4 text-sm font-medium text-slate-700 dark:text-slate-200 transition-opacity duration-500 ${fade ? 'opacity-100' : 'opacity-0'}`}>
+                    {/* Tek satıra sığmayanları kesmek yerine kayan yazı mantığı eklenebilir ama clean durması için truncate kullanıyoruz. Tıklanınca tamamı okunabilir. */}
+                    <div className="truncate pr-2">{ANNOUNCEMENTS[index]}</div>
+                </div>
             </div>
         </div>
     );
 };
 
-const InstallBanner = ({ onInstall, onClose }) => (
-    <div className="fixed bottom-0 left-0 right-0 z-[60] p-4 animate-fade-in">
-        <div className="bg-slate-900 dark:bg-slate-800 text-white p-4 rounded-2xl shadow-2xl border-t-4 border-gold-500 flex flex-col gap-3 relative">
-            <button onClick={onClose} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white">
-                <i data-lucide="x" className="w-4 h-4"></i>
-            </button>
-            <div className="flex items-start gap-3 pr-6">
-                <div className="bg-gold-500 p-2 rounded-xl text-slate-900 shrink-0">
-                    <i data-lucide="download" className="w-6 h-6"></i>
+// --- YÜKLEME BANNERI (Mantık Güncellendi) ---
+const InstallBanner = ({ onInstall, onClose, show }) => {
+    if (!show) return null;
+
+    return (
+        <div className="fixed bottom-0 left-0 right-0 z-[60] p-4 animate-fade-in-up">
+            <div className="bg-slate-900 dark:bg-slate-800 text-white p-4 rounded-2xl shadow-2xl border-t-4 border-gold-500 flex flex-col gap-3 relative">
+                <button onClick={onClose} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white bg-white/10 rounded-full">
+                    <i data-lucide="x" className="w-4 h-4"></i>
+                </button>
+                <div className="flex items-start gap-3 pr-6">
+                    <div className="bg-gold-500 p-2.5 rounded-xl text-slate-900 shrink-0 shadow-lg shadow-gold-500/20">
+                        <i data-lucide="download" className="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h4 className="font-bold text-gold-400">Uygulamayı Yükle</h4>
+                        <p className="text-xs text-slate-300 mt-1 leading-relaxed opacity-90">
+                            Çevrimdışı kullanım için rehberi telefonunuza indirin.
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h4 className="font-bold text-gold-400">Uygulamayı Yükle</h4>
-                    <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                        İnternet bağlantısı olmadan (Offline) kullanabilmek için uygulamayı telefonunuza yüklemeniz gerekmektedir.
-                    </p>
-                </div>
+                <button onClick={onInstall} className="w-full bg-gradient-to-r from-gold-500 to-amber-500 hover:from-gold-400 hover:to-amber-400 active:scale-95 text-slate-900 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
+                    <i data-lucide="smartphone" className="w-5 h-5"></i>
+                    Ücretsiz Yükle
+                </button>
             </div>
-            <button onClick={onInstall} className="w-full bg-gold-500 hover:bg-gold-600 active:scale-95 text-slate-900 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
-                <i data-lucide="smartphone" className="w-5 h-5"></i>
-                Ücretsiz Yükle
-            </button>
         </div>
-    </div>
-);
+    );
+};
 
 const MenuCard = ({ icon, label, subLabel, colorClass, onClick, featured }) => (
     <button 
         onClick={onClick}
-        className={`group relative flex flex-col items-start p-5 rounded-2xl premium-card transition-all duration-300 hover:scale-[1.02] active:scale-95 text-left w-full h-full overflow-hidden ${featured ? 'col-span-2 bg-gradient-to-br from-gold-500/10 to-transparent border-gold-500/30' : ''}`}
+        className={`group relative flex flex-col items-start p-5 rounded-2xl premium-card transition-all duration-300 hover:scale-[1.02] active:scale-95 text-left w-full h-full overflow-hidden border border-slate-100 dark:border-slate-700/50 ${featured ? 'col-span-2 bg-gradient-to-br from-gold-50/50 to-white dark:from-gold-900/10 dark:to-slate-800 border-gold-200 dark:border-gold-500/20' : 'bg-white dark:bg-slate-800'}`}
     >
-        <div className={`p-3 rounded-xl mb-3 ${colorClass} bg-opacity-10 dark:bg-opacity-20 group-hover:bg-opacity-20 transition-colors`}>
+        <div className={`p-3 rounded-xl mb-3 ${colorClass} bg-opacity-10 dark:bg-opacity-20 group-hover:bg-opacity-25 transition-colors shadow-sm`}>
             <i data-lucide={icon} className={`w-6 h-6 ${colorClass.replace('bg-', 'text-')}`}></i>
         </div>
         <span className="text-sm font-bold text-slate-800 dark:text-slate-100 font-serif">{label}</span>
-        {subLabel && <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">{subLabel}</span>}
-        <i data-lucide={icon} className="absolute -right-6 -bottom-6 w-24 h-24 opacity-5 text-current transform rotate-12"></i>
+        {subLabel && <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-medium">{subLabel}</span>}
+        
+        {/* Dekoratif Arkaplan İkonu */}
+        <i data-lucide={icon} className="absolute -right-4 -bottom-4 w-20 h-20 opacity-[0.03] dark:opacity-[0.05] text-current transform rotate-12 pointer-events-none"></i>
     </button>
 );
 
@@ -203,26 +316,6 @@ const RouteVisualizer = () => {
                     ))}
                 </div>
             </div>
-        </div>
-    );
-};
-
-const Zikirmatik = () => {
-    const [count, setCount] = useState(0);
-    return (
-        <div className="flex flex-col items-center justify-center h-[calc(100vh-140px)] p-6 animate-fade-in">
-            <div className="relative mb-10">
-                <div className="w-72 h-72 rounded-full bg-gradient-to-b from-slate-50 to-slate-200 dark:from-slate-800 dark:to-slate-900 shadow-[inset_0_4px_10px_rgba(0,0,0,0.05)] flex items-center justify-center border-8 border-white dark:border-slate-700 ring-4 ring-gold-500/20">
-                    <div className="text-center">
-                        <span className="block text-7xl font-mono font-bold text-slate-700 dark:text-gold-500 tracking-tighter drop-shadow-sm">{count}</span>
-                        <span className="text-xs uppercase tracking-widest text-slate-400 mt-2 font-bold">Zikir</span>
-                    </div>
-                </div>
-                <button onClick={() => setCount(0)} className="absolute top-0 right-0 w-12 h-12 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center text-red-500 hover:bg-red-100 transition shadow-sm border border-red-100 dark:border-red-900"><i data-lucide="rotate-ccw" className="w-5 h-5"></i></button>
-            </div>
-            <button onClick={() => {setCount(c => c+1); if(navigator.vibrate) navigator.vibrate(40);}} className="w-full max-w-xs py-5 rounded-2xl bg-gradient-to-r from-gold-500 to-gold-600 text-white text-xl font-bold shadow-xl shadow-gold-500/30 active:scale-95 transition-all flex items-center justify-center gap-2">
-                <i data-lucide="fingerprint" className="w-6 h-6"></i> ZİKİR ÇEK
-            </button>
         </div>
     );
 };
@@ -425,37 +518,6 @@ const WeatherWidget = () => {
     );
 };
 
-// --- YENİ ÖZELLİK: ESMA-ÜL HÜSNA ---
-const EsmaulHusna = () => {
-    const [current, setCurrent] = useState(0);
-
-    return (
-        <div className="flex flex-col items-center justify-center h-[calc(100vh-140px)] p-6 animate-fade-in">
-            <div className="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-8 text-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-gold-400 to-gold-600"></div>
-                <h2 className="text-4xl font-serif font-bold text-gold-600 dark:text-gold-400 mb-4">{ESMA_DATA[current].name}</h2>
-                <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed">{ESMA_DATA[current].meaning}</p>
-                
-                <div className="mt-8 flex justify-center gap-4">
-                    <button 
-                        onClick={() => setCurrent(prev => (prev - 1 + ESMA_DATA.length) % ESMA_DATA.length)}
-                        className="p-3 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition"
-                    >
-                        <i data-lucide="arrow-left" className="w-6 h-6"></i>
-                    </button>
-                    <button 
-                        onClick={() => setCurrent(prev => (prev + 1) % ESMA_DATA.length)}
-                        className="p-3 rounded-full bg-gold-500 text-white shadow-lg shadow-gold-500/30 hover:bg-gold-600 transition"
-                    >
-                        <i data-lucide="arrow-right" className="w-6 h-6"></i>
-                    </button>
-                </div>
-                <div className="mt-4 text-xs text-slate-400 font-mono">{current + 1} / {ESMA_DATA.length}</div>
-            </div>
-        </div>
-    );
-};
-
 // --- YENİ ÖZELLİK: ACİL NUMARALAR ---
 const EmergencyContacts = () => {
     return (
@@ -483,20 +545,6 @@ const EmergencyContacts = () => {
 
 // --- HAKKINDA VE BİLDİRİM (YENİ TASARIM) ---
 const About = () => {
-    const handleNotification = () => {
-        if (!("Notification" in window)) {
-            alert("Tarayıcınız bildirimleri desteklemiyor.");
-        } else if (Notification.permission === "granted") {
-            new Notification("Test Bildirimi", { body: "Bildirimler zaten açık!", icon: "icons/icon-192.png" });
-        } else if (Notification.permission !== "denied") {
-            Notification.requestPermission().then((permission) => {
-                if (permission === "granted") {
-                    new Notification("Karayolu Umre Rehberi", { body: "Bildirimler başarıyla açıldı!", icon: "icons/icon-192.png" });
-                }
-            });
-        }
-    };
-
     return (
         <div className="p-4 pb-24 animate-fade-in space-y-6">
             {/* Geliştirici Profil Kartı */}
@@ -531,18 +579,6 @@ const About = () => {
                             </p>
                          </div>
                     </div>
-
-                    <div className="mt-6 flex flex-col gap-3">
-                         <button onClick={handleNotification} className="w-full p-4 bg-slate-800 dark:bg-slate-700 text-white rounded-xl flex items-center justify-center gap-2 border border-slate-700 active:scale-95 transition-transform shadow-lg shadow-slate-900/20">
-                            <i data-lucide="bell" className="w-5 h-5"></i>
-                            <span className="font-bold">Bildirimleri Aç</span>
-                        </button>
-                    </div>
-                    
-                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
-                        <p className="text-xs text-slate-400">Karayolu Sürümü v2.1</p>
-                        <p className="text-[10px] text-slate-300 mt-1">Allah Rızası İçin Ücretsizdir</p>
-                    </div>
                 </div>
             </div>
         </div>
@@ -554,31 +590,65 @@ const SimplePage = ({ title, children }) => (<div className="p-4 pb-20 space-y-4
 // --- ANA UYGULAMA (APP) ---
 const App = () => {
     const [activeView, setActiveView] = useState('dashboard');
-    const [isDark, setIsDark] = useState(false);
     const [installPrompt, setInstallPrompt] = useState(null);
     const [showInstallBanner, setShowInstallBanner] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+    
+    // Uygulama Ayarları State'i
+    const [settings, setSettings] = useState(() => {
+        const saved = localStorage.getItem('app_settings');
+        return saved ? JSON.parse(saved) : {
+            fontSize: 'medium', // small, medium, large
+            theme: 'light',
+            notifications: false,
+            location: false
+        };
+    });
 
+    // İkonları yenileme
     useEffect(() => {
         if(window.lucide) window.lucide.createIcons();
-    }, [activeView]);
+    }, [activeView, showSettings, showInstallBanner, settings]);
 
+    // Tema Değişikliği ve Ayar Kaydı
     useEffect(() => {
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            setIsDark(true); document.documentElement.classList.add('dark');
+        localStorage.setItem('app_settings', JSON.stringify(settings));
+        
+        // Tema uygula
+        if (settings.theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
         }
 
+        // Font boyutu uygula (Root elemente class ekleyerek)
+        const root = document.documentElement;
+        root.classList.remove('text-sm', 'text-base', 'text-lg');
+        if (settings.fontSize === 'small') root.classList.add('text-sm');
+        else if (settings.fontSize === 'large') root.classList.add('text-lg');
+        else root.classList.add('text-base');
+
+    }, [settings]);
+
+    // Install Prompt Logic
+    useEffect(() => {
         const handler = (e) => {
             e.preventDefault();
             setInstallPrompt(e);
-            setShowInstallBanner(true); 
+            
+            // Daha önce kapatılmadıysa veya yüklenmediyse göster
+            const isDismissed = localStorage.getItem('install_dismissed');
+            if (!isDismissed) {
+                setShowInstallBanner(true);
+            }
         };
         window.addEventListener('beforeinstallprompt', handler);
 
-        // --- DÜZELTME: TEST AMAÇLI ZORLAMA ---
-        // Tarayıcı veya önizleme ortamında "beforeinstallprompt" tetiklenmeyebilir.
-        // Tasarımı görebilmeniz için banner'ı 3 saniye sonra otomatik açıyoruz.
+        // TEST AMAÇLI: Eğer "install_dismissed" yoksa 3 saniye sonra banner'ı aç
+        // (Gerçek ortamda bu setTimeout'u kaldırabilirsiniz, sadece tarayıcıda görmek için)
         const timer = setTimeout(() => {
-            setShowInstallBanner(true);
+            const isDismissed = localStorage.getItem('install_dismissed');
+            if (!isDismissed) setShowInstallBanner(true);
         }, 3000);
 
         return () => {
@@ -589,41 +659,36 @@ const App = () => {
 
     const handleInstallClick = () => {
         if (!installPrompt) {
-            // Test ortamında olduğumuz için uyarı verip kapatıyoruz
-            alert("Önizleme Modu: Gerçek bir cihazda burada uygulama yükleme penceresi açılacaktır.");
+            alert("Önizleme Modu: Gerçek cihazda yükleme penceresi açılır.");
             setShowInstallBanner(false);
+            localStorage.setItem('install_dismissed', 'true'); // Yüklendi varsayarak gizle
             return;
         }
         installPrompt.prompt();
         installPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
                 setShowInstallBanner(false);
+                localStorage.setItem('install_dismissed', 'true');
             }
             setInstallPrompt(null);
         });
     };
 
-    const toggleTheme = () => {
-        setIsDark(!isDark);
-        if (!isDark) { document.documentElement.classList.add('dark'); localStorage.setItem('theme', 'dark'); } 
-        else { document.documentElement.classList.remove('dark'); localStorage.setItem('theme', 'light'); }
+    const handleDismissInstall = () => {
+        setShowInstallBanner(false);
+        localStorage.setItem('install_dismissed', 'true');
+    };
+
+    const updateSettings = (key, value) => {
+        setSettings(prev => ({ ...prev, [key]: value }));
     };
 
     const renderView = () => {
         switch(activeView) {
             case 'dashboard': return (
                 <div className="p-4 grid grid-cols-2 gap-3 pb-24 animate-fade-in">
-                    {/* APP BRANDING - Modern & Minimalist Typographic */}
-                    <div className="col-span-2 py-4 px-2 flex flex-col items-center justify-center text-center">
-                        <span className="text-[10px] font-bold tracking-[0.2em] text-gold-600 dark:text-gold-500 uppercase mb-1">
-                            Karayolu İle
-                        </span>
-                        <h1 className="font-serif text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">
-                            Umre Rehberi
-                        </h1>
-                        <div className="w-12 h-1 bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-700 to-transparent mt-3"></div>
-                    </div>
-
+                    
+                    {/* Öne Çıkan Kart */}
                     <div className="col-span-2 mb-2">
                         <div onClick={() => setActiveView('route')} className="relative overflow-hidden bg-slate-900 rounded-2xl p-6 text-white shadow-xl cursor-pointer group border border-slate-700">
                             <div className="relative z-10 flex justify-between items-center">
@@ -632,7 +697,7 @@ const App = () => {
                                     <h2 className="text-3xl font-serif font-bold text-white mb-1">Yolculuk Rotası</h2>
                                     <p className="text-slate-400 text-sm">Cilvegözü <span className="text-gold-500">➔</span> Mekke</p>
                                 </div>
-                                <div className="w-12 h-1 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-slate-900 transition-colors"><i data-lucide="arrow-right" className="w-6 h-6"></i></div>
+                                <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-slate-900 transition-colors"><i data-lucide="arrow-right" className="w-6 h-6"></i></div>
                             </div>
                             <i data-lucide="map" className="absolute -right-4 -bottom-8 w-40 h-40 text-white opacity-5 rotate-12"></i>
                         </div>
@@ -641,11 +706,10 @@ const App = () => {
                     <AnnouncementBar />
 
                     <MenuCard icon="book-open" label="Umre Rehberi" subLabel="Adım adım ibadet" colorClass="bg-emerald-500 text-emerald-600" onClick={() => setActiveView('guide')} />
-                    <MenuCard icon="list" label="Zikirmatik" subLabel="Dijital Tesbih" colorClass="bg-gold-500 text-gold-600" onClick={() => setActiveView('zikir')} />
+                    {/* Zikirmatik ve Esma-ül Hüsna Kaldırıldı */}
                     <MenuCard icon="map-pin" label="Gezilecekler" subLabel="Mekke & Medine" colorClass="bg-blue-500 text-blue-600" onClick={() => setActiveView('places')} />
                     <MenuCard icon="clock" label="Namaz Vakitleri" subLabel="Ümmü'l-Kurra" colorClass="bg-cyan-500 text-cyan-600" onClick={() => setActiveView('times')} />
                     <MenuCard icon="sun" label="Hava Durumu" subLabel="Mekke & Medine" colorClass="bg-orange-500 text-orange-600" onClick={() => setActiveView('weather')} />
-                    <MenuCard icon="star" label="Esma-ül Hüsna" subLabel="Zikir & Anlam" colorClass="bg-indigo-500 text-indigo-600" onClick={() => setActiveView('names')} />
                     <MenuCard icon="heart-handshake" label="Dualar" subLabel="Sesli & Metin" colorClass="bg-rose-500 text-rose-600" onClick={() => setActiveView('prayers')} />
                     <MenuCard icon="briefcase" label="İhtiyaç Listesi" subLabel="Bagaj & İlaç" colorClass="bg-purple-500 text-purple-600" onClick={() => setActiveView('luggage')} />
                     <MenuCard icon="arrow-left-right" label="Döviz" subLabel="Çevrimdışı" colorClass="bg-green-600 text-green-700" onClick={() => setActiveView('currency')} />
@@ -655,7 +719,6 @@ const App = () => {
                 </div>
             );
             case 'route': return <RouteVisualizer />;
-            case 'zikir': return <Zikirmatik />;
             case 'guide': return <UmrahGuideDetail />;
             case 'about': return <About />;
             case 'currency': return <CurrencyConverter />;
@@ -663,7 +726,6 @@ const App = () => {
             case 'documents': return <ChecklistManager type="documents" title="Resmi Evraklar" />;
             case 'times': return <PrayerTimesDetail />;
             case 'weather': return <WeatherWidget />;
-            case 'names': return <EsmaulHusna />;
             case 'contacts': return <EmergencyContacts />;
             case 'places': return <SimplePage title="Gezilecekler"><p className="text-slate-600 dark:text-slate-300">Uhud Dağı, Kuba Mescidi, Sevr Mağarası...</p></SimplePage>;
             case 'prayers': return <SimplePage title="Dualar"><p className="text-slate-600 dark:text-slate-300">Burada sesli ve yazılı dualar listelenecek.</p></SimplePage>;
@@ -671,14 +733,38 @@ const App = () => {
         }
     };
 
+    // Dinamik Başlık Belirleme
+    const getHeaderTitle = () => {
+        if (activeView === 'dashboard') return 'Karayolu İle Umre Rehberi';
+        if (activeView === 'route') return 'Yolculuk Rotası';
+        if (activeView === 'guide') return 'Umre Rehberi';
+        // ... diğer durumlar ...
+        return 'Rehber';
+    };
+
     return (
-        <div className="min-h-screen transition-colors duration-500 relative">
-            <Header title={activeView === 'dashboard' ? 'Ana Menü' : 'Rehber'} isDark={isDark} toggleTheme={toggleTheme} goBack={activeView !== 'dashboard' ? () => setActiveView('dashboard') : null} />
+        <div className={`min-h-screen transition-colors duration-500 relative ${settings.fontSize === 'small' ? 'text-sm' : settings.fontSize === 'large' ? 'text-lg' : 'text-base'}`}>
+            <Header 
+                title={getHeaderTitle()} 
+                goBack={activeView !== 'dashboard' ? () => setActiveView('dashboard') : null}
+                onOpenSettings={() => setShowSettings(true)}
+                showSettingsBtn={true}
+            />
+            
             <main className="max-w-3xl mx-auto">{renderView()}</main>
             
-            {showInstallBanner && (
-                <InstallBanner onInstall={handleInstallClick} onClose={() => setShowInstallBanner(false)} />
-            )}
+            <SettingsModal 
+                isOpen={showSettings} 
+                onClose={() => setShowSettings(false)} 
+                settings={settings}
+                updateSettings={updateSettings}
+            />
+
+            <InstallBanner 
+                show={showInstallBanner}
+                onInstall={handleInstallClick} 
+                onClose={handleDismissInstall} 
+            />
         </div>
     );
 };
