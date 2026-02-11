@@ -41,15 +41,36 @@ const CHECKLISTS_DATA = {
     ]
 };
 
-// --- NAMAZ VAKİTLERİ VERİSİ ---
-const PRAYER_DATA = {
-    Mekke: { 
-        Imsak: "05:12", Gunes: "06:30", Ogle: "12:25", Ikindi: "15:48", Aksam: "18:15", Yatsi: "19:45" 
+// --- SÖZLÜK VERİLERİ (YENİ) ---
+const PHRASES_DATA = [
+    {
+        category: "Acil Durum",
+        items: [
+            { tr: "Yardım edin!", en: "Help me!", ar: "Sa'iduni! (ساعدوني)" },
+            { tr: "Doktor nerede?", en: "Where is the doctor?", ar: "Ayna at-tabib? (أين الطبيب؟)" },
+            { tr: "Pasaportumu kaybettim.", en: "I lost my passport.", ar: "Ada'tu jawaza safari. (أضعت جواز سفري)" },
+            { tr: "Polis çağırın.", en: "Call the police.", ar: "Ittasil bi'l-shurta. (اتصل بالشرطة)" }
+        ]
     },
-    Medine: { 
-        Imsak: "05:18", Gunes: "06:38", Ogle: "12:30", Ikindi: "15:52", Aksam: "18:20", Yatsi: "19:50" 
+    {
+        category: "Ulaşım & Konum",
+        items: [
+            { tr: "Harem nerede?", en: "Where is the Haram?", ar: "Ayna al-Haram? (أين الحرم؟)" },
+            { tr: "Otele gitmek istiyorum.", en: "I want to go to the hotel.", ar: "Uridu an azhaba ila al-funduq. (أريد أن أذهب إلى الفندق)" },
+            { tr: "Tuvalet nerede?", en: "Where is the restroom?", ar: "Ayna al-hammam? (أين الحمام؟)" },
+            { tr: "Taksi!", en: "Taxi!", ar: "Sayyara ujra! (سيارة أجرة)" }
+        ]
+    },
+    {
+        category: "Alışveriş & İletişim",
+        items: [
+            { tr: "Ne kadar?", en: "How much?", ar: "Bikam haza? (بكم هذا؟)" },
+            { tr: "Çok pahalı.", en: "Too expensive.", ar: "Ghali jiddan. (غالي جدا)" },
+            { tr: "İndirim yap.", en: "Make a discount.", ar: "A'tini khasm. (أعطني خصم)" },
+            { tr: "Teşekkür ederim.", en: "Thank you.", ar: "Shukran. (شكراً)" }
+        ]
     }
-};
+];
 
 // --- ACİL NUMARALAR ---
 const EMERGENCY_NUMBERS = [
@@ -179,7 +200,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
 
                     <div className="pt-4 text-center border-t border-slate-100 dark:border-slate-800">
                         <p className="text-xs font-bold text-slate-400">Karayolu Umre Rehberi</p>
-                        <p className="text-[10px] text-slate-300 font-mono mt-1">Sürüm 2.3</p>
+                        <p className="text-[10px] text-slate-300 font-mono mt-1">Sürüm 2.4</p>
                     </div>
                 </div>
             </div>
@@ -345,28 +366,151 @@ const RouteVisualizer = () => {
     );
 };
 
+// --- GÜNCEL DÖVİZ ÇEVİRİCİ ---
 const CurrencyConverter = () => {
-    const [amount, setAmount] = useState(1);
-    const [rate, setRate] = useState(8.95); 
+    // Başlangıç değerleri
+    const [sar, setSar] = useState(1);
+    const [usd, setUsd] = useState(0);
+    const [tryVal, setTryVal] = useState(0);
+    const [rates, setRates] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [isOffline, setIsOffline] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState(null);
+
+    // Kurları Çekme
+    useEffect(() => {
+        const fetchRates = async () => {
+            try {
+                // API: SAR (Riyal) bazlı kurlar
+                const response = await fetch('https://api.exchangerate-api.com/v4/latest/SAR');
+                if (!response.ok) throw new Error("Veri çekilemedi");
+                const data = await response.json();
+                
+                // State güncelleme
+                setRates(data.rates);
+                setLastUpdated(new Date().toLocaleString());
+                setLoading(false);
+                setIsOffline(false);
+                
+                // LocalStorage'a kaydet
+                localStorage.setItem('currency_rates', JSON.stringify({
+                    rates: data.rates,
+                    date: new Date().toLocaleString()
+                }));
+                
+                // İlk hesaplama
+                setUsd((1 * data.rates.USD).toFixed(2));
+                setTryVal((1 * data.rates.TRY).toFixed(2));
+                
+            } catch (error) {
+                console.log("Offline mod veya API hatası:", error);
+                const saved = localStorage.getItem('currency_rates');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    setRates(parsed.rates);
+                    setLastUpdated(parsed.date);
+                    setUsd((1 * parsed.rates.USD).toFixed(2));
+                    setTryVal((1 * parsed.rates.TRY).toFixed(2));
+                }
+                setLoading(false);
+                setIsOffline(true);
+            }
+        };
+
+        fetchRates();
+    }, []);
+
+    // Hesaplama Fonksiyonu
+    const handleCalculate = (value, type) => {
+        if (!rates) return;
+        
+        let val = parseFloat(value);
+        if (isNaN(val)) val = 0;
+
+        if (type === 'SAR') {
+            setSar(val);
+            setUsd((val * rates.USD).toFixed(2));
+            setTryVal((val * rates.TRY).toFixed(2));
+        } else if (type === 'USD') {
+            setUsd(val);
+            const inSar = val / rates.USD;
+            setSar(inSar.toFixed(2));
+            setTryVal((inSar * rates.TRY).toFixed(2));
+        } else if (type === 'TRY') {
+            setTryVal(val);
+            const inSar = val / rates.TRY;
+            setSar(inSar.toFixed(2));
+            setUsd((inSar * rates.USD).toFixed(2));
+        }
+    };
 
     return (
         <div className="p-6 space-y-6 animate-fade-in">
             <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700">
-                <h3 className="text-lg font-bold mb-4 text-slate-800 dark:text-white">Döviz Çevirici</h3>
+                <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-white">Döviz Çevirici</h3>
+                    {loading ? (
+                        <i data-lucide="loader-2" className="w-4 h-4 animate-spin text-gold-500"></i>
+                    ) : (
+                        <div className="flex items-center gap-1">
+                            <i data-lucide={isOffline ? "wifi-off" : "wifi"} className={`w-3 h-3 ${isOffline ? "text-red-400" : "text-green-500"}`}></i>
+                            <span className="text-[10px] text-slate-400">{isOffline ? "Çevrimdışı" : "Canlı"}</span>
+                        </div>
+                    )}
+                </div>
+
                 <div className="space-y-4">
-                    <div>
-                        <label className="text-xs text-slate-500 mb-1 block">Miktar (SAR)</label>
-                        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full text-3xl font-bold bg-transparent border-b border-slate-200 dark:border-slate-700 focus:outline-none focus:border-gold-500 text-slate-900 dark:text-white" />
+                    {/* SAR Input */}
+                    <div className="relative group">
+                        <label className="text-[10px] uppercase font-bold text-slate-400 mb-1 block">Suudi Arabistan Riyali</label>
+                        <div className="flex items-center bg-slate-50 dark:bg-slate-900 rounded-xl p-1 border border-transparent focus-within:border-gold-500 transition-colors">
+                            <div className="p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm font-bold text-gold-600">SAR</div>
+                            <input 
+                                type="number" 
+                                value={sar} 
+                                onChange={(e) => handleCalculate(e.target.value, 'SAR')} 
+                                className="w-full bg-transparent p-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100 focus:outline-none"
+                            />
+                        </div>
                     </div>
-                    <div>
-                        <label className="text-xs text-slate-500 mb-1 block">Kur (1 SAR = ? TL)</label>
-                        <input type="number" value={rate} onChange={(e) => setRate(e.target.value)} className="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-lg" />
+
+                    {/* USD Input */}
+                    <div className="relative group">
+                        <label className="text-[10px] uppercase font-bold text-slate-400 mb-1 block">Amerikan Doları</label>
+                        <div className="flex items-center bg-slate-50 dark:bg-slate-900 rounded-xl p-1 border border-transparent focus-within:border-green-500 transition-colors">
+                            <div className="p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm font-bold text-green-600">USD</div>
+                            <input 
+                                type="number" 
+                                value={usd} 
+                                onChange={(e) => handleCalculate(e.target.value, 'USD')} 
+                                className="w-full bg-transparent p-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100 focus:outline-none"
+                            />
+                        </div>
                     </div>
-                    <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-                        <p className="text-sm text-slate-500">Sonuç (TL):</p>
-                        <p className="text-4xl font-bold text-gold-600 dark:text-gold-400">{(amount * rate).toFixed(2)} ₺</p>
+
+                    {/* TRY Input */}
+                    <div className="relative group">
+                        <label className="text-[10px] uppercase font-bold text-slate-400 mb-1 block">Türk Lirası</label>
+                        <div className="flex items-center bg-slate-50 dark:bg-slate-900 rounded-xl p-1 border border-transparent focus-within:border-red-500 transition-colors">
+                            <div className="p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm font-bold text-red-600">TRY</div>
+                            <input 
+                                type="number" 
+                                value={tryVal} 
+                                onChange={(e) => handleCalculate(e.target.value, 'TRY')} 
+                                className="w-full bg-transparent p-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100 focus:outline-none"
+                            />
+                        </div>
                     </div>
                 </div>
+
+                {isOffline && (
+                    <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-100 dark:border-orange-800 flex gap-2 items-start">
+                        <i data-lucide="alert-circle" className="w-4 h-4 text-orange-500 shrink-0 mt-0.5"></i>
+                        <p className="text-[10px] text-orange-700 dark:text-orange-300">
+                            İnternet bağlantısı yok. Gösterilen değerler <strong>{lastUpdated}</strong> tarihli son verilere dayanmaktadır. Güncel piyasa ile farklılık gösterebilir.
+                        </p>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -398,6 +542,52 @@ const ChecklistManager = ({ type, title }) => {
                     <span className={`${item.checked ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-200'}`}>{item.label}</span>
                 </div>
             ))}
+        </div>
+    );
+};
+
+// --- PRATİK SÖZLÜK (YENİ ÖZELLİK) ---
+const TranslationGuide = () => {
+    const [activeCat, setActiveCat] = useState(0);
+
+    return (
+        <div className="p-4 pb-24 animate-fade-in space-y-4">
+            <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-2xl text-white shadow-lg relative overflow-hidden mb-6">
+                <div className="relative z-10">
+                    <h3 className="font-serif text-xl font-bold text-gold-400">Pratik Sözlük</h3>
+                    <p className="text-slate-400 text-xs mt-1">Acil durum ve günlük konuşmalar</p>
+                </div>
+                <i data-lucide="languages" className="absolute right-4 bottom-4 w-16 h-16 text-white opacity-10 rotate-12"></i>
+            </div>
+
+            {/* Kategori Seçici */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {PHRASES_DATA.map((cat, idx) => (
+                    <button 
+                        key={idx}
+                        onClick={() => setActiveCat(idx)}
+                        className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold transition-all ${activeCat === idx ? 'bg-gold-500 text-slate-900 shadow-lg shadow-gold-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-700'}`}
+                    >
+                        {cat.category}
+                    </button>
+                ))}
+            </div>
+
+            {/* İfadeler Listesi */}
+            <div className="space-y-3">
+                {PHRASES_DATA[activeCat].items.map((item, idx) => (
+                    <div key={idx} className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm flex flex-col gap-2 relative overflow-hidden group">
+                        <div className="flex justify-between items-start">
+                            <span className="font-bold text-slate-800 dark:text-slate-100">{item.tr}</span>
+                            <span className="text-[10px] bg-slate-100 dark:bg-slate-700 px-2 py-0.5 rounded text-slate-500 font-medium">EN: {item.en}</span>
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-slate-50 dark:border-slate-700/50">
+                            <p className="text-xl text-right font-serif text-gold-600 dark:text-gold-400 leading-relaxed" dir="rtl">{item.ar}</p>
+                        </div>
+                        <div className="absolute left-0 top-0 w-1 h-full bg-slate-200 dark:bg-slate-700 group-hover:bg-gold-500 transition-colors"></div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
@@ -439,12 +629,79 @@ const UmrahGuideDetail = () => {
     );
 };
 
+// --- GÜNCEL NAMAZ VAKİTLERİ ---
 const PrayerTimesDetail = () => {
     const [city, setCity] = useState("Mekke");
+    const [times, setTimes] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [isOffline, setIsOffline] = useState(false);
+    const [dataDate, setDataDate] = useState("");
+
     const [reminders, setReminders] = useState(() => {
         const saved = localStorage.getItem("prayer_reminders");
         return saved ? JSON.parse(saved) : {};
     });
+
+    // API'den Namaz Vakti Çekme
+    useEffect(() => {
+        const fetchPrayerTimes = async () => {
+            setLoading(true);
+            try {
+                // Aladhan API - Method 4 (Umm al-Qura, Makkah)
+                const today = new Date();
+                const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
+                
+                const response = await fetch(`http://api.aladhan.com/v1/timingsByCity?city=${city}&country=Saudi Arabia&method=4`);
+                if (!response.ok) throw new Error("API Hatası");
+                
+                const data = await response.json();
+                const apiTimes = data.data.timings;
+                const apiDate = data.data.date.readable;
+
+                // API verisini bizim formatımıza çevir
+                const formattedTimes = {
+                    Imsak: apiTimes.Fajr,
+                    Gunes: apiTimes.Sunrise,
+                    Ogle: apiTimes.Dhuhr,
+                    Ikindi: apiTimes.Asr,
+                    Aksam: apiTimes.Maghrib,
+                    Yatsi: apiTimes.Isha
+                };
+
+                setTimes(formattedTimes);
+                setDataDate(apiDate);
+                setIsOffline(false);
+
+                // Kaydet
+                localStorage.setItem(`prayer_times_${city}`, JSON.stringify({
+                    times: formattedTimes,
+                    date: apiDate,
+                    timestamp: new Date().getTime()
+                }));
+
+            } catch (error) {
+                console.log("Offline mod:", error);
+                const saved = localStorage.getItem(`prayer_times_${city}`);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    setTimes(parsed.times);
+                    setDataDate(parsed.date);
+                } else {
+                    // Hiç veri yoksa varsayılan (eski statik veri) bir fallback
+                     const fallback = city === 'Mekke' 
+                        ? { Imsak: "05:12", Gunes: "06:30", Ogle: "12:25", Ikindi: "15:48", Aksam: "18:15", Yatsi: "19:45" }
+                        : { Imsak: "05:18", Gunes: "06:38", Ogle: "12:30", Ikindi: "15:52", Aksam: "18:20", Yatsi: "19:50" };
+                    setTimes(fallback);
+                    setDataDate("Varsayılan Veri");
+                }
+                setIsOffline(true);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchPrayerTimes();
+    }, [city]);
 
     useEffect(() => {
         localStorage.setItem("prayer_reminders", JSON.stringify(reminders));
@@ -477,13 +734,16 @@ const PrayerTimesDetail = () => {
                 <div className="bg-gold-500 p-4 text-white flex justify-between items-center">
                     <div>
                         <h3 className="font-serif font-bold text-lg">Namaz Vakitleri</h3>
-                        <p className="text-xs opacity-80">Ümmü'l-Kurra Üniversitesi, {city}</p>
+                        <div className="flex items-center gap-1 opacity-90">
+                            {loading ? <i data-lucide="loader-2" className="w-3 h-3 animate-spin"></i> : null}
+                            <p className="text-xs">{city} - {dataDate}</p>
+                        </div>
                     </div>
                     <i data-lucide="clock" className="w-6 h-6 opacity-50"></i>
                 </div>
                 
                 <div className="divide-y divide-slate-100 dark:divide-slate-700">
-                    {Object.entries(PRAYER_DATA[city]).map(([vakit, saat]) => (
+                    {times && Object.entries(times).map(([vakit, saat]) => (
                         <div key={vakit} className="p-4 flex items-center justify-between">
                             <div>
                                 <span className="block text-xs text-slate-400 uppercase tracking-wider">{vakit}</span>
@@ -509,9 +769,14 @@ const PrayerTimesDetail = () => {
                 </div>
             </div>
             
-            <p className="text-center text-xs text-slate-400 mt-2">
-                * Vakitler internet bağlantısı olduğunda güncellenir. Çevrimdışı modda son veriler kullanılır.
-            </p>
+            {isOffline && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/50">
+                    <i data-lucide="wifi-off" className="w-4 h-4 text-red-500"></i>
+                    <p className="text-xs text-red-700 dark:text-red-300 leading-tight">
+                        İnternet bağlantısı yok. Gösterilen vakitler <strong>{dataDate}</strong> tarihinde alınan son verilere aittir. Lütfen imsakiyenizi kontrol ediniz.
+                    </p>
+                </div>
+            )}
         </div>
     );
 };
@@ -738,13 +1003,14 @@ const App = () => {
                     <AnnouncementBar />
 
                     <MenuCard icon="book-open" label="Umre Rehberi" subLabel="Adım adım ibadet" colorClass="bg-emerald-500 text-emerald-600" onClick={() => setActiveView('guide')} />
-                    {/* Hava Durumu Kaldırıldı */}
+                    <MenuCard icon="languages" label="Pratik Sözlük" subLabel="Acil Durum & Konuşma" colorClass="bg-indigo-500 text-indigo-600" onClick={() => setActiveView('translations')} />
+                    
                     <MenuCard icon="map-pin" label="Gezilecekler" subLabel="Mekke & Medine" colorClass="bg-blue-500 text-blue-600" onClick={() => setActiveView('places')} />
                     <MenuCard icon="clock" label="Namaz Vakitleri" subLabel="Ümmü'l-Kurra" colorClass="bg-cyan-500 text-cyan-600" onClick={() => setActiveView('times')} />
-                    {/* Hava Durumu Widget'ı Buradan Kaldırıldı */}
+                    
                     <MenuCard icon="heart-handshake" label="Dualar" subLabel="Sesli & Metin" colorClass="bg-rose-500 text-rose-600" onClick={() => setActiveView('prayers')} />
                     <MenuCard icon="briefcase" label="İhtiyaç Listesi" subLabel="Bagaj & İlaç" colorClass="bg-purple-500 text-purple-600" onClick={() => setActiveView('luggage')} />
-                    <MenuCard icon="arrow-left-right" label="Döviz" subLabel="Çevrimdışı" colorClass="bg-green-600 text-green-700" onClick={() => setActiveView('currency')} />
+                    <MenuCard icon="arrow-left-right" label="Döviz" subLabel="Canlı / Çevrimdışı" colorClass="bg-green-600 text-green-700" onClick={() => setActiveView('currency')} />
                     <MenuCard icon="file-text" label="Evraklar" subLabel="Pasaport & Vize" colorClass="bg-slate-500 text-slate-600" onClick={() => setActiveView('documents')} />
                     <MenuCard icon="phone" label="Acil Numaralar" subLabel="Konsolosluk & Sağlık" colorClass="bg-red-500 text-red-600" onClick={() => setActiveView('contacts')} />
                     <MenuCard icon="info" label="Hakkında" subLabel="Geliştirici" colorClass="bg-slate-400 text-slate-500" onClick={() => setActiveView('about')} />
@@ -752,12 +1018,12 @@ const App = () => {
             );
             case 'route': return <RouteVisualizer />;
             case 'guide': return <UmrahGuideDetail />;
+            case 'translations': return <TranslationGuide />;
             case 'about': return <About />;
             case 'currency': return <CurrencyConverter />;
             case 'luggage': return <ChecklistManager type="luggage" title="İhtiyaç Listesi" />;
             case 'documents': return <ChecklistManager type="documents" title="Resmi Evraklar" />;
             case 'times': return <PrayerTimesDetail />;
-            // case 'weather': return <WeatherWidget />; // Hava durumu route'u da pasif bırakılabilir veya silinebilir
             case 'contacts': return <EmergencyContacts />;
             case 'places': return <SimplePage title="Gezilecekler"><p className="text-slate-600 dark:text-slate-300">Uhud Dağı, Kuba Mescidi, Sevr Mağarası...</p></SimplePage>;
             case 'prayers': return <SimplePage title="Dualar"><p className="text-slate-600 dark:text-slate-300">Burada sesli ve yazılı dualar listelenecek.</p></SimplePage>;
@@ -770,6 +1036,8 @@ const App = () => {
         if (activeView === 'dashboard') return 'LOGO_STYLE';
         if (activeView === 'route') return 'Yolculuk Rotası';
         if (activeView === 'guide') return 'Umre Rehberi';
+        if (activeView === 'translations') return 'Pratik Sözlük';
+        if (activeView === 'currency') return 'Döviz Çevirici';
         // ... diğer durumlar ...
         return 'Rehber';
     };
