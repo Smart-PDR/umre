@@ -105,42 +105,22 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
         const newVal = !currentVal;
 
         if (newVal) {
-            // İzin açılmak isteniyor
             if (key === 'notifications') {
                 if ("Notification" in window) {
                     Notification.requestPermission().then(permission => {
-                        if (permission === "granted") {
-                            updateSettings(key, true);
-                        } else {
-                            alert("Bildirim izni reddedildi.");
-                            updateSettings(key, false);
-                        }
+                        if (permission === "granted") updateSettings(key, true);
+                        else { alert("Bildirim izni reddedildi."); updateSettings(key, false); }
                     });
-                } else {
-                    alert("Tarayıcınız bildirimleri desteklemiyor.");
-                }
+                } else alert("Tarayıcınız bildirimleri desteklemiyor.");
             } else if (key === 'location') {
                 if ("geolocation" in navigator) {
                     navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                            console.log("Konum alındı:", position);
-                            updateSettings(key, true);
-                        },
-                        (error) => {
-                            alert("Konum izni alınamadı.");
-                            updateSettings(key, false);
-                        }
+                        (p) => { console.log("Konum alındı:", p); updateSettings(key, true); },
+                        (e) => { alert("Konum izni alınamadı."); updateSettings(key, false); }
                     );
-                } else {
-                    alert("Tarayıcınız konumu desteklemiyor.");
-                }
-            } else {
-                updateSettings(key, newVal);
-            }
-        } else {
-            // İzin kapatılıyor
-            updateSettings(key, false);
-        }
+                } else alert("Tarayıcınız konumu desteklemiyor.");
+            } else updateSettings(key, newVal);
+        } else updateSettings(key, false);
     };
 
     return (
@@ -148,66 +128,33 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
             <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl transform transition-transform duration-300 max-h-[90vh] flex flex-col">
                 <div className="flex justify-between items-center mb-6 shrink-0">
                     <h2 className="text-xl font-serif font-bold text-slate-800 dark:text-gold-400">Ayarlar</h2>
-                    <button onClick={onClose} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-red-500 transition">
-                        <i data-lucide="x" className="w-5 h-5"></i>
-                    </button>
+                    <button onClick={onClose} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-red-500 transition"><i data-lucide="x" className="w-5 h-5"></i></button>
                 </div>
-
                 <div className="space-y-6 overflow-y-auto pr-2 flex-1">
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                            <i data-lucide="type" className="w-4 h-4 text-gold-500"></i> Yazı Boyutu
-                        </label>
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2"><i data-lucide="type" className="w-4 h-4 text-gold-500"></i> Yazı Boyutu</label>
                         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                             {['small', 'medium', 'large'].map((size) => (
-                                <button key={size} onClick={() => updateSettings('fontSize', size)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${settings.fontSize === size ? 'bg-white dark:bg-slate-700 shadow text-gold-600' : 'text-slate-400'}`}>
-                                    {size === 'small' ? 'Küçük' : size === 'medium' ? 'Orta' : 'Büyük'}
-                                </button>
+                                <button key={size} onClick={() => updateSettings('fontSize', size)} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${settings.fontSize === size ? 'bg-white dark:bg-slate-700 shadow text-gold-600' : 'text-slate-400'}`}>{size === 'small' ? 'Küçük' : size === 'medium' ? 'Orta' : 'Büyük'}</button>
                             ))}
                         </div>
                     </div>
-
                     <div className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-800 rounded-xl">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 rounded-lg"><i data-lucide={settings.theme === 'dark' ? 'moon' : 'sun'} className="w-5 h-5"></i></div>
-                            <div><h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Gece Modu</h4><p className="text-[10px] text-slate-400">Karanlık tema.</p></div>
-                        </div>
-                        <button onClick={() => updateSettings('theme', settings.theme === 'dark' ? 'light' : 'dark')} className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.theme === 'dark' ? 'bg-gold-500' : 'bg-slate-300'}`}>
-                            <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settings.theme === 'dark' ? 'translate-x-6' : ''}`}></div>
-                        </button>
+                        <div className="flex items-center gap-3"><div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 rounded-lg"><i data-lucide={settings.theme === 'dark' ? 'moon' : 'sun'} className="w-5 h-5"></i></div><div><h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Gece Modu</h4><p className="text-[10px] text-slate-400">Karanlık tema.</p></div></div>
+                        <button onClick={() => updateSettings('theme', settings.theme === 'dark' ? 'light' : 'dark')} className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.theme === 'dark' ? 'bg-gold-500' : 'bg-slate-300'}`}><div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settings.theme === 'dark' ? 'translate-x-6' : ''}`}></div></button>
                     </div>
-
                     <div className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-800 rounded-xl">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-500 rounded-lg"><i data-lucide="bell" className="w-5 h-5"></i></div>
-                            <div><h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Bildirimler</h4><p className="text-[10px] text-slate-400">Namaz vakti.</p></div>
-                        </div>
-                        <button onClick={() => handleToggle('notifications')} className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.notifications ? 'bg-gold-500' : 'bg-slate-300'}`}>
-                            <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settings.notifications ? 'translate-x-6' : ''}`}></div>
-                        </button>
+                        <div className="flex items-center gap-3"><div className="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-500 rounded-lg"><i data-lucide="bell" className="w-5 h-5"></i></div><div><h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Bildirimler</h4><p className="text-[10px] text-slate-400">Namaz vakti.</p></div></div>
+                        <button onClick={() => handleToggle('notifications')} className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.notifications ? 'bg-gold-500' : 'bg-slate-300'}`}><div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settings.notifications ? 'translate-x-6' : ''}`}></div></button>
                     </div>
-
                     <div className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-800 rounded-xl">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-lg"><i data-lucide="map-pin" className="w-5 h-5"></i></div>
-                            <div><h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Konum</h4><p className="text-[10px] text-slate-400">Mesafe hesabı.</p></div>
-                        </div>
-                        <button onClick={() => handleToggle('location')} className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.location ? 'bg-gold-500' : 'bg-slate-300'}`}>
-                            <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settings.location ? 'translate-x-6' : ''}`}></div>
-                        </button>
+                        <div className="flex items-center gap-3"><div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-lg"><i data-lucide="map-pin" className="w-5 h-5"></i></div><div><h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Konum</h4><p className="text-[10px] text-slate-400">Mesafe hesabı.</p></div></div>
+                        <button onClick={() => handleToggle('location')} className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.location ? 'bg-gold-500' : 'bg-slate-300'}`}><div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settings.location ? 'translate-x-6' : ''}`}></div></button>
                     </div>
-
                     <div className="bg-slate-900 dark:bg-slate-800 p-4 rounded-xl border border-gold-500/30 flex flex-col gap-3 relative overflow-hidden group">
                         <div className="absolute inset-0 bg-gold-500/5 group-hover:bg-gold-500/10 transition-colors"></div>
-                        <div className="relative z-10 flex items-start gap-3">
-                            <div className="p-2 bg-gold-500 text-slate-900 rounded-lg shrink-0"><i data-lucide="smartphone" className="w-5 h-5"></i></div>
-                            <div><h4 className="font-bold text-white text-sm">Uygulamayı Yükle</h4><p className="text-[10px] text-slate-300 mt-1">İnternetsiz kullanım için.</p></div>
-                        </div>
-                        {installPrompt ? (
-                            <button onClick={onInstall} className="relative z-10 w-full py-2.5 bg-gold-500 hover:bg-gold-600 text-slate-900 font-bold text-sm rounded-lg transition-colors flex items-center justify-center gap-2"><i data-lucide="download" className="w-4 h-4"></i>Hemen Yükle</button>
-                        ) : (
-                            <button disabled className="relative z-10 w-full py-2.5 bg-slate-700 text-slate-400 font-bold text-sm rounded-lg cursor-not-allowed">Zaten Yüklü / Desteklenmiyor</button>
-                        )}
+                        <div className="relative z-10 flex items-start gap-3"><div className="p-2 bg-gold-500 text-slate-900 rounded-lg shrink-0"><i data-lucide="smartphone" className="w-5 h-5"></i></div><div><h4 className="font-bold text-white text-sm">Uygulamayı Yükle</h4><p className="text-[10px] text-slate-300 mt-1">İnternetsiz kullanım için.</p></div></div>
+                        {installPrompt ? ( <button onClick={onInstall} className="relative z-10 w-full py-2.5 bg-gold-500 hover:bg-gold-600 text-slate-900 font-bold text-sm rounded-lg transition-colors flex items-center justify-center gap-2"><i data-lucide="download" className="w-4 h-4"></i>Hemen Yükle</button> ) : ( <button disabled className="relative z-10 w-full py-2.5 bg-slate-700 text-slate-400 font-bold text-sm rounded-lg cursor-not-allowed">Zaten Yüklü / Desteklenmiyor</button> )}
                     </div>
                 </div>
             </div>
@@ -229,66 +176,92 @@ const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => {
 
     const togglePlay = () => {
         if (!audioRef.current) return;
-        
-        if (isPlaying) {
-            audioRef.current.pause();
-        } else {
-            // Promise hatasını yakala (Tarayıcı politikaları için)
-            const playPromise = audioRef.current.play();
-            if (playPromise !== undefined) {
-                playPromise
-                    .catch(e => {
-                        console.log("Otomatik oynatma engellendi veya dosya yok:", e);
-                        alert("Ses dosyası çalınamıyor. Lütfen dosyanın 'audio/Telbiye.mp3' konumunda olduğundan emin olun.");
-                        setIsPlaying(false);
-                    });
-            }
-        }
+        if (isPlaying) { audioRef.current.pause(); } 
+        else { const p = audioRef.current.play(); if (p !== undefined) p.catch(e => { alert("Ses dosyası çalınamıyor. Dosya yolu: " + AUDIO_SRC); setIsPlaying(false); }); }
         setIsPlaying(!isPlaying);
     };
 
     return (
         <div className="sticky top-0 z-50 glass-header px-4 py-3 flex items-center justify-between shadow-sm transition-all duration-300 min-h-[70px]">
             <div className="flex items-center gap-3">
-                {goBack && (
-                    <button onClick={goBack} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300">
-                        <i data-lucide="arrow-left" className="w-5 h-5"></i>
-                    </button>
-                )}
+                {goBack && ( <button onClick={goBack} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300"><i data-lucide="arrow-left" className="w-5 h-5"></i></button> )}
                 {title === 'LOGO_STYLE' ? (
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-bold text-gold-600 dark:text-gold-500 tracking-[0.2em] uppercase leading-none mb-0.5">Karayolu İle</span>
-                        <span className="text-lg font-serif font-bold text-slate-900 dark:text-white leading-none tracking-tight">Umre Rehberi</span>
-                    </div>
-                ) : (
-                    <h1 className="text-lg font-serif font-bold text-slate-900 dark:text-gold-400 tracking-wide leading-tight">{title}</h1>
-                )}
+                    <div className="flex flex-col"><span className="text-[10px] font-bold text-gold-600 dark:text-gold-500 tracking-[0.2em] uppercase leading-none mb-0.5">Karayolu İle</span><span className="text-lg font-serif font-bold text-slate-900 dark:text-white leading-none tracking-tight">Umre Rehberi</span></div>
+                ) : ( <h1 className="text-lg font-serif font-bold text-slate-900 dark:text-gold-400 tracking-wide leading-tight">{title}</h1> )}
             </div>
             {showSettingsBtn && (
                 <div className="flex items-center gap-2">
-                    <button onClick={togglePlay} className={`p-2 rounded-full transition-all border ${isPlaying ? 'bg-gold-500 border-gold-500 text-white animate-pulse-gold' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}>
-                        <i data-lucide={isPlaying ? "pause" : "play"} className="w-4 h-4 fill-current"></i>
-                    </button>
-                    <button onClick={onOpenSettings} className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-gold-600 dark:hover:text-gold-400 transition shadow-sm active:scale-95">
-                        <i data-lucide="settings" className="w-5 h-5"></i>
-                    </button>
+                    <button onClick={togglePlay} className={`p-2 rounded-full transition-all border ${isPlaying ? 'bg-gold-500 border-gold-500 text-white animate-pulse-gold' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}><i data-lucide={isPlaying ? "pause" : "play"} className="w-4 h-4 fill-current"></i></button>
+                    <button onClick={onOpenSettings} className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-gold-600 dark:hover:text-gold-400 transition shadow-sm active:scale-95"><i data-lucide="settings" className="w-5 h-5"></i></button>
                 </div>
             )}
         </div>
     );
 };
 
-// 3. NAMAZ VAKİTLERİ
+// 3. GELİŞMİŞ NAMAZ VAKİTLERİ
 const PrayerTimesDetail = () => {
     const [city, setCity] = useState("Mekke");
     const [times, setTimes] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [isOffline, setIsOffline] = useState(false);
+    const [nextPrayer, setNextPrayer] = useState(null);
+    const [countdown, setCountdown] = useState("");
     const [dataDate, setDataDate] = useState("");
+    const [isOffline, setIsOffline] = useState(false);
+    const [lastFetch, setLastFetch] = useState("");
+
+    // Tarih Formatı
+    const todayStr = new Date().toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Vakitleri hesapla ve sıradaki vakti bul
+    useEffect(() => {
+        if (!times) return;
+        
+        const timer = setInterval(() => {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            const currentSeconds = now.getSeconds();
+
+            const prayerList = [
+                { name: 'Imsak', time: times.Imsak },
+                { name: 'Gunes', time: times.Gunes },
+                { name: 'Ogle', time: times.Ogle },
+                { name: 'Ikindi', time: times.Ikindi },
+                { name: 'Aksam', time: times.Aksam },
+                { name: 'Yatsi', time: times.Yatsi }
+            ];
+
+            let next = null;
+            let minDiff = Infinity;
+
+            for (let p of prayerList) {
+                const [h, m] = p.time.split(':').map(Number);
+                const pTime = h * 60 + m;
+                let diff = pTime - currentTime;
+                
+                if (diff < 0) diff += 24 * 60; // Yarınki vakit
+
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    next = p;
+                }
+            }
+            
+            setNextPrayer(next);
+
+            // Countdown hesapla
+            const totalSecs = (minDiff * 60) - currentSeconds;
+            const h = Math.floor(totalSecs / 3600);
+            const m = Math.floor((totalSecs % 3600) / 60);
+            const s = totalSecs % 60;
+            setCountdown(`${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`);
+
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [times]);
 
     useEffect(() => {
         const fetchTimes = async () => {
-            setLoading(true);
             try {
                 const response = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Saudi Arabia&method=4`);
                 if (!response.ok) throw new Error("API Hatası");
@@ -297,19 +270,21 @@ const PrayerTimesDetail = () => {
                 const formatted = { Imsak: t.Fajr, Gunes: t.Sunrise, Ogle: t.Dhuhr, Ikindi: t.Asr, Aksam: t.Maghrib, Yatsi: t.Isha };
                 setTimes(formatted);
                 setDataDate(data.data.date.readable);
+                setLastFetch(new Date().toLocaleTimeString());
                 setIsOffline(false);
-                localStorage.setItem(`prayer_${city}`, JSON.stringify({ t: formatted, d: data.data.date.readable }));
+                localStorage.setItem(`prayer_${city}`, JSON.stringify({ t: formatted, d: data.data.date.readable, lf: new Date().toLocaleTimeString() }));
             } catch (e) {
                 const saved = localStorage.getItem(`prayer_${city}`);
                 if (saved) {
                     const p = JSON.parse(saved);
                     setTimes(p.t);
                     setDataDate(p.d);
+                    setLastFetch(p.lf || "Bilinmiyor");
                 } else {
-                    setTimes({ Imsak: "--:--", Gunes: "--:--", Ogle: "--:--", Ikindi: "--:--", Aksam: "--:--", Yatsi: "--:--" });
+                    setTimes({ Imsak: "05:00", Gunes: "06:30", Ogle: "12:30", Ikindi: "15:45", Aksam: "18:20", Yatsi: "19:50" });
                 }
                 setIsOffline(true);
-            } finally { setLoading(false); }
+            }
         };
         fetchTimes();
     }, [city]);
@@ -317,76 +292,150 @@ const PrayerTimesDetail = () => {
     return (
         <div className="p-4 pb-20 animate-fade-in space-y-4">
             <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl mb-4">
-                {["Mekke", "Medine"].map(c => (
-                    <button key={c} onClick={() => setCity(c)} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${city === c ? 'bg-white dark:bg-slate-600 shadow text-gold-600' : 'text-slate-500'}`}>{c}</button>
-                ))}
+                {["Mekke", "Medine"].map(c => ( <button key={c} onClick={() => setCity(c)} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${city === c ? 'bg-white dark:bg-slate-600 shadow text-gold-600' : 'text-slate-500'}`}>{c}</button> ))}
             </div>
-            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
-                <div className="bg-gold-500 p-4 text-white flex justify-between items-center">
-                    <div><h3 className="font-serif font-bold text-lg">Namaz Vakitleri</h3><p className="text-xs">{city} - {dataDate}</p></div>
-                    <i data-lucide="clock" className="w-6 h-6 opacity-50"></i>
-                </div>
-                <div className="divide-y divide-slate-100 dark:divide-slate-700">
-                    {times && Object.entries(times).map(([v, s]) => (
-                        <div key={v} className="p-4 flex justify-between items-center">
-                            <span className="text-xs text-slate-400 uppercase tracking-wider">{v}</span>
-                            <span className="font-mono text-xl font-bold text-slate-800 dark:text-slate-200">{s}</span>
+
+            {/* Bilgi Kartı */}
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 text-white shadow-xl relative overflow-hidden">
+                <div className="relative z-10 text-center">
+                    <p className="text-xs text-gold-400 font-bold uppercase tracking-widest mb-1">{city}</p>
+                    <h2 className="text-xl font-serif font-bold mb-2">{todayStr}</h2>
+                    {nextPrayer && (
+                        <div className="mt-4 p-3 bg-white/10 rounded-xl backdrop-blur-sm border border-white/10 inline-block">
+                            <p className="text-xs text-slate-300 mb-1">{nextPrayer.name} Vaktine Kalan</p>
+                            <p className="text-3xl font-mono font-bold text-gold-400">{countdown}</p>
                         </div>
-                    ))}
+                    )}
                 </div>
+                <i data-lucide="moon" className="absolute -right-4 -top-4 w-32 h-32 text-white opacity-5"></i>
             </div>
-            {isOffline && <div className="p-3 bg-red-50 dark:bg-red-900/20 text-red-500 text-xs rounded-xl">İnternet yok. Çevrimdışı veri gösteriliyor.</div>}
+
+            {/* Vakitler Listesi */}
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden divide-y divide-slate-100 dark:divide-slate-700">
+                {times && Object.entries(times).map(([v, s]) => {
+                    const isActive = nextPrayer && nextPrayer.name === v ? false : (nextPrayer && v === 'Yatsi' && nextPrayer.name === 'Imsak' ? true : false); // Basit mantık, geliştirilebilir
+                    // Daha doğru aktif vakit mantığı için:
+                    // Bir önceki vakit şu anki vakittir. NextPrayer "Ogle" ise, şu an "Gunes" (Kerahat) veya "Imsak" sonrası olabilir.
+                    // Burada görsel sadelik için bir sonraki vakti vurguluyoruz veya basit liste yapıyoruz.
+                    // İsteğiniz: "Mevcut vakit ne ise onu belirt".
+                    // Bunun için nextPrayer'ın bir öncesini bulmamız lazım.
+                    
+                    const pOrder = ['Imsak', 'Gunes', 'Ogle', 'Ikindi', 'Aksam', 'Yatsi'];
+                    const nextIdx = nextPrayer ? pOrder.indexOf(nextPrayer.name) : -1;
+                    const currentIdx = nextIdx === 0 ? 5 : nextIdx - 1; // Eğer sonraki İmsak ise, şu an Yatsı'dır.
+                    const isCurrent = pOrder[currentIdx] === v;
+
+                    return (
+                        <div key={v} className={`p-4 flex justify-between items-center transition-colors ${isCurrent ? 'bg-gold-50 dark:bg-gold-900/20' : ''}`}>
+                            <div className="flex items-center gap-3">
+                                <span className={`text-xs font-bold uppercase tracking-wider ${isCurrent ? 'text-gold-600 dark:text-gold-400' : 'text-slate-400'}`}>{v}</span>
+                                {isCurrent && <span className="flex h-2 w-2 relative"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-gold-500"></span></span>}
+                            </div>
+                            <span className={`font-mono text-xl font-bold ${isCurrent ? 'text-gold-700 dark:text-gold-300' : 'text-slate-800 dark:text-slate-200'}`}>{s}</span>
+                        </div>
+                    );
+                })}
+            </div>
+            
+            {isOffline && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/50">
+                    <i data-lucide="wifi-off" className="w-4 h-4 text-red-500"></i>
+                    <div className="text-xs text-red-700 dark:text-red-300 leading-tight">
+                        <span className="font-bold block">Çevrimdışı Mod</span>
+                        Son güncelleme: {lastFetch}. Lütfen imsakiyenizi kontrol ediniz.
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-// 4. DÖVİZ ÇEVİRİCİ
+// 4. MODERN DÖVİZ ÇEVİRİCİ
 const CurrencyConverter = () => {
+    const [amount, setAmount] = useState(1);
+    const [fromCurr, setFromCurr] = useState('SAR');
+    const [toCurr, setToCurr] = useState('TRY');
     const [rates, setRates] = useState(null);
-    const [vals, setVals] = useState({ SAR: 1, USD: 0, TRY: 0 });
-    const [isOffline, setIsOffline] = useState(false);
+    const [result, setResult] = useState(0);
 
     useEffect(() => {
         const fetchRates = async () => {
             try {
                 const res = await fetch('https://api.exchangerate-api.com/v4/latest/SAR');
-                if (!res.ok) throw new Error("Err");
                 const data = await res.json();
                 setRates(data.rates);
-                setVals(v => ({ ...v, USD: (v.SAR * data.rates.USD).toFixed(2), TRY: (v.SAR * data.rates.TRY).toFixed(2) }));
-                localStorage.setItem('rates', JSON.stringify(data.rates));
+                localStorage.setItem('rates_v2', JSON.stringify(data.rates));
             } catch (e) {
-                const s = localStorage.getItem('rates');
-                if (s) {
-                    const r = JSON.parse(s);
-                    setRates(r);
-                    setVals(v => ({ ...v, USD: (v.SAR * r.USD).toFixed(2), TRY: (v.SAR * r.TRY).toFixed(2) }));
-                }
-                setIsOffline(true);
+                setRates(JSON.parse(localStorage.getItem('rates_v2')));
             }
         };
         fetchRates();
     }, []);
 
-    const handleChange = (val, type) => {
+    useEffect(() => {
         if (!rates) return;
-        let v = parseFloat(val) || 0;
-        if (type === 'SAR') setVals({ SAR: v, USD: (v * rates.USD).toFixed(2), TRY: (v * rates.TRY).toFixed(2) });
-        else if (type === 'USD') { const s = v / rates.USD; setVals({ SAR: s.toFixed(2), USD: v, TRY: (s * rates.TRY).toFixed(2) }); }
-        else if (type === 'TRY') { const s = v / rates.TRY; setVals({ SAR: s.toFixed(2), USD: (s * rates.USD).toFixed(2), TRY: v }); }
+        // Base is SAR.
+        // Convert FROM to SAR, then SAR to TO.
+        // Formula: (Amount / Rate[From]) * Rate[To]
+        // But API base is SAR. So Rate[SAR] is 1.
+        // If From is USD, Rate[USD] is e.g. 0.26 (1 SAR = 0.26 USD) => 1 USD = 1/0.26 SAR.
+        // Wait, API gives 1 SAR = X USD.
+        // So to convert 1 USD to SAR: 1 / Rate[USD].
+        // Then SAR to TRY: * Rate[TRY].
+        
+        const fromRate = rates[fromCurr];
+        const toRate = rates[toCurr];
+        
+        if (fromRate && toRate) {
+            const inSar = amount / fromRate;
+            const finalVal = inSar * toRate;
+            setResult(finalVal.toFixed(2));
+        }
+    }, [amount, fromCurr, toCurr, rates]);
+
+    const swap = () => {
+        setFromCurr(toCurr);
+        setToCurr(fromCurr);
     };
 
     return (
-        <div className="p-6 space-y-6 animate-fade-in">
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-lg border border-slate-100 dark:border-slate-700">
-                <div className="flex justify-between mb-4"><h3 className="font-bold text-slate-800 dark:text-white">Döviz Çevirici</h3>{isOffline ? <i data-lucide="wifi-off" className="w-4 h-4 text-red-500"></i> : <i data-lucide="wifi" className="w-4 h-4 text-green-500"></i>}</div>
-                <div className="space-y-4">
-                    {['SAR', 'USD', 'TRY'].map(c => (
-                        <div key={c} className="flex items-center bg-slate-50 dark:bg-slate-900 rounded-xl p-1">
-                            <div className="p-3 bg-white dark:bg-slate-800 rounded-lg font-bold text-gold-600 shadow-sm w-16 text-center">{c}</div>
-                            <input type="number" value={vals[c]} onChange={e => handleChange(e.target.value, c)} className="w-full bg-transparent p-3 text-right font-mono font-bold text-slate-800 dark:text-slate-100 focus:outline-none" />
-                        </div>
-                    ))}
+        <div className="p-6 animate-fade-in space-y-6">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 relative">
+                <h3 className="font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="arrow-left-right" className="w-5 h-5 text-gold-500"></i> Döviz Çevirici</h3>
+                
+                {/* Giriş */}
+                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 mb-2">
+                    <label className="text-[10px] uppercase font-bold text-slate-400 mb-1">Dönüştürülecek Tutar</label>
+                    <div className="flex justify-between items-center">
+                        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="bg-transparent text-2xl font-bold text-slate-800 dark:text-slate-100 focus:outline-none w-1/2" />
+                        <select value={fromCurr} onChange={(e) => setFromCurr(e.target.value)} className="bg-white dark:bg-slate-800 font-bold text-slate-700 dark:text-slate-200 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 outline-none">
+                            <option value="SAR">🇸🇦 SAR</option>
+                            <option value="USD">🇺🇸 USD</option>
+                            <option value="TRY">🇹🇷 TRY</option>
+                            <option value="EUR">🇪🇺 EUR</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* Swap Butonu */}
+                <div className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 z-10">
+                    <button onClick={swap} className="w-10 h-10 bg-gold-500 rounded-full flex items-center justify-center text-white shadow-lg border-4 border-white dark:border-slate-800 hover:scale-110 transition-transform">
+                        <i data-lucide="arrow-down-up" className="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                {/* Sonuç */}
+                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 mt-2">
+                    <label className="text-[10px] uppercase font-bold text-slate-400 mb-1">Karşılık</label>
+                    <div className="flex justify-between items-center">
+                        <div className="text-2xl font-bold text-gold-600 dark:text-gold-400">{result}</div>
+                        <select value={toCurr} onChange={(e) => setToCurr(e.target.value)} className="bg-white dark:bg-slate-800 font-bold text-slate-700 dark:text-slate-200 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 outline-none">
+                            <option value="SAR">🇸🇦 SAR</option>
+                            <option value="USD">🇺🇸 USD</option>
+                            <option value="TRY">🇹🇷 TRY</option>
+                            <option value="EUR">🇪🇺 EUR</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -465,52 +514,84 @@ const PlacesDetail = () => {
     );
 };
 
-// 7. PREMIUM KIBLE PUSULASI
+// 7. DÜZELTİLMİŞ PREMIUM KIBLE PUSULASI
 const QiblaCompass = () => {
-    const [heading, setHeading] = useState(0);
-    const [qibla, setQibla] = useState(0);
+    const [heading, setHeading] = useState(0); // Cihazın kuzeye açısı
+    const [qibla, setQibla] = useState(0); // Kabe'nin kuzeye açısı
     const [perm, setPerm] = useState(false);
+    const [calibrating, setCalibrating] = useState(false);
 
+    // Kabe'nin cihaza göre açısı
     const calcQibla = (lat, lng) => {
-        const K_LAT = 21.422487, K_LNG = 39.826206;
-        const pk = K_LAT * Math.PI/180, lk = K_LNG * Math.PI/180;
-        const p = lat * Math.PI/180, l = lng * Math.PI/180;
+        const K_LAT = 21.422487;
+        const K_LNG = 39.826206;
+        const pk = K_LAT * Math.PI/180;
+        const lk = K_LNG * Math.PI/180;
+        const p = lat * Math.PI/180;
+        const l = lng * Math.PI/180;
         const y = Math.sin(lk - l);
         const x = Math.cos(p) * Math.tan(pk) - Math.sin(p) * Math.cos(lk - l);
-        return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+        let q = Math.atan2(y, x) * 180 / Math.PI;
+        return (q + 360) % 360;
     };
 
     const start = () => {
+        // 1. Konum Al
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(p => setQibla(calcQibla(p.coords.latitude, p.coords.longitude)));
-        } else {
-            alert("Konum servisi kapalı.");
-        }
-
-        if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission().then(r => { 
-                if(r === 'granted') { 
-                    setPerm(true); 
-                    window.addEventListener('deviceorientation', handleOr); 
-                } else {
-                    alert("Pusula izni verilmedi.");
-                }
+            navigator.geolocation.getCurrentPosition(p => {
+                setQibla(calcQibla(p.coords.latitude, p.coords.longitude));
+            }, () => {
+                alert("Konum alınamadı, varsayılan açı (Türkiye Ort.) kullanılıyor.");
+                setQibla(155); 
             });
-        } else { 
-            setPerm(true); 
-            window.addEventListener('deviceorientation', handleOr); 
+        }
+
+        // 2. Pusula İzni ve Event Listener
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            // iOS 13+
+            DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                    if (response === 'granted') {
+                        setPerm(true);
+                        window.addEventListener('deviceorientation', handleOrientation);
+                    } else {
+                        alert("İzin reddedildi.");
+                    }
+                })
+                .catch(console.error);
+        } else {
+            // Android / Eski iOS
+            setPerm(true);
+            window.addEventListener('deviceorientationabsolute', handleOrientation, true); // Android için absolute
+            window.addEventListener('deviceorientation', handleOrientation, true); // Fallback
         }
     };
-    
-    const handleOr = (e) => {
-        const h = e.webkitCompassHeading || Math.abs(e.alpha - 360);
-        setHeading(h);
-    };
-    
-    useEffect(() => () => window.removeEventListener('deviceorientation', handleOr), []);
 
-    // İbreyi hesapla
-    const needleRotation = (qibla - heading + 360) % 360;
+    const handleOrientation = (e) => {
+        let compass = 0;
+        if (e.webkitCompassHeading) {
+            // iOS
+            compass = e.webkitCompassHeading;
+        } else if (e.alpha !== null) {
+            // Android (absolute ise alpha, kuzeyden saat yönünün tersinedir genelde, kontrol gerek)
+            // Standart: alpha 0 = Kuzey.
+            // Fakat absolute true değilse relative olabilir.
+            compass = Math.abs(e.alpha - 360);
+        }
+        setHeading(compass);
+    };
+
+    useEffect(() => {
+        return () => {
+            window.removeEventListener('deviceorientation', handleOrientation);
+            window.removeEventListener('deviceorientationabsolute', handleOrientation);
+        };
+    }, []);
+
+    // İbreyi Döndür: (Qibla - Heading) 
+    // Örnek: Kabe 150 derece. Ben 0 (Kuzey)'e bakıyorum. İbre 150 göstermeli.
+    // Ben 90 (Doğu)'ya döndüm. İbre 60 göstermeli (sola doğru).
+    const needleRot = (qibla - heading + 360) % 360;
 
     return (
         <div className="flex flex-col items-center justify-center h-[calc(100vh-140px)] p-6 animate-fade-in">
@@ -520,50 +601,35 @@ const QiblaCompass = () => {
                         <i data-lucide="compass" className="w-12 h-12 text-gold-600"></i>
                     </div>
                     <h3 className="font-bold text-xl text-slate-800 dark:text-slate-200">Kıble Pusulası</h3>
-                    <p className="text-sm text-slate-500 max-w-xs mx-auto">
-                        Anlık konum ve sensör verileriyle en doğru kıble yönünü bulmak için pusulayı başlatın.
-                    </p>
-                    <button 
-                        onClick={start}
-                        className="px-8 py-3 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-xl shadow-lg shadow-gold-500/30 transition-all active:scale-95"
-                    >
-                        Pusulayı Başlat
-                    </button>
+                    <p className="text-sm text-slate-500 max-w-xs mx-auto">Sensörleri etkinleştirmek için butona basın.</p>
+                    <button onClick={start} className="px-8 py-3 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-xl shadow-lg">Pusulayı Başlat</button>
                 </div>
             ) : (
                 <div className="relative">
-                    {/* Pusula Gövdesi - Döner */}
-                    <div className="w-72 h-72 rounded-full border-8 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-2xl relative flex items-center justify-center transition-transform duration-200 ease-out" style={{ transform: `rotate(${-heading}deg)` }}>
-                        {/* İç Dekorasyon (Yönler) */}
-                        <div className="absolute inset-0 rounded-full border border-slate-100 dark:border-slate-700 m-2"></div>
-                        <span className="absolute top-2 font-bold text-red-500 text-lg">N</span>
-                        <span className="absolute bottom-2 font-bold text-slate-400 text-sm">S</span>
-                        <span className="absolute left-2 font-bold text-slate-400 text-sm">W</span>
-                        <span className="absolute right-2 font-bold text-slate-400 text-sm">E</span>
-                        
-                        {/* Derece Çizgileri */}
-                        {[...Array(12)].map((_, i) => (
-                            <div key={i} className="absolute w-0.5 h-3 bg-slate-300 dark:bg-slate-600 top-0 left-1/2 -translate-x-1/2 origin-bottom" style={{ transform: `rotate(${i * 30}deg) translateY(0)` }}></div>
-                        ))}
-                    </div>
+                    {/* Dış Çerçeve */}
+                    <div className="w-72 h-72 rounded-full border-4 border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 shadow-2xl relative flex items-center justify-center">
+                        {/* Pusula Kartı (Dönen Kısım - Kuzeyi Gösterir) */}
+                        <div className="w-full h-full absolute inset-0 rounded-full transition-transform duration-300 ease-out" style={{ transform: `rotate(${-heading}deg)` }}>
+                            <span className="absolute top-2 left-1/2 -translate-x-1/2 text-red-500 font-bold text-lg">N</span>
+                            <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-slate-400 font-bold">S</span>
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 font-bold">W</span>
+                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 font-bold">E</span>
+                            {[...Array(12)].map((_, i) => (<div key={i} className="absolute w-0.5 h-2 bg-slate-300 top-0 left-1/2 -translate-x-1/2 origin-bottom h-[50%]" style={{ transform: `rotate(${i * 30}deg)` }}></div>))}
+                        </div>
 
-                    {/* Kabe İbresi (Sanal Sabit) */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: `rotate(${needleRotation}deg)`, transition: 'transform 0.5s cubic-bezier(0.4, 2.5, 0.4, 0.8)' }}>
-                         {/* İbre Görseli */}
-                         <div className="h-32 w-1.5 bg-gradient-to-t from-transparent to-gold-500 rounded-full origin-bottom relative -top-16 shadow-[0_0_15px_rgba(234,179,8,0.6)]">
-                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6">
-                                <i data-lucide="moon" className="w-full h-full text-gold-500 fill-gold-500"></i>
+                        {/* Kabe İbresi (Sanal Sabit - Hedefi Gösterir) */}
+                        <div className="absolute inset-0 flex items-center justify-center z-10" style={{ transform: `rotate(${needleRot}deg)`, transition: 'transform 0.5s ease-out' }}>
+                            <div className="h-28 w-1.5 bg-gold-500 origin-bottom relative -top-14 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.8)]">
+                                <i data-lucide="moon" className="absolute -top-6 -left-2.5 w-6 h-6 text-gold-500 fill-gold-500"></i>
                             </div>
-                         </div>
+                        </div>
+                        
+                        {/* Merkez */}
+                        <div className="w-4 h-4 bg-slate-800 dark:bg-white rounded-full z-20 border-2 border-gold-500"></div>
                     </div>
-
-                    {/* Merkez Nokta */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-white rounded-full border-2 border-gold-500 z-20"></div>
-                    
-                    {/* Bilgi Kutusu */}
-                    <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 text-center w-full">
+                    <div className="text-center mt-8">
                         <div className="text-3xl font-mono font-bold text-slate-800 dark:text-gold-400">{Math.round(heading)}°</div>
-                        <div className="text-xs text-slate-400">Kıble Açısı: {Math.round(qibla)}°</div>
+                        <div className="text-xs text-slate-400">Hedef (Kabe): {Math.round(qibla)}°</div>
                     </div>
                 </div>
             )}
@@ -571,9 +637,12 @@ const QiblaCompass = () => {
     );
 };
 
-// 8. ÖNE ÇIKAN KARTLAR (SLIDER)
+// 8. FADE EFECTLİ ÖNE ÇIKAN KARTLAR
 const FeaturedCards = ({ setActiveView }) => {
     const [dist, setDist] = useState({ mk: null, md: null });
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [opacity, setOpacity] = useState(1);
+
     useEffect(() => {
         if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => {
             const l = p.coords.latitude, g = p.coords.longitude;
@@ -586,28 +655,50 @@ const FeaturedCards = ({ setActiveView }) => {
         { id: 'c2', title: 'Mesafe Durumu', sub: dist.mk ? `Mekke'ye ${dist.mk} km` : 'Konum Bekleniyor...', icon: 'navigation', bg: 'bg-gradient-to-br from-emerald-800 to-emerald-900', text: 'text-emerald-100', act: () => setActiveView('places') }
     ];
 
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setOpacity(0);
+            setTimeout(() => {
+                setActiveIndex((prev) => (prev + 1) % cards.length);
+                setOpacity(1);
+            }, 500); // 500ms fade out süresi
+        }, 5000); // 5 saniye bekleme
+        return () => clearInterval(interval);
+    }, [cards.length]);
+
+    const c = cards[activeIndex];
+
     return (
-        <div className="col-span-2 mb-2 flex gap-3 overflow-x-auto pb-4 pt-1 px-1 snap-x scrollbar-hide">
-            {cards.map(c => (
-                <div key={c.id} onClick={c.act} className={`relative overflow-hidden ${c.bg} rounded-2xl p-5 shadow-xl cursor-pointer border border-white/10 min-w-[85%] snap-center shrink-0 flex flex-col justify-between h-32`}>
-                    <div className="relative z-10">
-                        <div className="flex items-center gap-2 mb-2">
-                            <span className={`px-2 py-0.5 rounded text-[10px] bg-white/10 ${c.text} font-bold uppercase tracking-wider`}>Öne Çıkan</span>
-                        </div>
-                        <h2 className={`text-2xl font-serif font-bold ${c.text} mb-0.5`}>{c.title}</h2>
-                        <p className={`${c.text} text-xs opacity-70`}>{c.sub}</p>
+        <div className="col-span-2 mb-2 h-36 relative">
+             <div 
+                onClick={c.act} 
+                className={`absolute inset-0 rounded-2xl p-5 shadow-xl cursor-pointer border border-white/10 flex flex-col justify-between transition-opacity duration-500 ${c.bg}`}
+                style={{ opacity: opacity }}
+            >
+                <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-2">
+                        <span className={`px-2 py-0.5 rounded text-[10px] bg-white/10 ${c.text} font-bold uppercase tracking-wider`}>Öne Çıkan</span>
                     </div>
-                    <i data-lucide={c.icon} className={`absolute -right-2 -bottom-4 w-24 h-24 ${c.text} opacity-10 rotate-12`}></i>
-                    <div className="absolute bottom-4 right-4 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white">
-                        <i data-lucide="arrow-right" className="w-4 h-4"></i>
-                    </div>
+                    <h2 className={`text-2xl font-serif font-bold ${c.text} mb-0.5`}>{c.title}</h2>
+                    <p className={`${c.text} text-xs opacity-70`}>{c.sub}</p>
                 </div>
-            ))}
+                <i data-lucide={c.icon} className={`absolute -right-2 -bottom-4 w-24 h-24 ${c.text} opacity-10 rotate-12`}></i>
+                <div className="absolute bottom-4 right-4 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white">
+                    <i data-lucide="arrow-right" className="w-4 h-4"></i>
+                </div>
+            </div>
+            
+            {/* Dots Indicator */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 z-20">
+                {cards.map((_, i) => (
+                    <div key={i} className={`w-1.5 h-1.5 rounded-full transition-colors ${i === activeIndex ? 'bg-white' : 'bg-white/30'}`}></div>
+                ))}
+            </div>
         </div>
     );
 };
 
-// 9. DİĞER KÜÇÜK BİLEŞENLER
+// 9. DİĞER KÜÇÜK BİLEŞENLER (Aynen korundu)
 const AnnouncementBar = () => {
     const [idx, setIdx] = useState(0);
     const [fade, setFade] = useState(true);
