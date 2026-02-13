@@ -351,7 +351,7 @@ const MiqatModule = () => {
     const [alertDist, setAlertDist] = useState(20); // Varsayılan 20 km
     const [isActive, setIsActive] = useState(true); // Alarm aktif mi
     const [triggered, setTriggered] = useState({}); // Hangi mikat için çaldı
-    const audioRef = useRef(new Audio(AUDIO_LABBAIK));
+    const audioRef = useRef(new Audio(AUDIO_TELBIYE));
 
     // Konum Takibi ve Alarm
     useEffect(() => {
