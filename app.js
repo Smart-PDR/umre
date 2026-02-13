@@ -1,10 +1,17 @@
 const { useState, useEffect, useRef } = React;
 
 // --- SABİTLER VE AYARLAR ---
+// NOT: Resim, ses ve linkleri buradan değiştirebilirsiniz.
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
 const AUDIO_TELBIYE = "audio/Telbiye.mp3"; 
 const AUDIO_LABBAIK = "audio/labbaik.mp3";
-const APP_VERSION = "v2.4.0";
+const APP_VERSION = "v2.5.0";
+
+// YENİ: Site Başlığı (Header'ın ortasında yazar)
+const SITE_TITLE = "umre.com"; 
+
+// YENİ: Geri Bildirim Formu Linki (Google Form linkinizi buraya yapıştırın)
+const FEEDBACK_FORM_URL = "https://forms.google.com/your-link-here";
 
 // --- YARDIMCI FONKSİYONLAR ---
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -19,6 +26,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 // --- REHBER VERİLERİ ---
+// İPUCU: Yeni bir rehber maddesi eklemek için aşağıdaki listeye yeni bir { } bloğu ekleyin.
 const GUIDE_DATA = [
     {
         id: "g1",
@@ -81,6 +89,7 @@ const MIQAT_DATA = [
 ];
 
 // --- SÖZLÜK VERİLERİ ---
+// İPUCU: Yeni kelime eklemek için items: [ ... ] içine { tr: "Türkçe", ar: "Arapça", en: "İngilizce" } ekleyin.
 const DICTIONARY_DATA = [
     { cat: "Acil / Sağlık", items: [
         { tr: "Yardım edin!", ar: "Sa'iduni!", en: "Help me!" },
@@ -125,6 +134,7 @@ const ANNOUNCEMENTS = [
     "💊 Kronik ilaçlarınızı yedekli almayı unutmayın."
 ];
 
+// İPUCU: Rota duraklarını buradan düzenleyebilirsiniz.
 const ROUTE_STOPS = [
     { id: 1, name: "Cilvegözü", desc: "Hatay / Çıkış Kapısı", type: "border", km: 0 },
     { id: 2, name: "İdlib", desc: "Suriye Geçişi", type: "city", km: 45 },
@@ -137,6 +147,7 @@ const ROUTE_STOPS = [
     { id: 9, name: "Mekke", desc: "Kabe-i Muazzama", type: "holy", km: 2250 }
 ];
 
+// İPUCU: Kontrol listesi maddelerini buradan ekleyip çıkarabilirsiniz.
 const CHECKLISTS_DATA = {
     luggage: [
         { id: "l1", label: "İhram (2 Takım)", desc: "Erkekler için dikişsiz ihram bezi. Kirlenme ihtimaline karşı yedekli.", checked: false },
@@ -246,15 +257,21 @@ const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => {
     };
 
     return (
-        <div className="sticky top-0 z-50 glass-header px-4 py-3 flex items-center justify-between shadow-sm min-h-[70px]">
-            <div className="flex items-center gap-3">
+        <div className="sticky top-0 z-50 glass-header px-4 py-3 flex items-center justify-between shadow-sm min-h-[70px] relative">
+            <div className="flex items-center gap-3 relative z-10">
                 {goBack && <button onClick={goBack} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"><i data-lucide="arrow-left" className="w-5 h-5"></i></button>}
                 {title === 'LOGO_STYLE' ? (
                     <div className="flex flex-col"><span className="text-[10px] font-bold text-gold-600 dark:text-gold-500 tracking-[0.2em] uppercase">Karayolu İle</span><span className="text-lg font-serif font-bold dark:text-white">Umre Rehberi</span></div>
                 ) : <h1 className="text-lg font-serif font-bold dark:text-gold-400">{title}</h1>}
             </div>
+
+            {/* ORTALANMIŞ SİTE BAŞLIĞI */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none">
+                <span className="font-serif font-bold text-slate-800 dark:text-slate-200 opacity-30 text-sm tracking-widest">{SITE_TITLE}</span>
+            </div>
+
             {showSettingsBtn && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 relative z-10">
                     <button onClick={togglePlay} className={`p-2 rounded-full transition-all border ${isPlaying ? 'bg-gold-500 border-gold-500 text-white animate-pulse-gold' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}>
                         <i data-lucide={isPlaying ? "pause" : "play"} className="w-4 h-4 fill-current"></i>
                     </button>
@@ -694,6 +711,15 @@ const About = () => (
                         </p>
                      </div>
                 </div>
+                
+                {/* YENİ: GERİ BİLDİRİM BUTONU */}
+                <div className="mt-6">
+                    <a href={FEEDBACK_FORM_URL} target="_blank" className="block w-full py-3 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-600 dark:text-slate-300 text-sm font-bold shadow-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="message-circle" className="w-4 h-4"></i>
+                        Geri Bildirim & Öneri Gönder
+                    </a>
+                    <p className="text-[10px] text-slate-400 mt-2">Görüşleriniz uygulamayı geliştirmemiz için önemlidir.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -930,6 +956,7 @@ const App = () => {
 
     const updateSettings = (k, v) => setSettings(p => ({...p, [k]: v}));
 
+    // İPUCU: Yeni bir menü veya sayfa eklemek isterseniz buradaki switch yapısına yeni bir case ekleyin.
     const renderView = () => {
         switch(view) {
             case 'dashboard': return (
