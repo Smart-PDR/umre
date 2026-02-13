@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // --- STYLES & CONFIGURATION (Environment Setup) ---
-// Not: Kodun içindeki 'gold' renkleri ve özel animasyonlar için stil tanımları.
 const CustomStyles = () => (
     <style>{`
         /* Gold Colors Setup */
@@ -9,6 +8,7 @@ const CustomStyles = () => (
         .text-gold-500 { color: #f59e0b; }
         .text-gold-600 { color: #d97706; }
         .bg-gold-50 { background-color: #fffbeb; }
+        .bg-gold-100 { background-color: #fef3c7; }
         .bg-gold-200 { background-color: #fde68a; }
         .bg-gold-500 { background-color: #f59e0b; }
         .bg-gold-600 { background-color: #d97706; }
@@ -68,7 +68,8 @@ const CustomStyles = () => (
 // --- GELİŞTİRİCİ FOTOĞRAFI AYARI ---
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
 
-// --- DUYURU VERİLERİ ---
+// --- VERİ SETLERİ ---
+
 const ANNOUNCEMENTS = [
     "📢 Yeni kayıtlar için son gün 15 Mart!",
     "⚠️ Pasaport sürelerinizi (en az 6 ay) kontrol ediniz.",
@@ -77,7 +78,6 @@ const ANNOUNCEMENTS = [
     "🕌 Cuma namazlarında Mescid-i Haram kapıları erken kapanmaktadır."
 ];
 
-// --- ROTA VERİSİ ---
 const ROUTE_STOPS = [
     { id: 1, name: "Cilvegözü", desc: "Hatay / Sınır Kapısı Çıkış", type: "border", km: 0 },
     { id: 2, name: "İdlib", desc: "Suriye Geçiş Güzergahı", type: "city", km: 45 },
@@ -89,7 +89,32 @@ const ROUTE_STOPS = [
     { id: 8, name: "Mekke", desc: "Kabe-i Muazzama / Umre", type: "holy", km: 2100 }
 ];
 
-// --- CHECKLIST VERİLERİ ---
+// --- GEZİLEBİLECEK YERLER VERİSİ (BURAYA YENİ YERLER EKLEYEBİLİRSİNİZ) ---
+// Not: Yeni bir yer eklemek için ilgili kategori dizisine bir nesne ekleyin.
+// Örnek: { id: 99, name: "Yer Adı", desc: "Açıklama", lat: 0.00, lng: 0.00, image: "url" }
+const PLACES_DATA = {
+    suriye: [
+        { id: 's1', name: "Emevi Camii", desc: "Şam'ın kalbinde, İslam tarihinin en eski ve en görkemli camilerinden biri. Hz. Yahya (a.s)'ın başının burada medfun olduğuna inanılır.", lat: 33.5116, lng: 36.3065, image: "https://images.unsplash.com/photo-1596489390234-a3c306d15682?auto=format&fit=crop&q=80&w=800" },
+        { id: 's2', name: "Halid bin Velid Camii", desc: "Humus şehrinde, İslam ordularının büyük komutanı Seyfullah (Allah'ın Kılıcı) Halid bin Velid'in kabrinin bulunduğu cami.", lat: 34.7356, lng: 36.7145, image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Khalid_ibn_al-Walid_Mosque_2010.jpg/640px-Khalid_ibn_al-Walid_Mosque_2010.jpg" } // Fallback image used appropriately would be better
+    ],
+    urdun: [
+        { id: 'u1', name: "Ashab-ı Kehf Mağarası", desc: "Amman yakınlarında, Kuran-ı Kerim'de Kehf suresinde geçen yedi uyurların mağarası.", lat: 31.9288, lng: 35.9535, image: "https://images.unsplash.com/photo-1627914976722-b9e731818130?auto=format&fit=crop&q=80&w=800" },
+        { id: 'u2', name: "Mute Savaşı Meydanı", desc: "Müslümanlar ile Bizanslılar arasındaki ilk büyük savaşın yapıldığı ve üç büyük komutanın şehit olduğu yer.", lat: 31.0558, lng: 35.6989, image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Battle_of_Mu%27tah.jpg/640px-Battle_of_Mu%27tah.jpg" }
+    ],
+    medine: [
+        { id: 'm1', name: "Mescid-i Nebevi", desc: "Peygamber Efendimiz (s.a.v)'in inşa ettiği ve kabrinin bulunduğu mescid. İslam'ın ikinci en kutsal mekanı.", lat: 24.4672, lng: 39.6109, image: "https://images.unsplash.com/photo-1565552629477-e254f38745cc?auto=format&fit=crop&q=80&w=800" },
+        { id: 'm2', name: "Uhud Dağı ve Şehitliği", desc: "Uhud Savaşı'nın yapıldığı yer ve Hz. Hamza (r.a) başta olmak üzere 70 şehidin medfun olduğu alan.", lat: 24.5034, lng: 39.6111, image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?auto=format&fit=crop&q=80&w=800" },
+        { id: 'm3', name: "Kuba Mescidi", desc: "İslam tarihinde inşa edilen ilk mescid. Burada namaz kılmak umre sevabına denktir.", lat: 24.4393, lng: 39.6173, image: "https://images.unsplash.com/photo-1639665624796-03c7344933a3?auto=format&fit=crop&q=80&w=800" },
+        { id: 'm4', name: "Kıbleteyn Mescidi", desc: "Kıblenin Mescid-i Aksa'dan Kabe'ye çevrildiği sırada namaz kılınan mescid.", lat: 24.4842, lng: 39.5790, image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Masjid_Qiblatain.JPG/640px-Masjid_Qiblatain.JPG" }
+    ],
+    mekke: [
+        { id: 'k1', name: "Kabe-i Muazzama", desc: "Müslümanların kıblesi ve yeryüzünde Allah'a ibadet için yapılan ilk ev.", lat: 21.4225, lng: 39.8262, image: "https://images.unsplash.com/photo-1532200421734-77a83d3b7352?auto=format&fit=crop&q=80&w=800" },
+        { id: 'k2', name: "Sevr Mağarası", desc: "Hicret sırasında Peygamber Efendimiz (s.a.v) ve Hz. Ebubekir'in gizlendiği mağara.", lat: 21.3881, lng: 39.8583, image: "https://images.unsplash.com/photo-1564769662533-4f00a87b4056?auto=format&fit=crop&q=80&w=800" },
+        { id: 'k3', name: "Hira Mağarası (Nur Dağı)", desc: "İlk vahiy 'Oku' emrinin geldiği mağara.", lat: 21.4563, lng: 39.8587, image: "https://images.unsplash.com/photo-1580974797018-8686d634177d?auto=format&fit=crop&q=80&w=800" },
+        { id: 'k4', name: "Cennetü'l Mualla", desc: "Mekke'nin en eski mezarlığı. Hz. Hatice annemiz burada medfundur.", lat: 21.4326, lng: 39.8286, image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Jannat_al-Mu%27alla_Tombs.jpg/640px-Jannat_al-Mu%27alla_Tombs.jpg" }
+    ]
+};
+
 const CHECKLISTS_DATA = {
     luggage: [
         { id: "l1", label: "İhram (2 Takım)", checked: false },
@@ -106,7 +131,6 @@ const CHECKLISTS_DATA = {
     ]
 };
 
-// --- SÖZLÜK VERİLERİ (YENİ) ---
 const PHRASES_DATA = [
     {
         category: "Acil Durum",
@@ -137,7 +161,6 @@ const PHRASES_DATA = [
     }
 ];
 
-// --- ACİL NUMARALAR ---
 const EMERGENCY_NUMBERS = [
     { title: "T.C. Cidde Başkonsolosluğu", number: "+966126601607", icon: "building-2" },
     { title: "T.C. Riyad Büyükelçiliği", number: "+966114820101", icon: "flag" },
@@ -147,7 +170,7 @@ const EMERGENCY_NUMBERS = [
     { title: "Trafik Kazası", number: "993", icon: "car" }
 ];
 
-// --- AYARLAR MODALI BİLEŞENİ ---
+// --- AYARLAR MODALI BİLEŞENİ (GÜNCELLENDİ) ---
 const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPrompt, onInstall }) => {
     if (!isOpen) return null;
 
@@ -237,35 +260,50 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                         </button>
                     </div>
 
-                    {/* Uygulamayı Yükle Butonu (Ayarlar içinde) */}
-                    {installPrompt && (
-                        <div className="bg-slate-900 dark:bg-slate-800 p-4 rounded-xl border border-gold-500/30 flex flex-col gap-3">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-gold-500 text-slate-900 rounded-lg shrink-0">
-                                    <i data-lucide="download" className="w-5 h-5"></i>
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-white text-sm">Uygulamayı Yükle</h4>
-                                    <p className="text-[10px] text-slate-300">İnternetsiz kullanım için.</p>
-                                </div>
+                    {/* GÜNCELLENMİŞ: Uygulamayı Yükle Butonu */}
+                    <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-5 rounded-2xl border border-gold-500/30 flex flex-col gap-4 shadow-lg">
+                        <div className="flex items-start gap-4">
+                            <div className="p-3 bg-gold-500 text-slate-900 rounded-xl shrink-0 shadow-lg shadow-gold-500/20">
+                                <i data-lucide="download" className="w-6 h-6"></i>
                             </div>
-                            <button onClick={onInstall} className="w-full py-2 bg-gold-500 hover:bg-gold-600 text-slate-900 font-bold text-sm rounded-lg transition-colors">
-                                Cihaza İndir
-                            </button>
+                            <div>
+                                <h4 className="font-bold text-white text-base">Uygulamayı Yükle</h4>
+                                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                                    Rehberi telefonunuza indirerek bu avantajlardan yararlanın:
+                                </p>
+                            </div>
                         </div>
-                    )}
+                        
+                        <ul className="text-xs text-slate-400 space-y-2 ml-1">
+                            <li className="flex items-center gap-2">
+                                <i data-lucide="check-circle-2" className="w-3 h-3 text-emerald-500"></i>
+                                İnternet olmadan tam erişim
+                            </li>
+                            <li className="flex items-center gap-2">
+                                <i data-lucide="check-circle-2" className="w-3 h-3 text-emerald-500"></i>
+                                Ana ekrandan hızlı açılış
+                            </li>
+                            <li className="flex items-center gap-2">
+                                <i data-lucide="check-circle-2" className="w-3 h-3 text-emerald-500"></i>
+                                Tam ekran deneyimi
+                            </li>
+                        </ul>
 
-                    {/* Gizlilik Uyarısı */}
-                    <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800 flex gap-3">
-                        <i data-lucide="shield-check" className="w-6 h-6 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-                        <p className="text-[10px] text-emerald-800 dark:text-emerald-300 leading-relaxed text-justify">
-                            <strong>Gizlilik:</strong> Bu uygulamada yaptığınız hiçbir ayar, konum bilgisi veya kişisel veri sunucularımıza yüklenmez. Tüm veriler sadece telefonunuzda saklanır.
-                        </p>
+                        <button onClick={onInstall} disabled={!installPrompt} className="w-full py-3 bg-gold-500 hover:bg-gold-600 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 font-bold text-sm rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
+                            {installPrompt ? (
+                                <>
+                                    <i data-lucide="smartphone" className="w-4 h-4"></i>
+                                    Ana Ekrana Ekle
+                                </>
+                            ) : (
+                                "Tarayıcıdan Yüklenebilir"
+                            )}
+                        </button>
                     </div>
 
                     <div className="pt-4 text-center border-t border-slate-100 dark:border-slate-800">
                         <p className="text-xs font-bold text-slate-400">Karayolu Umre Rehberi</p>
-                        <p className="text-[10px] text-slate-300 font-mono mt-1">Sürüm 2.4</p>
+                        <p className="text-[10px] text-slate-300 font-mono mt-1">Sürüm 2.5</p>
                     </div>
                 </div>
             </div>
@@ -273,7 +311,66 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
     );
 };
 
-// --- BİLEŞENLER ---
+// --- SES OYNATICI BİLEŞENİ (HEADER İÇİN) ---
+const AudioPlayer = () => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const audioRef = useRef(null);
+
+    // Audio nesnesini oluştur (sadece bir kere)
+    useEffect(() => {
+        audioRef.current = new Audio('audio/Tebliye.mp3');
+        // Döngüye al
+        audioRef.current.loop = true;
+        
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current = null;
+            }
+        };
+    }, []);
+
+    const togglePlay = () => {
+        if (!audioRef.current) return;
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            audioRef.current.play().catch(e => console.log("Otomatik oynatma engellendi", e));
+        }
+        setIsPlaying(!isPlaying);
+    };
+
+    const stopPlay = () => {
+        if (!audioRef.current) return;
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setIsPlaying(false);
+    };
+
+    return (
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-full p-1 pr-2 border border-slate-200 dark:border-slate-700">
+            <button 
+                onClick={togglePlay}
+                className={`p-1.5 rounded-full transition-all ${isPlaying ? 'bg-gold-500 text-white shadow-sm' : 'hover:bg-slate-200 dark:hover:bg-slate-700 text-gold-600 dark:text-gold-500'}`}
+            >
+                <i data-lucide={isPlaying ? "pause" : "play"} className="w-4 h-4 fill-current"></i>
+            </button>
+            
+            {isPlaying && (
+                <button 
+                    onClick={stopPlay}
+                    className="p-1.5 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-all"
+                >
+                    <i data-lucide="square" className="w-3 h-3 fill-current"></i>
+                </button>
+            )}
+            
+            <span className="text-[10px] font-bold text-slate-600 dark:text-slate-300 pl-1 hidden sm:inline">
+                {isPlaying ? "Tebliye" : "Tebliye"}
+            </span>
+        </div>
+    );
+};
 
 const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => (
     <div className="sticky top-0 z-50 glass-header px-4 py-3 flex items-center justify-between shadow-sm transition-all duration-300 min-h-[70px]">
@@ -296,11 +393,17 @@ const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => (
                 </h1>
             )}
         </div>
-        {showSettingsBtn && (
-            <button onClick={onOpenSettings} className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-gold-600 dark:hover:text-gold-400 transition shadow-sm active:scale-95">
-                <i data-lucide="settings" className="w-5 h-5"></i>
-            </button>
-        )}
+        
+        <div className="flex items-center gap-2">
+            {/* Oynatıcı Eklendi */}
+            <AudioPlayer />
+            
+            {showSettingsBtn && (
+                <button onClick={onOpenSettings} className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-gold-600 dark:hover:text-gold-400 transition shadow-sm active:scale-95">
+                    <i data-lucide="settings" className="w-5 h-5"></i>
+                </button>
+            )}
+        </div>
     </div>
 );
 
@@ -338,7 +441,7 @@ const AnnouncementBar = () => {
     );
 };
 
-// --- YÜKLEME BANNERI (Mantık Güncellendi) ---
+// --- YÜKLEME BANNERI ---
 const InstallBanner = ({ onInstall, onClose, show }) => {
     if (!show) return null;
 
@@ -426,6 +529,335 @@ const RouteVisualizer = () => {
                         </div>
                     ))}
                 </div>
+            </div>
+        </div>
+    );
+};
+
+// --- YENİ GEZİLEBİLECEK YERLER BİLEŞENİ ---
+const PlacesExplorer = () => {
+    const [activeTab, setActiveTab] = useState('mekke');
+    const [selectedPlace, setSelectedPlace] = useState(null);
+    const [userLocation, setUserLocation] = useState(null);
+
+    // Konum alma
+    useEffect(() => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => setUserLocation({ lat: position.coords.latitude, lng: position.coords.longitude }),
+                (err) => console.log("Konum alınamadı", err)
+            );
+        }
+    }, []);
+
+    // Haversine Formülü ile mesafe hesaplama
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+        if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+        const R = 6371; // km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = 
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return (R * c).toFixed(1);
+    };
+
+    const tabs = [
+        { id: 'mekke', label: 'Mekke' },
+        { id: 'medine', label: 'Medine' },
+        { id: 'urdun', label: 'Ürdün' },
+        { id: 'suriye', label: 'Suriye' }
+    ];
+
+    const openMap = (lat, lng) => {
+        window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+    };
+
+    return (
+        <div className="p-4 pb-24 animate-fade-in space-y-4">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6 rounded-2xl text-white shadow-lg relative overflow-hidden mb-2">
+                <div className="relative z-10">
+                    <h3 className="font-serif text-xl font-bold text-gold-400">Gezilebilecek Yerler</h3>
+                    <p className="text-slate-400 text-xs mt-1">Tarihi ve Manevi Mekanlar</p>
+                </div>
+                <i data-lucide="compass" className="absolute right-4 bottom-4 w-16 h-16 text-white opacity-10 rotate-12"></i>
+            </div>
+
+            {/* Tabs */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab.id}
+                        onClick={() => { setActiveTab(tab.id); setSelectedPlace(null); }}
+                        className={`px-4 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-gold-500 text-slate-900 shadow-lg shadow-gold-500/30' : 'bg-white dark:bg-slate-800 text-slate-500 border border-slate-100 dark:border-slate-700'}`}
+                    >
+                        {tab.label}
+                    </button>
+                ))}
+            </div>
+
+            {/* Content Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {PLACES_DATA[activeTab]?.map((place) => (
+                    <div key={place.id} className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700 group">
+                        <div className="h-40 overflow-hidden relative">
+                            <img src={place.image} alt={place.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+                            <h4 className="absolute bottom-3 left-4 font-bold text-white text-lg font-serif">{place.name}</h4>
+                        </div>
+                        <div className="p-4">
+                            <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2 mb-3">{place.desc}</p>
+                            
+                            <div className="flex items-center justify-between">
+                                {userLocation && (
+                                    <div className="flex items-center gap-1 text-xs font-mono text-gold-600 dark:text-gold-400">
+                                        <i data-lucide="map-pin" className="w-3 h-3"></i>
+                                        <span>{calculateDistance(userLocation.lat, userLocation.lng, place.lat, place.lng)} km</span>
+                                    </div>
+                                )}
+                                <button 
+                                    onClick={() => setSelectedPlace(place)}
+                                    className="px-3 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg hover:bg-gold-500 hover:text-slate-900 transition-colors ml-auto"
+                                >
+                                    Detay
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Detail Modal */}
+            {selectedPlace && (
+                <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 animate-fade-in">
+                    <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl animate-fade-in-up">
+                        <div className="h-56 relative">
+                            <img src={selectedPlace.image} alt={selectedPlace.name} className="w-full h-full object-cover" />
+                            <button onClick={() => setSelectedPlace(null)} className="absolute top-4 right-4 p-2 bg-black/30 backdrop-blur rounded-full text-white hover:bg-red-500 transition-colors">
+                                <i data-lucide="x" className="w-5 h-5"></i>
+                            </button>
+                            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-900 to-transparent">
+                                <h2 className="text-2xl font-serif font-bold text-white">{selectedPlace.name}</h2>
+                            </div>
+                        </div>
+                        <div className="p-6">
+                            <div className="prose dark:prose-invert max-w-none text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                                {selectedPlace.desc}
+                            </div>
+                            
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={() => openMap(selectedPlace.lat, selectedPlace.lng)}
+                                    className="flex-1 py-3 bg-gold-500 hover:bg-gold-600 text-slate-900 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-gold-500/20"
+                                >
+                                    <i data-lucide="navigation" className="w-5 h-5"></i>
+                                    Yol Tarifi Al
+                                </button>
+                                {userLocation && (
+                                    <div className="px-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-xl flex flex-col items-center justify-center border border-slate-200 dark:border-slate-700">
+                                        <span className="text-[10px] text-slate-400 uppercase font-bold">Mesafe</span>
+                                        <span className="text-sm font-bold text-slate-800 dark:text-white font-mono">{calculateDistance(userLocation.lat, userLocation.lng, selectedPlace.lat, selectedPlace.lng)} km</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// --- YENİ ULTRA PREMİUM KIBLE PUSULASI ---
+const QiblaCompass = () => {
+    const [heading, setHeading] = useState(0);
+    const [qiblaDir, setQiblaDir] = useState(0); // Mekke'ye olan açı
+    const [permissionGranted, setPermissionGranted] = useState(false);
+    const [isIOS, setIsIOS] = useState(false);
+
+    // Kabe Koordinatları
+    const KAABA_LAT = 21.422487;
+    const KAABA_LNG = 39.826206;
+
+    useEffect(() => {
+        // iOS Tespiti
+        if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+            setIsIOS(true);
+        } else {
+            setPermissionGranted(true); // Android/Desktop için otomatik başla
+        }
+
+        // Konum alıp Kıble açısını hesapla
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(position => {
+                const { latitude, longitude } = position.coords;
+                const qibla = calculateQibla(latitude, longitude);
+                setQiblaDir(qibla);
+            });
+        }
+    }, []);
+
+    const calculateQibla = (lat, lng) => {
+        const PI = Math.PI;
+        const latk = KAABA_LAT * PI / 180.0;
+        const longk = KAABA_LNG * PI / 180.0;
+        const phi = lat * PI / 180.0;
+        const lambda = lng * PI / 180.0;
+        const qibla = 180.0 / PI * Math.atan2(Math.sin(longk - lambda), Math.cos(phi) * Math.tan(latk) - Math.sin(phi) * Math.cos(longk - lambda));
+        return qibla;
+    };
+
+    useEffect(() => {
+        if (!permissionGranted) return;
+
+        const handleOrientation = (e) => {
+            let compass = e.webkitCompassHeading || Math.abs(e.alpha - 360);
+            setHeading(compass);
+        };
+
+        window.addEventListener('deviceorientation', handleOrientation);
+        return () => window.removeEventListener('deviceorientation', handleOrientation);
+    }, [permissionGranted]);
+
+    const requestAccess = () => {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                    if (response === 'granted') {
+                        setPermissionGranted(true);
+                    } else {
+                        alert('İzin verilmedi.');
+                    }
+                })
+                .catch(console.error);
+        }
+    };
+
+    // Pusula dönüş açısı
+    // Pusula görseli (Gül) ters yöne döner, böylece telefon döndükçe kuzey sabit kalır.
+    const compassStyle = { transform: `rotate(${-heading}deg)` };
+    // Kıble oku, pusula gülünün içinde Mekke açısına sabitlenir.
+    const needleStyle = { transform: `rotate(${qiblaDir}deg)` };
+
+    return (
+        <div className="p-4 pb-20 animate-fade-in flex flex-col items-center justify-center min-h-[70vh]">
+            <div className="text-center mb-8">
+                <h2 className="text-3xl font-serif font-bold text-gold-500 mb-2">Kıble Pusulası</h2>
+                <p className="text-slate-500 dark:text-slate-400 text-sm">Cihazınızı yatay tutunuz.</p>
+                {isIOS && !permissionGranted && (
+                    <button onClick={requestAccess} className="mt-4 px-4 py-2 bg-slate-800 text-white rounded-lg text-sm">
+                        Pusulayı Etkinleştir
+                    </button>
+                )}
+            </div>
+
+            {/* Pusula Gövdesi */}
+            <div className="relative w-72 h-72">
+                {/* Dış Çerçeve (Sabit) */}
+                <div className="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-slate-700 shadow-2xl bg-white dark:bg-slate-800"></div>
+                <div className="absolute inset-2 rounded-full border border-slate-100 dark:border-slate-600"></div>
+                
+                {/* Dönen Pusula Gülü */}
+                <div className="absolute inset-4 transition-transform duration-300 ease-out" style={compassStyle}>
+                    {/* Kuzey İşareti */}
+                    <div className="absolute top-2 left-1/2 -translate-x-1/2 text-red-500 font-bold text-lg">N</div>
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-slate-400 font-bold text-lg">S</div>
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">E</div>
+                    <div className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">W</div>
+                    
+                    {/* Derece Çizgileri (Dekoratif) */}
+                    <div className="absolute inset-8 border border-dashed border-slate-300 dark:border-slate-600 rounded-full opacity-50"></div>
+                    
+                    {/* Kıble Göstergesi (Pusula Gülüne Göre Sabit) */}
+                    <div className="absolute inset-0 flex items-center justify-center" style={needleStyle}>
+                        {/* Bu ok her zaman Mekke'yi gösterir (Kuzeye göre qiblaDir açısında) */}
+                        <div className="w-1.5 h-1/2 bg-gradient-to-t from-transparent to-gold-500 rounded-t-full origin-bottom relative -top-1/4 opacity-90 shadow-lg shadow-gold-500/50">
+                            <i data-lucide="moon" className="w-6 h-6 text-white absolute -top-8 left-1/2 -translate-x-1/2 fill-current"></i>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Merkez Noktası (Sabit) */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-white rounded-full border-2 border-slate-300 shadow-sm z-20"></div>
+                
+                {/* Sabit Hedef Çizgisi (Telefonun Üstü) */}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-0.5 h-6 bg-red-500 z-30"></div>
+            </div>
+
+            <div className="mt-10 grid grid-cols-2 gap-4 w-full max-w-xs">
+                <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl text-center">
+                    <p className="text-[10px] text-slate-400 uppercase font-bold">Pusula Açısı</p>
+                    <p className="text-xl font-mono font-bold text-slate-800 dark:text-white">{Math.round(heading)}°</p>
+                </div>
+                <div className="bg-gold-50 dark:bg-gold-900/20 p-3 rounded-xl text-center border border-gold-200 dark:border-gold-500/30">
+                    <p className="text-[10px] text-gold-600 uppercase font-bold">Kıble Açısı</p>
+                    <p className="text-xl font-mono font-bold text-gold-600 dark:text-gold-400">{Math.round(qiblaDir)}°</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// --- YENİ ÇOKLU ÖNE ÇIKAN KARTLAR ---
+// Başka kart eklemek için bu bileşene yeni bir div bloğu ekleyip 'flex-none w-[85%] snap-center' sınıflarını verin.
+const FeaturedCards = ({ onViewRoute }) => {
+    const [distances, setDistances] = useState({ mekke: '...', medine: '...' });
+
+    // Mesafe Hesaplama (Basit)
+    useEffect(() => {
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                const { latitude, longitude } = pos.coords;
+                // Mekke: 21.4225, 39.8262
+                // Medine: 24.4672, 39.6109
+                const dMekke = Math.round(distance(latitude, longitude, 21.4225, 39.8262));
+                const dMedine = Math.round(distance(latitude, longitude, 24.4672, 39.6109));
+                setDistances({ mekke: dMekke, medine: dMedine });
+            });
+        }
+    }, []);
+
+    const distance = (lat1, lon1, lat2, lon2) => {
+        const p = 0.017453292519943295;
+        const c = Math.cos;
+        const a = 0.5 - c((lat2 - lat1) * p)/2 + 
+                  c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p))/2;
+        return 12742 * Math.asin(Math.sqrt(a));
+    };
+
+    return (
+        <div className="col-span-2 mb-2 overflow-x-auto pb-4 -mx-4 px-4 flex gap-4 snap-x snap-mandatory scrollbar-hide">
+            {/* Kart 1: Rota */}
+            <div onClick={onViewRoute} className="flex-none w-[90%] sm:w-[85%] snap-center relative overflow-hidden bg-slate-900 rounded-2xl p-6 text-white shadow-xl cursor-pointer group border border-slate-700">
+                <div className="relative z-10 flex justify-between items-center">
+                    <div>
+                        <div className="flex items-center gap-2 mb-2"><span className="px-2 py-0.5 rounded text-[10px] bg-gold-500 text-slate-900 font-bold uppercase tracking-wider">Öne Çıkan</span></div>
+                        <h2 className="text-3xl font-serif font-bold text-white mb-1">Yolculuk Rotası</h2>
+                        <p className="text-slate-400 text-sm">Cilvegözü <span className="text-gold-500">➔</span> Mekke</p>
+                    </div>
+                    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-slate-900 transition-colors"><i data-lucide="arrow-right" className="w-6 h-6"></i></div>
+                </div>
+                <i data-lucide="map" className="absolute -right-4 -bottom-8 w-40 h-40 text-white opacity-5 rotate-12"></i>
+            </div>
+
+            {/* Kart 2: Mesafeler */}
+            <div className="flex-none w-[90%] sm:w-[85%] snap-center relative overflow-hidden bg-gradient-to-br from-emerald-900 to-slate-900 rounded-2xl p-6 text-white shadow-xl border border-emerald-800">
+                <div className="relative z-10">
+                    <div className="flex items-center gap-2 mb-4"><span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500 text-white font-bold uppercase tracking-wider">Mesafe</span></div>
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                            <span className="font-serif text-lg">Mekke-i Mükerreme</span>
+                            <span className="font-mono font-bold text-gold-400">{distances.mekke} km</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="font-serif text-lg">Medine-i Münevvere</span>
+                            <span className="font-mono font-bold text-emerald-400">{distances.medine} km</span>
+                        </div>
+                    </div>
+                </div>
+                <i data-lucide="milestone" className="absolute -right-4 -bottom-8 w-40 h-40 text-white opacity-5 rotate-12"></i>
             </div>
         </div>
     );
@@ -611,7 +1043,7 @@ const ChecklistManager = ({ type, title }) => {
     );
 };
 
-// --- PRATİK SÖZLÜK (YENİ ÖZELLİK) ---
+// --- PRATİK SÖZLÜK ---
 const TranslationGuide = () => {
     const [activeCat, setActiveCat] = useState(0);
 
@@ -913,8 +1345,6 @@ const About = () => {
     );
 };
 
-const SimplePage = ({ title, children }) => (<div className="p-4 pb-20 space-y-4 animate-fade-in">{children}</div>);
-
 // --- ANA UYGULAMA (APP) ---
 const App = () => {
     const [activeView, setActiveView] = useState('dashboard');
@@ -1050,33 +1480,24 @@ const App = () => {
             case 'dashboard': return (
                 <div className="p-4 grid grid-cols-2 gap-3 pb-24 animate-fade-in">
                     
-                    {/* Öne Çıkan Kart */}
-                    <div className="col-span-2 mb-2">
-                        <div onClick={() => setActiveView('route')} className="relative overflow-hidden bg-slate-900 rounded-2xl p-6 text-white shadow-xl cursor-pointer group border border-slate-700">
-                            <div className="relative z-10 flex justify-between items-center">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-2"><span className="px-2 py-0.5 rounded text-[10px] bg-gold-500 text-slate-900 font-bold uppercase tracking-wider">Öne Çıkan</span></div>
-                                    <h2 className="text-3xl font-serif font-bold text-white mb-1">Yolculuk Rotası</h2>
-                                    <p className="text-slate-400 text-sm">Cilvegözü <span className="text-gold-500">➔</span> Mekke</p>
-                                </div>
-                                <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-slate-900 transition-colors"><i data-lucide="arrow-right" className="w-6 h-6"></i></div>
-                            </div>
-                            <i data-lucide="map" className="absolute -right-4 -bottom-8 w-40 h-40 text-white opacity-5 rotate-12"></i>
-                        </div>
-                    </div>
+                    {/* YENİ ÖNE ÇIKAN KARTLAR (SLIDER) */}
+                    <FeaturedCards onViewRoute={() => setActiveView('route')} />
 
                     <AnnouncementBar />
 
+                    {/* Menü Kartları (Dualar kaldırıldı, Kıble eklendi, Gezilecekler güncellendi) */}
                     <MenuCard icon="book-open" label="Umre Rehberi" subLabel="Adım adım ibadet" colorClass="bg-emerald-500 text-emerald-600" onClick={() => setActiveView('guide')} />
+                    <MenuCard icon="compass" label="Kıble Pusulası" subLabel="Canlı Yön Takibi" colorClass="bg-amber-500 text-amber-600" onClick={() => setActiveView('compass')} />
+                    
                     <MenuCard icon="languages" label="Pratik Sözlük" subLabel="Acil Durum & Konuşma" colorClass="bg-indigo-500 text-indigo-600" onClick={() => setActiveView('translations')} />
+                    <MenuCard icon="map-pin" label="Gezilebilecek Yerler" subLabel="Kutsal Mekanlar" colorClass="bg-blue-500 text-blue-600" onClick={() => setActiveView('places')} />
                     
-                    <MenuCard icon="map-pin" label="Gezilecekler" subLabel="Mekke & Medine" colorClass="bg-blue-500 text-blue-600" onClick={() => setActiveView('places')} />
                     <MenuCard icon="clock" label="Namaz Vakitleri" subLabel="Ümmü'l-Kurra" colorClass="bg-cyan-500 text-cyan-600" onClick={() => setActiveView('times')} />
-                    
-                    <MenuCard icon="heart-handshake" label="Dualar" subLabel="Sesli & Metin" colorClass="bg-rose-500 text-rose-600" onClick={() => setActiveView('prayers')} />
                     <MenuCard icon="briefcase" label="İhtiyaç Listesi" subLabel="Bagaj & İlaç" colorClass="bg-purple-500 text-purple-600" onClick={() => setActiveView('luggage')} />
+                    
                     <MenuCard icon="arrow-left-right" label="Döviz" subLabel="Canlı / Çevrimdışı" colorClass="bg-green-600 text-green-700" onClick={() => setActiveView('currency')} />
                     <MenuCard icon="file-text" label="Evraklar" subLabel="Pasaport & Vize" colorClass="bg-slate-500 text-slate-600" onClick={() => setActiveView('documents')} />
+                    
                     <MenuCard icon="phone" label="Acil Numaralar" subLabel="Konsolosluk & Sağlık" colorClass="bg-red-500 text-red-600" onClick={() => setActiveView('contacts')} />
                     <MenuCard icon="info" label="Hakkında" subLabel="Geliştirici" colorClass="bg-slate-400 text-slate-500" onClick={() => setActiveView('about')} />
                 </div>
@@ -1090,8 +1511,8 @@ const App = () => {
             case 'documents': return <ChecklistManager type="documents" title="Resmi Evraklar" />;
             case 'times': return <PrayerTimesDetail />;
             case 'contacts': return <EmergencyContacts />;
-            case 'places': return <SimplePage title="Gezilecekler"><p className="text-slate-600 dark:text-slate-300">Uhud Dağı, Kuba Mescidi, Sevr Mağarası...</p></SimplePage>;
-            case 'prayers': return <SimplePage title="Dualar"><p className="text-slate-600 dark:text-slate-300">Burada sesli ve yazılı dualar listelenecek.</p></SimplePage>;
+            case 'places': return <PlacesExplorer />; 
+            case 'compass': return <QiblaCompass />;
             default: return <div className="p-10 text-center text-slate-500">Yapım aşamasında</div>;
         }
     };
@@ -1103,6 +1524,8 @@ const App = () => {
         if (activeView === 'guide') return 'Umre Rehberi';
         if (activeView === 'translations') return 'Pratik Sözlük';
         if (activeView === 'currency') return 'Döviz Çevirici';
+        if (activeView === 'compass') return 'Kıble Pusulası';
+        if (activeView === 'places') return 'Gezilebilecek Yerler';
         // ... diğer durumlar ...
         return 'Rehber';
     };
