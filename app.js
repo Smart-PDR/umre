@@ -14,7 +14,7 @@ const APP_VERSION = "v2.6.0";
 const SITE_TITLE = "umre.men"; 
 
 // YENİ: Geri Bildirim Formu Linki (Google Form linkinizi buraya yapıştırın)
-const FEEDBACK_FORM_URL = "https://forms.google.com/your-link-here";
+const FEEDBACK_FORM_URL = "https://forms.gle/XiPcqdDAsDMxijiJ9";
 
 // --- YARDIMCI FONKSİYONLAR ---
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -1053,3 +1053,4 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
