@@ -12,6 +12,27 @@ import {
     LayoutGrid
 } from 'lucide-react';
 
+// --- GÜVENLİ LOCALSTORAGE YARDIMCISI ---
+// Bazı tarayıcılarda veya gizli sekmelerde localStorage erişimi engellenebilir.
+// Bu yardımcı fonksiyon uygulamanın çökmesini engeller.
+const safeStorage = {
+    getItem: (key) => {
+        try {
+            return localStorage.getItem(key);
+        } catch (e) {
+            console.warn('LocalStorage erişimi kısıtlı:', e);
+            return null;
+        }
+    },
+    setItem: (key, value) => {
+        try {
+            localStorage.setItem(key, value);
+        } catch (e) {
+            console.warn('LocalStorage yazma hatası:', e);
+        }
+    }
+};
+
 // --- STYLES & CONFIGURATION (Environment Setup) ---
 const CustomStyles = () => (
     <style>{`
@@ -327,9 +348,13 @@ const AudioPlayer = () => {
 
     // Audio nesnesini oluştur (sadece bir kere)
     useEffect(() => {
-        audioRef.current = new Audio('audio/Tebliye.mp3');
-        // Döngüye al
-        audioRef.current.loop = true;
+        try {
+            audioRef.current = new Audio('audio/Tebliye.mp3');
+            // Döngüye al
+            audioRef.current.loop = true;
+        } catch(e) {
+            console.warn("Ses sistemi başlatılamadı:", e);
+        }
         
         return () => {
             if (audioRef.current) {
@@ -907,8 +932,8 @@ const CurrencyConverter = () => {
                 setLoading(false);
                 setIsOffline(false);
                 
-                // LocalStorage'a kaydet
-                localStorage.setItem('currency_rates', JSON.stringify({
+                // LocalStorage'a kaydet (Güvenli)
+                safeStorage.setItem('currency_rates', JSON.stringify({
                     rates: data.rates,
                     date: new Date().toLocaleString()
                 }));
@@ -919,7 +944,7 @@ const CurrencyConverter = () => {
                 
             } catch (error) {
                 console.log("Offline mod veya API hatası:", error);
-                const saved = localStorage.getItem('currency_rates');
+                const saved = safeStorage.getItem('currency_rates');
                 if (saved) {
                     const parsed = JSON.parse(saved);
                     setRates(parsed.rates);
@@ -1035,7 +1060,7 @@ const ChecklistManager = ({ type, title }) => {
     const [items, setItems] = useState([]);
 
     useEffect(() => {
-        const saved = localStorage.getItem(`checklist_${type}`);
+        const saved = safeStorage.getItem(`checklist_${type}`);
         if (saved) setItems(JSON.parse(saved));
         else setItems(CHECKLISTS_DATA[type] || []);
     }, [type]);
@@ -1043,7 +1068,7 @@ const ChecklistManager = ({ type, title }) => {
     const toggleItem = (id) => {
         const newItems = items.map(item => item.id === id ? { ...item, checked: !item.checked } : item);
         setItems(newItems);
-        localStorage.setItem(`checklist_${type}`, JSON.stringify(newItems));
+        safeStorage.setItem(`checklist_${type}`, JSON.stringify(newItems));
     };
 
     return (
@@ -1155,7 +1180,7 @@ const PrayerTimesDetail = () => {
     const [dataDate, setDataDate] = useState("");
 
     const [reminders, setReminders] = useState(() => {
-        const saved = localStorage.getItem("prayer_reminders");
+        const saved = safeStorage.getItem("prayer_reminders");
         return saved ? JSON.parse(saved) : {};
     });
 
@@ -1189,8 +1214,8 @@ const PrayerTimesDetail = () => {
                 setDataDate(apiDate);
                 setIsOffline(false);
 
-                // Kaydet
-                localStorage.setItem(`prayer_times_${city}`, JSON.stringify({
+                // Kaydet (Güvenli)
+                safeStorage.setItem(`prayer_times_${city}`, JSON.stringify({
                     times: formattedTimes,
                     date: apiDate,
                     timestamp: new Date().getTime()
@@ -1198,7 +1223,7 @@ const PrayerTimesDetail = () => {
 
             } catch (error) {
                 console.log("Offline mod:", error);
-                const saved = localStorage.getItem(`prayer_times_${city}`);
+                const saved = safeStorage.getItem(`prayer_times_${city}`);
                 if (saved) {
                     const parsed = JSON.parse(saved);
                     setTimes(parsed.times);
@@ -1221,13 +1246,14 @@ const PrayerTimesDetail = () => {
     }, [city]);
 
     useEffect(() => {
-        localStorage.setItem("prayer_reminders", JSON.stringify(reminders));
+        safeStorage.setItem("prayer_reminders", JSON.stringify(reminders));
     }, [reminders]);
 
     const handleReminderChange = (vakit, minutes) => {
         setReminders(prev => ({ ...prev, [vakit]: parseInt(minutes) }));
         if (parseInt(minutes) > 0) {
-            if (Notification.permission !== "granted") {
+            // Bildirim izni kontrolü (Güvenli)
+            if ("Notification" in window && Notification.permission !== "granted") {
                 Notification.requestPermission();
             }
         }
@@ -1372,9 +1398,9 @@ const App = () => {
     const [showInstallBanner, setShowInstallBanner] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     
-    // Uygulama Ayarları State'i
+    // Uygulama Ayarları State'i (Güvenli)
     const [settings, setSettings] = useState(() => {
-        const saved = localStorage.getItem('app_settings');
+        const saved = safeStorage.getItem('app_settings');
         return saved ? JSON.parse(saved) : {
             fontSize: 'medium', // small, medium, large
             theme: 'light',
@@ -1385,7 +1411,7 @@ const App = () => {
 
     // Tema Değişikliği ve Ayar Kaydı
     useEffect(() => {
-        localStorage.setItem('app_settings', JSON.stringify(settings));
+        safeStorage.setItem('app_settings', JSON.stringify(settings));
         
         // Tema uygula
         if (settings.theme === 'dark') {
@@ -1410,7 +1436,7 @@ const App = () => {
             setInstallPrompt(e);
             
             // Daha önce kapatılmadıysa veya yüklenmediyse göster
-            const isDismissed = localStorage.getItem('install_dismissed');
+            const isDismissed = safeStorage.getItem('install_dismissed');
             if (!isDismissed) {
                 setShowInstallBanner(true);
             }
@@ -1419,7 +1445,7 @@ const App = () => {
 
         // TEST AMAÇLI: Eğer "install_dismissed" yoksa 3 saniye sonra banner'ı aç
         const timer = setTimeout(() => {
-            const isDismissed = localStorage.getItem('install_dismissed');
+            const isDismissed = safeStorage.getItem('install_dismissed');
             if (!isDismissed) setShowInstallBanner(true);
         }, 3000);
 
@@ -1433,14 +1459,14 @@ const App = () => {
         if (!installPrompt) {
             alert("Önizleme Modu: Gerçek cihazda yükleme penceresi açılır.");
             setShowInstallBanner(false);
-            localStorage.setItem('install_dismissed', 'true'); // Yüklendi varsayarak gizle
+            safeStorage.setItem('install_dismissed', 'true'); // Yüklendi varsayarak gizle
             return;
         }
         installPrompt.prompt();
         installPrompt.userChoice.then((choiceResult) => {
             if (choiceResult.outcome === 'accepted') {
                 setShowInstallBanner(false);
-                localStorage.setItem('install_dismissed', 'true');
+                safeStorage.setItem('install_dismissed', 'true');
             }
             setInstallPrompt(null);
         });
@@ -1448,7 +1474,7 @@ const App = () => {
 
     const handleDismissInstall = () => {
         setShowInstallBanner(false);
-        localStorage.setItem('install_dismissed', 'true');
+        safeStorage.setItem('install_dismissed', 'true');
     };
 
     const updateSettings = (key, value) => {
