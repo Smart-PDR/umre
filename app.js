@@ -1,4 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { 
+    BookOpen, Compass, Languages, MapPin, Clock, Briefcase, ArrowLeftRight, FileText, Phone, Info,
+    X, Type, Moon, Sun, Bell, Download, CheckCircle2, Smartphone, 
+    Play, Pause, Square, Settings, ArrowLeft, Megaphone,
+    Map, Flag, Milestone, ArrowRight,
+    Navigation,
+    Loader2, Wifi, WifiOff, AlertCircle,
+    Check,
+    Shirt, Repeat, Footprints, Scissors, ChevronDown,
+    Building2, AlertTriangle, Ambulance, Car,
+    LayoutGrid
+} from 'lucide-react';
 
 // --- STYLES & CONFIGURATION (Environment Setup) ---
 const CustomStyles = () => (
@@ -89,13 +101,10 @@ const ROUTE_STOPS = [
     { id: 8, name: "Mekke", desc: "Kabe-i Muazzama / Umre", type: "holy", km: 2100 }
 ];
 
-// --- GEZİLEBİLECEK YERLER VERİSİ (BURAYA YENİ YERLER EKLEYEBİLİRSİNİZ) ---
-// Not: Yeni bir yer eklemek için ilgili kategori dizisine bir nesne ekleyin.
-// Örnek: { id: 99, name: "Yer Adı", desc: "Açıklama", lat: 0.00, lng: 0.00, image: "url" }
 const PLACES_DATA = {
     suriye: [
         { id: 's1', name: "Emevi Camii", desc: "Şam'ın kalbinde, İslam tarihinin en eski ve en görkemli camilerinden biri. Hz. Yahya (a.s)'ın başının burada medfun olduğuna inanılır.", lat: 33.5116, lng: 36.3065, image: "https://images.unsplash.com/photo-1596489390234-a3c306d15682?auto=format&fit=crop&q=80&w=800" },
-        { id: 's2', name: "Halid bin Velid Camii", desc: "Humus şehrinde, İslam ordularının büyük komutanı Seyfullah (Allah'ın Kılıcı) Halid bin Velid'in kabrinin bulunduğu cami.", lat: 34.7356, lng: 36.7145, image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Khalid_ibn_al-Walid_Mosque_2010.jpg/640px-Khalid_ibn_al-Walid_Mosque_2010.jpg" } // Fallback image used appropriately would be better
+        { id: 's2', name: "Halid bin Velid Camii", desc: "Humus şehrinde, İslam ordularının büyük komutanı Seyfullah (Allah'ın Kılıcı) Halid bin Velid'in kabrinin bulunduğu cami.", lat: 34.7356, lng: 36.7145, image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Khalid_ibn_al-Walid_Mosque_2010.jpg/640px-Khalid_ibn_al-Walid_Mosque_2010.jpg" } 
     ],
     urdun: [
         { id: 'u1', name: "Ashab-ı Kehf Mağarası", desc: "Amman yakınlarında, Kuran-ı Kerim'de Kehf suresinde geçen yedi uyurların mağarası.", lat: 31.9288, lng: 35.9535, image: "https://images.unsplash.com/photo-1627914976722-b9e731818130?auto=format&fit=crop&q=80&w=800" },
@@ -162,12 +171,12 @@ const PHRASES_DATA = [
 ];
 
 const EMERGENCY_NUMBERS = [
-    { title: "T.C. Cidde Başkonsolosluğu", number: "+966126601607", icon: "building-2" },
-    { title: "T.C. Riyad Büyükelçiliği", number: "+966114820101", icon: "flag" },
-    { title: "Mekke Diyanet Ekibi", number: "+966500000000", icon: "phone" },
-    { title: "Suudi Arabistan Polis", number: "999", icon: "alert-triangle" },
-    { title: "Suudi Arabistan Ambulans", number: "997", icon: "ambulance" },
-    { title: "Trafik Kazası", number: "993", icon: "car" }
+    { title: "T.C. Cidde Başkonsolosluğu", number: "+966126601607", icon: Building2 },
+    { title: "T.C. Riyad Büyükelçiliği", number: "+966114820101", icon: Flag },
+    { title: "Mekke Diyanet Ekibi", number: "+966500000000", icon: Phone },
+    { title: "Suudi Arabistan Polis", number: "999", icon: AlertTriangle },
+    { title: "Suudi Arabistan Ambulans", number: "997", icon: Ambulance },
+    { title: "Trafik Kazası", number: "993", icon: Car }
 ];
 
 // --- AYARLAR MODALI BİLEŞENİ (GÜNCELLENDİ) ---
@@ -180,7 +189,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                 <div className="flex justify-between items-center mb-6 shrink-0">
                     <h2 className="text-xl font-serif font-bold text-slate-800 dark:text-gold-400">Uygulama Ayarları</h2>
                     <button onClick={onClose} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full text-slate-500 hover:text-red-500 transition">
-                        <i data-lucide="x" className="w-5 h-5"></i>
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 
@@ -188,7 +197,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                     {/* Yazı Boyutu */}
                     <div className="space-y-2">
                         <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                            <i data-lucide="type" className="w-4 h-4 text-gold-500"></i> Yazı Boyutu
+                            <Type className="w-4 h-4 text-gold-500" /> Yazı Boyutu
                         </label>
                         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                             {['small', 'medium', 'large'].map((size) => (
@@ -207,7 +216,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                     <div className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-800 rounded-xl">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-500 rounded-lg">
-                                <i data-lucide={settings.theme === 'dark' ? 'moon' : 'sun'} className="w-5 h-5"></i>
+                                {settings.theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                             </div>
                             <div>
                                 <h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Gece Modu</h4>
@@ -226,7 +235,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                     <div className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-800 rounded-xl">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-500 rounded-lg">
-                                <i data-lucide="bell" className="w-5 h-5"></i>
+                                <Bell className="w-5 h-5" />
                             </div>
                             <div>
                                 <h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Bildirimler</h4>
@@ -245,7 +254,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                     <div className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-800 rounded-xl">
                         <div className="flex items-center gap-3">
                             <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-lg">
-                                <i data-lucide="map-pin" className="w-5 h-5"></i>
+                                <MapPin className="w-5 h-5" />
                             </div>
                             <div>
                                 <h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Konum Takibi</h4>
@@ -264,7 +273,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                     <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-5 rounded-2xl border border-gold-500/30 flex flex-col gap-4 shadow-lg">
                         <div className="flex items-start gap-4">
                             <div className="p-3 bg-gold-500 text-slate-900 rounded-xl shrink-0 shadow-lg shadow-gold-500/20">
-                                <i data-lucide="download" className="w-6 h-6"></i>
+                                <Download className="w-6 h-6" />
                             </div>
                             <div>
                                 <h4 className="font-bold text-white text-base">Uygulamayı Yükle</h4>
@@ -276,15 +285,15 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                         
                         <ul className="text-xs text-slate-400 space-y-2 ml-1">
                             <li className="flex items-center gap-2">
-                                <i data-lucide="check-circle-2" className="w-3 h-3 text-emerald-500"></i>
+                                <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                                 İnternet olmadan tam erişim
                             </li>
                             <li className="flex items-center gap-2">
-                                <i data-lucide="check-circle-2" className="w-3 h-3 text-emerald-500"></i>
+                                <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                                 Ana ekrandan hızlı açılış
                             </li>
                             <li className="flex items-center gap-2">
-                                <i data-lucide="check-circle-2" className="w-3 h-3 text-emerald-500"></i>
+                                <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                                 Tam ekran deneyimi
                             </li>
                         </ul>
@@ -292,7 +301,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                         <button onClick={onInstall} disabled={!installPrompt} className="w-full py-3 bg-gold-500 hover:bg-gold-600 disabled:bg-slate-700 disabled:text-slate-500 text-slate-900 font-bold text-sm rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2">
                             {installPrompt ? (
                                 <>
-                                    <i data-lucide="smartphone" className="w-4 h-4"></i>
+                                    <Smartphone className="w-4 h-4" />
                                     Ana Ekrana Ekle
                                 </>
                             ) : (
@@ -353,7 +362,7 @@ const AudioPlayer = () => {
                 onClick={togglePlay}
                 className={`p-1.5 rounded-full transition-all ${isPlaying ? 'bg-gold-500 text-white shadow-sm' : 'hover:bg-slate-200 dark:hover:bg-slate-700 text-gold-600 dark:text-gold-500'}`}
             >
-                <i data-lucide={isPlaying ? "pause" : "play"} className="w-4 h-4 fill-current"></i>
+                {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 fill-current" />}
             </button>
             
             {isPlaying && (
@@ -361,7 +370,7 @@ const AudioPlayer = () => {
                     onClick={stopPlay}
                     className="p-1.5 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-all"
                 >
-                    <i data-lucide="square" className="w-3 h-3 fill-current"></i>
+                    <Square className="w-3 h-3 fill-current" />
                 </button>
             )}
             
@@ -377,7 +386,7 @@ const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => (
         <div className="flex items-center gap-3">
             {goBack && (
                 <button onClick={goBack} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition text-slate-600 dark:text-slate-300">
-                    <i data-lucide="arrow-left" className="w-5 h-5"></i>
+                    <ArrowLeft className="w-5 h-5" />
                 </button>
             )}
             
@@ -400,7 +409,7 @@ const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => (
             
             {showSettingsBtn && (
                 <button onClick={onOpenSettings} className="p-2.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-gold-600 dark:hover:text-gold-400 transition shadow-sm active:scale-95">
-                    <i data-lucide="settings" className="w-5 h-5"></i>
+                    <Settings className="w-5 h-5" />
                 </button>
             )}
         </div>
@@ -428,7 +437,7 @@ const AnnouncementBar = () => {
         <div className="col-span-2 my-2">
             <div className="relative bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 h-12 flex items-center overflow-hidden pr-2">
                 <div className="h-full bg-gold-500 w-12 flex items-center justify-center shrink-0 z-10">
-                    <i data-lucide="megaphone" className="w-5 h-5 text-white animate-pulse-gold"></i>
+                    <Megaphone className="w-5 h-5 text-white animate-pulse-gold" />
                 </div>
                 {/* Dekoratif üçgen */}
                 <div className="w-0 h-0 border-t-[48px] border-t-gold-500 border-r-[20px] border-r-transparent absolute left-0 top-0 z-0"></div>
@@ -449,11 +458,11 @@ const InstallBanner = ({ onInstall, onClose, show }) => {
         <div className="fixed bottom-0 left-0 right-0 z-[60] p-4 animate-fade-in-up">
             <div className="bg-slate-900 dark:bg-slate-800 text-white p-4 rounded-2xl shadow-2xl border-t-4 border-gold-500 flex flex-col gap-3 relative">
                 <button onClick={onClose} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white bg-white/10 rounded-full">
-                    <i data-lucide="x" className="w-4 h-4"></i>
+                    <X className="w-4 h-4" />
                 </button>
                 <div className="flex items-start gap-3 pr-6">
                     <div className="bg-gold-500 p-2.5 rounded-xl text-slate-900 shrink-0 shadow-lg shadow-gold-500/20">
-                        <i data-lucide="download" className="w-6 h-6"></i>
+                        <Download className="w-6 h-6" />
                     </div>
                     <div>
                         <h4 className="font-bold text-gold-400">Uygulamayı Yükle</h4>
@@ -463,7 +472,7 @@ const InstallBanner = ({ onInstall, onClose, show }) => {
                     </div>
                 </div>
                 <button onClick={onInstall} className="w-full bg-gradient-to-r from-gold-500 to-amber-500 hover:from-gold-400 hover:to-amber-400 active:scale-95 text-slate-900 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
-                    <i data-lucide="smartphone" className="w-5 h-5"></i>
+                    <Smartphone className="w-5 h-5" />
                     Ücretsiz Yükle
                 </button>
             </div>
@@ -471,19 +480,19 @@ const InstallBanner = ({ onInstall, onClose, show }) => {
     );
 };
 
-const MenuCard = ({ icon, label, subLabel, colorClass, onClick, featured }) => (
+const MenuCard = ({ icon: Icon, label, subLabel, colorClass, onClick, featured }) => (
     <button 
         onClick={onClick}
         className={`group relative flex flex-col items-start p-5 rounded-2xl premium-card transition-all duration-300 hover:scale-[1.02] active:scale-95 text-left w-full h-full overflow-hidden border border-slate-100 dark:border-slate-700/50 ${featured ? 'col-span-2 bg-gradient-to-br from-gold-50/50 to-white dark:from-gold-900/10 dark:to-slate-800 border-gold-200 dark:border-gold-500/20' : 'bg-white dark:bg-slate-800'}`}
     >
         <div className={`p-3 rounded-xl mb-3 ${colorClass} bg-opacity-10 dark:bg-opacity-20 group-hover:bg-opacity-25 transition-colors shadow-sm`}>
-            <i data-lucide={icon} className={`w-6 h-6 ${colorClass.replace('bg-', 'text-')}`}></i>
+            <Icon className={`w-6 h-6 ${colorClass.replace('bg-', 'text-')}`} />
         </div>
         <span className="text-sm font-bold text-slate-800 dark:text-slate-100 font-serif">{label}</span>
         {subLabel && <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-medium">{subLabel}</span>}
         
         {/* Dekoratif Arkaplan İkonu */}
-        <i data-lucide={icon} className="absolute -right-4 -bottom-4 w-20 h-20 opacity-[0.03] dark:opacity-[0.05] text-current transform rotate-12 pointer-events-none"></i>
+        <Icon className="absolute -right-4 -bottom-4 w-20 h-20 opacity-[0.03] dark:opacity-[0.05] text-current transform rotate-12 pointer-events-none" />
     </button>
 );
 
@@ -501,6 +510,12 @@ const RouteVisualizer = () => {
 
     const progressHeight = Math.max(0, ((visibleStops - 1) / (ROUTE_STOPS.length - 1)) * 100);
 
+    const getStopIcon = (type) => {
+        if (type === 'holy') return Moon;
+        if (type === 'border') return Flag;
+        return MapPin;
+    }
+
     return (
         <div className="p-6 pb-20 animate-fade-in">
             <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white mb-8 shadow-xl relative overflow-hidden border border-gold-500/20">
@@ -508,26 +523,29 @@ const RouteVisualizer = () => {
                     <h3 className="font-serif text-2xl font-bold text-gold-400 mb-1">Mübarek Yolculuk</h3>
                     <p className="text-slate-400 text-sm">Türkiye - Mekke Güzergahı</p>
                 </div>
-                <i data-lucide="map" className="absolute right-4 bottom-4 w-24 h-24 text-white opacity-5"></i>
+                <Map className="absolute right-4 bottom-4 w-24 h-24 text-white opacity-5" />
             </div>
             <div className="relative pl-2">
                 <div className="route-line"></div>
                 <div className="route-active-line" style={{ height: `${progressHeight}%` }}></div>
                 <div className="space-y-8 relative z-10">
-                    {ROUTE_STOPS.map((stop, index) => (
-                        <div key={stop.id} className={`flex items-start gap-4 transition-all duration-500 transform ${index < visibleStops ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 z-20 ${index < visibleStops ? 'border-gold-500 bg-white dark:bg-slate-800' : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'} ${stop.type === 'holy' && index < visibleStops ? 'animate-pulse-gold' : ''}`}>
-                                <i data-lucide={stop.type === 'holy' ? 'moon' : stop.type === 'border' ? 'flag' : 'map-pin'} className={`w-5 h-5 ${index < visibleStops ? 'text-gold-600' : 'text-slate-300'}`}></i>
-                            </div>
-                            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex-1 premium-card">
-                                <div className="flex justify-between items-center mb-1">
-                                    <h4 className="font-bold text-slate-800 dark:text-slate-100">{stop.name}</h4>
-                                    <span className="text-xs font-mono bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-slate-500">{stop.km} km</span>
+                    {ROUTE_STOPS.map((stop, index) => {
+                        const StopIcon = getStopIcon(stop.type);
+                        return (
+                            <div key={stop.id} className={`flex items-start gap-4 transition-all duration-500 transform ${index < visibleStops ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 z-20 ${index < visibleStops ? 'border-gold-500 bg-white dark:bg-slate-800' : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'} ${stop.type === 'holy' && index < visibleStops ? 'animate-pulse-gold' : ''}`}>
+                                    <StopIcon className={`w-5 h-5 ${index < visibleStops ? 'text-gold-600' : 'text-slate-300'}`} />
                                 </div>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">{stop.desc}</p>
+                                <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex-1 premium-card">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <h4 className="font-bold text-slate-800 dark:text-slate-100">{stop.name}</h4>
+                                        <span className="text-xs font-mono bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-slate-500">{stop.km} km</span>
+                                    </div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">{stop.desc}</p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             </div>
         </div>
@@ -582,7 +600,7 @@ const PlacesExplorer = () => {
                     <h3 className="font-serif text-xl font-bold text-gold-400">Gezilebilecek Yerler</h3>
                     <p className="text-slate-400 text-xs mt-1">Tarihi ve Manevi Mekanlar</p>
                 </div>
-                <i data-lucide="compass" className="absolute right-4 bottom-4 w-16 h-16 text-white opacity-10 rotate-12"></i>
+                <Compass className="absolute right-4 bottom-4 w-16 h-16 text-white opacity-10 rotate-12" />
             </div>
 
             {/* Tabs */}
@@ -613,7 +631,7 @@ const PlacesExplorer = () => {
                             <div className="flex items-center justify-between">
                                 {userLocation && (
                                     <div className="flex items-center gap-1 text-xs font-mono text-gold-600 dark:text-gold-400">
-                                        <i data-lucide="map-pin" className="w-3 h-3"></i>
+                                        <MapPin className="w-3 h-3" />
                                         <span>{calculateDistance(userLocation.lat, userLocation.lng, place.lat, place.lng)} km</span>
                                     </div>
                                 )}
@@ -636,7 +654,7 @@ const PlacesExplorer = () => {
                         <div className="h-56 relative">
                             <img src={selectedPlace.image} alt={selectedPlace.name} className="w-full h-full object-cover" />
                             <button onClick={() => setSelectedPlace(null)} className="absolute top-4 right-4 p-2 bg-black/30 backdrop-blur rounded-full text-white hover:bg-red-500 transition-colors">
-                                <i data-lucide="x" className="w-5 h-5"></i>
+                                <X className="w-5 h-5" />
                             </button>
                             <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-slate-900 to-transparent">
                                 <h2 className="text-2xl font-serif font-bold text-white">{selectedPlace.name}</h2>
@@ -652,7 +670,7 @@ const PlacesExplorer = () => {
                                     onClick={() => openMap(selectedPlace.lat, selectedPlace.lng)}
                                     className="flex-1 py-3 bg-gold-500 hover:bg-gold-600 text-slate-900 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-gold-500/20"
                                 >
-                                    <i data-lucide="navigation" className="w-5 h-5"></i>
+                                    <Navigation className="w-5 h-5" />
                                     Yol Tarifi Al
                                 </button>
                                 {userLocation && (
@@ -774,7 +792,7 @@ const QiblaCompass = () => {
                     <div className="absolute inset-0 flex items-center justify-center" style={needleStyle}>
                         {/* Bu ok her zaman Mekke'yi gösterir (Kuzeye göre qiblaDir açısında) */}
                         <div className="w-1.5 h-1/2 bg-gradient-to-t from-transparent to-gold-500 rounded-t-full origin-bottom relative -top-1/4 opacity-90 shadow-lg shadow-gold-500/50">
-                            <i data-lucide="moon" className="w-6 h-6 text-white absolute -top-8 left-1/2 -translate-x-1/2 fill-current"></i>
+                            <Moon className="w-6 h-6 text-white absolute -top-8 left-1/2 -translate-x-1/2 fill-current" />
                         </div>
                     </div>
                 </div>
@@ -837,9 +855,9 @@ const FeaturedCards = ({ onViewRoute }) => {
                         <h2 className="text-3xl font-serif font-bold text-white mb-1">Yolculuk Rotası</h2>
                         <p className="text-slate-400 text-sm">Cilvegözü <span className="text-gold-500">➔</span> Mekke</p>
                     </div>
-                    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-slate-900 transition-colors"><i data-lucide="arrow-right" className="w-6 h-6"></i></div>
+                    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center group-hover:bg-gold-500 group-hover:text-slate-900 transition-colors"><ArrowRight className="w-6 h-6" /></div>
                 </div>
-                <i data-lucide="map" className="absolute -right-4 -bottom-8 w-40 h-40 text-white opacity-5 rotate-12"></i>
+                <Map className="absolute -right-4 -bottom-8 w-40 h-40 text-white opacity-5 rotate-12" />
             </div>
 
             {/* Kart 2: Mesafeler */}
@@ -857,7 +875,7 @@ const FeaturedCards = ({ onViewRoute }) => {
                         </div>
                     </div>
                 </div>
-                <i data-lucide="milestone" className="absolute -right-4 -bottom-8 w-40 h-40 text-white opacity-5 rotate-12"></i>
+                <Milestone className="absolute -right-4 -bottom-8 w-40 h-40 text-white opacity-5 rotate-12" />
             </div>
         </div>
     );
@@ -947,10 +965,10 @@ const CurrencyConverter = () => {
                 <div className="flex justify-between items-start mb-4">
                     <h3 className="text-lg font-bold text-slate-800 dark:text-white">Döviz Çevirici</h3>
                     {loading ? (
-                        <i data-lucide="loader-2" className="w-4 h-4 animate-spin text-gold-500"></i>
+                        <Loader2 className="w-4 h-4 animate-spin text-gold-500" />
                     ) : (
                         <div className="flex items-center gap-1">
-                            <i data-lucide={isOffline ? "wifi-off" : "wifi"} className={`w-3 h-3 ${isOffline ? "text-red-400" : "text-green-500"}`}></i>
+                            {isOffline ? <WifiOff className="w-3 h-3 text-red-400" /> : <Wifi className="w-3 h-3 text-green-500" />}
                             <span className="text-[10px] text-slate-400">{isOffline ? "Çevrimdışı" : "Canlı"}</span>
                         </div>
                     )}
@@ -1002,7 +1020,7 @@ const CurrencyConverter = () => {
 
                 {isOffline && (
                     <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-100 dark:border-orange-800 flex gap-2 items-start">
-                        <i data-lucide="alert-circle" className="w-4 h-4 text-orange-500 shrink-0 mt-0.5"></i>
+                        <AlertCircle className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
                         <p className="text-[10px] text-orange-700 dark:text-orange-300">
                             İnternet bağlantısı yok. Gösterilen değerler <strong>{lastUpdated}</strong> tarihli son verilere dayanmaktadır. Güncel piyasa ile farklılık gösterebilir.
                         </p>
@@ -1034,7 +1052,7 @@ const ChecklistManager = ({ type, title }) => {
             {items.map(item => (
                 <div key={item.id} onClick={() => toggleItem(item.id)} className={`flex items-center p-4 rounded-xl border transition-all cursor-pointer ${item.checked ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500' : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`}>
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center mr-4 ${item.checked ? 'bg-emerald-500 border-emerald-500' : 'border-slate-400'}`}>
-                        {item.checked && <i data-lucide="check" className="w-4 h-4 text-white"></i>}
+                        {item.checked && <Check className="w-4 h-4 text-white" />}
                     </div>
                     <span className={`${item.checked ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-200'}`}>{item.label}</span>
                 </div>
@@ -1054,7 +1072,7 @@ const TranslationGuide = () => {
                     <h3 className="font-serif text-xl font-bold text-gold-400">Pratik Sözlük</h3>
                     <p className="text-slate-400 text-xs mt-1">Acil durum ve günlük konuşmalar</p>
                 </div>
-                <i data-lucide="languages" className="absolute right-4 bottom-4 w-16 h-16 text-white opacity-10 rotate-12"></i>
+                <Languages className="absolute right-4 bottom-4 w-16 h-16 text-white opacity-10 rotate-12" />
             </div>
 
             {/* Kategori Seçici */}
@@ -1092,11 +1110,11 @@ const TranslationGuide = () => {
 const UmrahGuideDetail = () => {
     const [activeStep, setActiveStep] = useState(null);
     const steps = [
-        { id: 1, title: "1. İhram ve Niyet", icon: "shirt", content: "Mikat sınırını geçmeden ihrama girilir. 2 rekat namaz kılınır ve niyet edilir.", dua: "Allah'ım! Senin rızan için umre yapmak istiyorum." },
-        { id: 2, title: "2. Harem'e Giriş", icon: "map-pin", content: "Mekke'ye girince tekbir ve tehlil getirilir. Otele yerleşip abdest tazelenir.", dua: "Allah'ım! Bu Beyt'in şerefini artır." },
-        { id: 3, title: "3. Tavaf", icon: "repeat", content: "Kabe sola alınarak 7 şavt dönülür. Izdıba yapılır (omuz açılır).", dua: "Rabbena atina fi'd-dunya haseneten..." },
-        { id: 4, title: "4. Sa'y", icon: "footprints", content: "Safa ve Merve arasında 4 gidiş 3 geliş yapılır.", dua: "İnnes-Safa vel-Mervete min şeâirillah..." },
-        { id: 5, title: "5. Tıraş ve Çıkış", icon: "scissors", content: "Saçlar kısaltılarak ihramdan çıkılır. Umre tamamlanmış olur.", dua: "Elhamdülillah." }
+        { id: 1, title: "1. İhram ve Niyet", icon: Shirt, content: "Mikat sınırını geçmeden ihrama girilir. 2 rekat namaz kılınır ve niyet edilir.", dua: "Allah'ım! Senin rızan için umre yapmak istiyorum." },
+        { id: 2, title: "2. Harem'e Giriş", icon: MapPin, content: "Mekke'ye girince tekbir ve tehlil getirilir. Otele yerleşip abdest tazelenir.", dua: "Allah'ım! Bu Beyt'in şerefini artır." },
+        { id: 3, title: "3. Tavaf", icon: Repeat, content: "Kabe sola alınarak 7 şavt dönülür. Izdıba yapılır (omuz açılır).", dua: "Rabbena atina fi'd-dunya haseneten..." },
+        { id: 4, title: "4. Sa'y", icon: Footprints, content: "Safa ve Merve arasında 4 gidiş 3 geliş yapılır.", dua: "İnnes-Safa vel-Mervete min şeâirillah..." },
+        { id: 5, title: "5. Tıraş ve Çıkış", icon: Scissors, content: "Saçlar kısaltılarak ihramdan çıkılır. Umre tamamlanmış olur.", dua: "Elhamdülillah." }
     ];
 
     return (
@@ -1109,10 +1127,12 @@ const UmrahGuideDetail = () => {
                 <div key={step.id} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 overflow-hidden">
                     <button onClick={() => setActiveStep(activeStep === step.id ? null : step.id)} className="w-full flex items-center justify-between p-4 text-left">
                         <div className="flex items-center gap-3">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activeStep === step.id ? 'bg-gold-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-500'}`}><i data-lucide={step.icon} className="w-4 h-4"></i></div>
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activeStep === step.id ? 'bg-gold-500 text-white' : 'bg-slate-100 dark:bg-slate-700 text-slate-500'}`}>
+                                <step.icon className="w-4 h-4" />
+                            </div>
                             <span className="font-bold text-sm text-slate-700 dark:text-slate-200">{step.title}</span>
                         </div>
-                        <i data-lucide="chevron-down" className={`w-4 h-4 text-slate-400 transition-transform ${activeStep === step.id ? 'rotate-180' : ''}`}></i>
+                        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${activeStep === step.id ? 'rotate-180' : ''}`} />
                     </button>
                     {activeStep === step.id && (
                         <div className="px-4 pb-4 pl-[3.25rem] animate-fade-in">
@@ -1232,11 +1252,11 @@ const PrayerTimesDetail = () => {
                     <div>
                         <h3 className="font-serif font-bold text-lg">Namaz Vakitleri</h3>
                         <div className="flex items-center gap-1 opacity-90">
-                            {loading ? <i data-lucide="loader-2" className="w-3 h-3 animate-spin"></i> : null}
+                            {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
                             <p className="text-xs">{city} - {dataDate}</p>
                         </div>
                     </div>
-                    <i data-lucide="clock" className="w-6 h-6 opacity-50"></i>
+                    <Clock className="w-6 h-6 opacity-50" />
                 </div>
                 
                 <div className="divide-y divide-slate-100 dark:divide-slate-700">
@@ -1248,7 +1268,7 @@ const PrayerTimesDetail = () => {
                             </div>
                             
                             <div className="flex items-center gap-2">
-                                <i data-lucide="bell" className={`w-4 h-4 ${reminders[vakit] > 0 ? 'text-gold-500' : 'text-slate-300'}`}></i>
+                                <Bell className={`w-4 h-4 ${reminders[vakit] > 0 ? 'text-gold-500' : 'text-slate-300'}`} />
                                 <select 
                                     value={reminders[vakit] || 0}
                                     onChange={(e) => handleReminderChange(vakit, e.target.value)}
@@ -1268,7 +1288,7 @@ const PrayerTimesDetail = () => {
             
             {isOffline && (
                 <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/50">
-                    <i data-lucide="wifi-off" className="w-4 h-4 text-red-500"></i>
+                    <WifiOff className="w-4 h-4 text-red-500" />
                     <p className="text-xs text-red-700 dark:text-red-300 leading-tight">
                         İnternet bağlantısı yok. Gösterilen vakitler <strong>{dataDate}</strong> tarihinde alınan son verilere aittir. Lütfen imsakiyenizi kontrol ediniz.
                     </p>
@@ -1287,14 +1307,14 @@ const EmergencyContacts = () => {
                 {EMERGENCY_NUMBERS.map((item, idx) => (
                     <a href={`tel:${item.number}`} key={idx} className="flex items-center p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm active:scale-[0.98] transition-transform">
                         <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center mr-4">
-                            <i data-lucide={item.icon} className="w-5 h-5"></i>
+                            <item.icon className="w-5 h-5" />
                         </div>
                         <div className="flex-1">
                             <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">{item.title}</h4>
                             <span className="text-slate-500 dark:text-slate-400 text-xs font-mono">{item.number}</span>
                         </div>
                         <div className="bg-green-50 dark:bg-green-900/20 p-2 rounded-full text-green-600">
-                            <i data-lucide="phone" className="w-4 h-4"></i>
+                            <Phone className="w-4 h-4" />
                         </div>
                     </a>
                 ))}
@@ -1362,11 +1382,6 @@ const App = () => {
             location: false
         };
     });
-
-    // İkonları yenileme
-    useEffect(() => {
-        if(window.lucide) window.lucide.createIcons();
-    }, [activeView, showSettings, showInstallBanner, settings]);
 
     // Tema Değişikliği ve Ayar Kaydı
     useEffect(() => {
@@ -1486,20 +1501,20 @@ const App = () => {
                     <AnnouncementBar />
 
                     {/* Menü Kartları (Dualar kaldırıldı, Kıble eklendi, Gezilecekler güncellendi) */}
-                    <MenuCard icon="book-open" label="Umre Rehberi" subLabel="Adım adım ibadet" colorClass="bg-emerald-500 text-emerald-600" onClick={() => setActiveView('guide')} />
-                    <MenuCard icon="compass" label="Kıble Pusulası" subLabel="Canlı Yön Takibi" colorClass="bg-amber-500 text-amber-600" onClick={() => setActiveView('compass')} />
+                    <MenuCard icon={BookOpen} label="Umre Rehberi" subLabel="Adım adım ibadet" colorClass="bg-emerald-500 text-emerald-600" onClick={() => setActiveView('guide')} />
+                    <MenuCard icon={Compass} label="Kıble Pusulası" subLabel="Canlı Yön Takibi" colorClass="bg-amber-500 text-amber-600" onClick={() => setActiveView('compass')} />
                     
-                    <MenuCard icon="languages" label="Pratik Sözlük" subLabel="Acil Durum & Konuşma" colorClass="bg-indigo-500 text-indigo-600" onClick={() => setActiveView('translations')} />
-                    <MenuCard icon="map-pin" label="Gezilebilecek Yerler" subLabel="Kutsal Mekanlar" colorClass="bg-blue-500 text-blue-600" onClick={() => setActiveView('places')} />
+                    <MenuCard icon={Languages} label="Pratik Sözlük" subLabel="Acil Durum & Konuşma" colorClass="bg-indigo-500 text-indigo-600" onClick={() => setActiveView('translations')} />
+                    <MenuCard icon={MapPin} label="Gezilebilecek Yerler" subLabel="Kutsal Mekanlar" colorClass="bg-blue-500 text-blue-600" onClick={() => setActiveView('places')} />
                     
-                    <MenuCard icon="clock" label="Namaz Vakitleri" subLabel="Ümmü'l-Kurra" colorClass="bg-cyan-500 text-cyan-600" onClick={() => setActiveView('times')} />
-                    <MenuCard icon="briefcase" label="İhtiyaç Listesi" subLabel="Bagaj & İlaç" colorClass="bg-purple-500 text-purple-600" onClick={() => setActiveView('luggage')} />
+                    <MenuCard icon={Clock} label="Namaz Vakitleri" subLabel="Ümmü'l-Kurra" colorClass="bg-cyan-500 text-cyan-600" onClick={() => setActiveView('times')} />
+                    <MenuCard icon={Briefcase} label="İhtiyaç Listesi" subLabel="Bagaj & İlaç" colorClass="bg-purple-500 text-purple-600" onClick={() => setActiveView('luggage')} />
                     
-                    <MenuCard icon="arrow-left-right" label="Döviz" subLabel="Canlı / Çevrimdışı" colorClass="bg-green-600 text-green-700" onClick={() => setActiveView('currency')} />
-                    <MenuCard icon="file-text" label="Evraklar" subLabel="Pasaport & Vize" colorClass="bg-slate-500 text-slate-600" onClick={() => setActiveView('documents')} />
+                    <MenuCard icon={ArrowLeftRight} label="Döviz" subLabel="Canlı / Çevrimdışı" colorClass="bg-green-600 text-green-700" onClick={() => setActiveView('currency')} />
+                    <MenuCard icon={FileText} label="Evraklar" subLabel="Pasaport & Vize" colorClass="bg-slate-500 text-slate-600" onClick={() => setActiveView('documents')} />
                     
-                    <MenuCard icon="phone" label="Acil Numaralar" subLabel="Konsolosluk & Sağlık" colorClass="bg-red-500 text-red-600" onClick={() => setActiveView('contacts')} />
-                    <MenuCard icon="info" label="Hakkında" subLabel="Geliştirici" colorClass="bg-slate-400 text-slate-500" onClick={() => setActiveView('about')} />
+                    <MenuCard icon={Phone} label="Acil Numaralar" subLabel="Konsolosluk & Sağlık" colorClass="bg-red-500 text-red-600" onClick={() => setActiveView('contacts')} />
+                    <MenuCard icon={Info} label="Hakkında" subLabel="Geliştirici" colorClass="bg-slate-400 text-slate-500" onClick={() => setActiveView('about')} />
                 </div>
             );
             case 'route': return <RouteVisualizer />;
@@ -1532,8 +1547,6 @@ const App = () => {
 
     return (
         <div className={`min-h-screen transition-colors duration-500 relative ${settings.fontSize === 'small' ? 'text-sm' : settings.fontSize === 'large' ? 'text-lg' : 'text-base'}`}>
-            {/* Script to load Lucide Icons globally for data-lucide attributes */}
-            <script src="https://unpkg.com/lucide@latest"></script>
             <CustomStyles />
             
             <Header 
@@ -1552,7 +1565,7 @@ const App = () => {
                         onClick={() => setActiveView('dashboard')} 
                         className="bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-md text-gold-400 px-6 py-3 rounded-full shadow-2xl border border-gold-500/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all"
                     >
-                        <i data-lucide="layout-grid" className="w-5 h-5"></i>
+                        <LayoutGrid className="w-5 h-5" />
                         <span className="font-bold text-sm">Ana Menü</span>
                     </button>
                 </div>
