@@ -1,4 +1,69 @@
-const { useState, useEffect, useRef } = React;
+import React, { useState, useEffect, useRef } from 'react';
+
+// --- STYLES & CONFIGURATION (Environment Setup) ---
+// Not: Kodun içindeki 'gold' renkleri ve özel animasyonlar için stil tanımları.
+const CustomStyles = () => (
+    <style>{`
+        /* Gold Colors Setup */
+        .text-gold-400 { color: #fbbf24; }
+        .text-gold-500 { color: #f59e0b; }
+        .text-gold-600 { color: #d97706; }
+        .bg-gold-50 { background-color: #fffbeb; }
+        .bg-gold-200 { background-color: #fde68a; }
+        .bg-gold-500 { background-color: #f59e0b; }
+        .bg-gold-600 { background-color: #d97706; }
+        .bg-gold-900\\/30 { background-color: rgba(120, 53, 15, 0.3); }
+        .border-gold-200 { border-color: #fde68a; }
+        .border-gold-500 { border-color: #f59e0b; }
+        .border-gold-500\\/20 { border-color: rgba(245, 158, 11, 0.2); }
+        .border-gold-500\\/30 { border-color: rgba(245, 158, 11, 0.3); }
+        .shadow-gold-500\\/20 { box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2); }
+        .shadow-gold-500\\/30 { box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3); }
+
+        /* Custom Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translate(-50%, 20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
+
+        @keyframes pulseGold {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+        }
+        .animate-pulse-gold { animation: pulseGold 2s infinite; }
+
+        /* Utilities */
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+        }
+        .dark .glass-header {
+            background: rgba(15, 23, 42, 0.85);
+            border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+        }
+        .premium-card {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Font fix for 'font-serif' if unavailable */
+        .font-serif { font-family: 'Playfair Display', ui-serif, Georgia, serif; }
+    `}</style>
+);
 
 // --- GELİŞTİRİCİ FOTOĞRAFI AYARI ---
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
@@ -651,7 +716,7 @@ const PrayerTimesDetail = () => {
                 const today = new Date();
                 const dateStr = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
                 
-                const response = await fetch(`http://api.aladhan.com/v1/timingsByCity?city=${city}&country=Saudi Arabia&method=4`);
+                const response = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Saudi Arabia&method=4`);
                 if (!response.ok) throw new Error("API Hatası");
                 
                 const data = await response.json();
@@ -1044,6 +1109,10 @@ const App = () => {
 
     return (
         <div className={`min-h-screen transition-colors duration-500 relative ${settings.fontSize === 'small' ? 'text-sm' : settings.fontSize === 'large' ? 'text-lg' : 'text-base'}`}>
+            {/* Script to load Lucide Icons globally for data-lucide attributes */}
+            <script src="https://unpkg.com/lucide@latest"></script>
+            <CustomStyles />
+            
             <Header 
                 title={getHeaderTitle()} 
                 goBack={activeView !== 'dashboard' ? () => setActiveView('dashboard') : null}
@@ -1084,5 +1153,4 @@ const App = () => {
     );
 };
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+export default App;
