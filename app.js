@@ -2,7 +2,8 @@ const { useState, useEffect, useRef } = React;
 
 // --- SABİTLER VE AYARLAR ---
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
-const AUDIO_TELBIYE = "audio/Telbiye.mp3";
+const AUDIO_TELBIYE = "audio/Telbiye.mp3"; 
+const AUDIO_LABBAIK = "audio/labbaik.mp3";
 
 // --- YARDIMCI FONKSİYONLAR ---
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -80,7 +81,7 @@ const DICTIONARY_DATA = [
     ]}
 ];
 
-// --- DİĞER VERİLER (Mevcut yapıyı koruyoruz) ---
+// --- DİĞER VERİLER ---
 const PLACES_DATA = [
     {
         category: "Mekke-i Mükerreme",
@@ -160,7 +161,7 @@ const EMERGENCY_NUMBERS = [
 
 // --- BİLEŞENLER ---
 
-// 1. SETTINGS MODAL (Aynen korundu)
+// 1. SETTINGS MODAL
 const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPrompt, onInstall }) => {
     if (!isOpen) return null;
     const handleToggle = (key) => {
@@ -642,16 +643,360 @@ const QiblaCompass = () => {
     );
 };
 
-// ... Diğer Bileşenler (RouteVisualizer, UmrahGuideDetail, About, PrayerTimes, Currency, Places) ...
-// (Bu bileşenler bir önceki sürümde mükemmeldi, yer kaplamaması için kodun devamında aynen korunarak çağrılacaklar.)
+// 9. DİĞER BİLEŞENLER (EKSİKSİZ RESTORE EDİLDİ)
 
-// PLACEHOLDER: Önceki koddan gerekli diğer fonksiyonları buraya taşıyorum (Sadeleştirilmiş gösterim, gerçek kodda tam hali olacak)
-const RouteVisualizer = () => { const [v,s]=useState(0); useEffect(()=>{const i=setInterval(()=>s(c=>c<=8?c+1:c),500);return()=>clearInterval(i)},[]); return <div className="p-6"><div className="bg-slate-900 rounded-xl p-6 text-white mb-6">Rota</div><div className="space-y-4">{ROUTE_STOPS.map((r,i)=><div key={i} className={`flex gap-4 ${i<v?'opacity-100':'opacity-0'} transition`}><div>📍</div><div>{r.name}</div></div>)}</div></div> };
-const UmrahGuideDetail = () => <div className="p-4 space-y-4">{[{t:"İhram",d:"Niyet"},{t:"Tavaf",d:"7 Şavt"}].map((s,i)=><div key={i} className="bg-white p-4 rounded-xl border dark:bg-slate-800 dark:border-slate-700"><b>{s.t}</b><p>{s.d}</p></div>)}</div>;
-const About = () => <div className="p-6 text-center"><img src={DEVELOPER_PHOTO_URL} className="w-24 h-24 rounded-full mx-auto mb-4"/><h2 className="font-bold text-xl dark:text-white">Sami G.</h2><p className="text-slate-500">Sadaka-i Cariye</p></div>;
-const PrayerTimesDetail = () => <div className="p-10 text-center dark:text-white">Namaz Vakitleri Modülü (Aktif)</div>; // Tam kodu önceki cevaptan alınız
-const CurrencyConverter = () => <div className="p-10 text-center dark:text-white">Döviz Modülü (Aktif)</div>; // Tam kodu önceki cevaptan alınız
-const PlacesDetail = () => <div className="p-10 text-center dark:text-white">Gezilecek Yerler Modülü (Aktif)</div>; // Tam kodu önceki cevaptan alınız
+// Rota Görselleştirici (Tam Sürüm)
+const RouteVisualizer = () => {
+    const [visibleStops, setVisibleStops] = useState(0);
+    useEffect(() => {
+        let current = 0;
+        const interval = setInterval(() => {
+            if (current <= ROUTE_STOPS.length) { setVisibleStops(current); current++; } 
+            else { clearInterval(interval); }
+        }, 500);
+        return () => clearInterval(interval);
+    }, []);
+    const progressHeight = Math.max(0, ((visibleStops - 1) / (ROUTE_STOPS.length - 1)) * 100);
+    return (
+        <div className="p-6 pb-20 animate-fade-in">
+            <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white mb-8 shadow-xl relative overflow-hidden border border-gold-500/20">
+                <div className="relative z-10">
+                    <h3 className="font-serif text-2xl font-bold text-gold-400 mb-1">Mübarek Yolculuk</h3>
+                    <p className="text-slate-400 text-sm">Türkiye - Mekke Güzergahı</p>
+                </div>
+                <i data-lucide="map" className="absolute right-4 bottom-4 w-24 h-24 text-white opacity-5"></i>
+            </div>
+            <div className="relative pl-2">
+                <div className="route-line"></div>
+                <div className="route-active-line" style={{ height: `${progressHeight}%` }}></div>
+                <div className="space-y-8 relative z-10">
+                    {ROUTE_STOPS.map((stop, index) => (
+                        <div key={stop.id} className={`flex items-start gap-4 transition-all duration-500 transform ${index < visibleStops ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 border-4 z-20 ${index < visibleStops ? 'border-gold-500 bg-white dark:bg-slate-800' : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'} ${stop.type === 'holy' && index < visibleStops ? 'animate-pulse-gold' : ''}`}>
+                                <i data-lucide={stop.type === 'holy' ? 'moon' : stop.type === 'border' ? 'flag' : 'map-pin'} className={`w-5 h-5 ${index < visibleStops ? 'text-gold-600' : 'text-slate-300'}`}></i>
+                            </div>
+                            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex-1 premium-card">
+                                <div className="flex justify-between items-center mb-1">
+                                    <h4 className="font-bold text-slate-800 dark:text-slate-100">{stop.name}</h4>
+                                    <span className="text-xs font-mono bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-slate-500">{stop.km} km</span>
+                                </div>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{stop.desc}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Umre Rehberi (Tam Sürüm)
+const UmrahGuideDetail = () => {
+    const [active, setActive] = useState(null);
+    const steps = [
+        {t:"İhram ve Niyet", d:"Mikat'ta girilir, 2 rekat namaz kılınır.", icon:"shirt", text:"Allah'ım senin rızan için umre yapmak istiyorum."},
+        {t:"Tavaf", d:"Kabe sola alınarak 7 şavt dönülür.", icon:"repeat", text:"Bismillahi Allahu Ekber."},
+        {t:"Sa'y", d:"Safa ve Merve arasında 4 gidiş 3 geliş.", icon:"footprints", text:"İnnes-safa vel-mervete min şeairillah..."},
+        {t:"Tıraş ve Çıkış", d:"Saçlar kısaltılır, ihramdan çıkılır.", icon:"scissors", text:"Elhamdülillah."}
+    ];
+    return (
+        <div className="p-4 space-y-3 pb-24 animate-fade-in">
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800 mb-4">
+                <h3 className="font-bold text-emerald-800 dark:text-emerald-400">Umre Rehberi</h3><p className="text-xs text-emerald-600">Adım adım ibadet rehberi</p>
+            </div>
+            {steps.map((s,i)=>(
+                <div key={i} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 overflow-hidden">
+                    <button onClick={() => setActive(active===i?null:i)} className="w-full flex items-center justify-between p-4 text-left">
+                        <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center"><i data-lucide={s.icon} className="w-4 h-4 text-slate-500"></i></div><span className="font-bold text-sm text-slate-700 dark:text-slate-200">{i+1}. {s.t}</span></div>
+                        <i data-lucide="chevron-down" className={`w-4 h-4 transition-transform ${active===i?'rotate-180':''}`}></i>
+                    </button>
+                    {active===i && <div className="px-4 pb-4 pl-[3.25rem]"><p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{s.d}</p><div className="p-2 bg-amber-50 dark:bg-amber-900/20 rounded border-l-2 border-amber-400 text-xs italic text-slate-600 dark:text-slate-300">"{s.text}"</div></div>}
+                </div>
+            ))}
+        </div>
+    );
+};
+
+// Hakkında (Tam Sürüm)
+const About = () => (
+    <div className="p-4 pb-24 animate-fade-in space-y-6">
+        <div className="relative bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-xl border border-slate-100 dark:border-slate-700">
+            <div className="h-32 bg-gradient-to-r from-emerald-600 to-emerald-900 relative">
+                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]"></div>
+                 <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full border-4 border-white dark:border-slate-800 bg-gold-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg overflow-hidden">
+                    <img src={DEVELOPER_PHOTO_URL} alt="SG" className="w-full h-full object-cover" />
+                 </div>
+            </div>
+            <div className="pt-12 pb-6 px-6 text-center">
+                <h2 className="text-2xl font-serif font-bold text-slate-800 dark:text-white">Sami G.</h2>
+                <span className="inline-block mt-2 px-3 py-1 rounded-full bg-gold-50 dark:bg-gold-900/30 text-gold-600 dark:text-gold-400 text-xs font-bold uppercase tracking-wider">Uygulama Geliştiricisi</span>
+                <div className="mt-6 text-left space-y-4">
+                     <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <p className="font-serif text-lg text-emerald-800 dark:text-emerald-400 mb-2 text-center">﷽</p>
+                        <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-serif text-justify">
+                            <span className="font-bold block mb-2 text-slate-800 dark:text-slate-200 text-center">Esselamü Aleyküm ve Rahmetullah,</span>
+                            Kıymetli Allah'ın misafirleri; bu çalışma, Haremeyn-i Şerifeyn'e vuslat yolculuğunda sizlere rehberlik etmek, bu meşakkatli ama kutlu seferde yükünüzü bir nebze olsun hafifletmek gayesiyle "Sadaka-i Cariye" niyetiyle hazırlanmıştır.
+                        </p>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+);
+
+// Namaz Vakitleri (Tam Sürüm)
+const PrayerTimesDetail = () => {
+    const [city, setCity] = useState("Mekke");
+    const [times, setTimes] = useState(null);
+    const [nextPrayer, setNextPrayer] = useState(null);
+    const [countdown, setCountdown] = useState("");
+    const [dataDate, setDataDate] = useState("");
+    const [isOffline, setIsOffline] = useState(false);
+    const [lastFetch, setLastFetch] = useState("");
+
+    const todayStr = new Date().toLocaleDateString('tr-TR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    useEffect(() => {
+        if (!times) return;
+        const timer = setInterval(() => {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            const currentSeconds = now.getSeconds();
+
+            const prayerList = [
+                { name: 'Imsak', time: times.Imsak },
+                { name: 'Gunes', time: times.Gunes },
+                { name: 'Ogle', time: times.Ogle },
+                { name: 'Ikindi', time: times.Ikindi },
+                { name: 'Aksam', time: times.Aksam },
+                { name: 'Yatsi', time: times.Yatsi }
+            ];
+
+            let next = null;
+            let minDiff = Infinity;
+
+            for (let p of prayerList) {
+                const [h, m] = p.time.split(':').map(Number);
+                const pTime = h * 60 + m;
+                let diff = pTime - currentTime;
+                if (diff < 0) diff += 24 * 60;
+                if (diff < minDiff) {
+                    minDiff = diff;
+                    next = p;
+                }
+            }
+            setNextPrayer(next);
+            const totalSecs = (minDiff * 60) - currentSeconds;
+            const h = Math.floor(totalSecs / 3600);
+            const m = Math.floor((totalSecs % 3600) / 60);
+            const s = totalSecs % 60;
+            setCountdown(`${h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`);
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [times]);
+
+    useEffect(() => {
+        const fetchTimes = async () => {
+            try {
+                const response = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Saudi Arabia&method=4`);
+                if (!response.ok) throw new Error("API Hatası");
+                const data = await response.json();
+                const t = data.data.timings;
+                const formatted = { Imsak: t.Fajr, Gunes: t.Sunrise, Ogle: t.Dhuhr, Ikindi: t.Asr, Aksam: t.Maghrib, Yatsi: t.Isha };
+                setTimes(formatted);
+                setDataDate(data.data.date.readable);
+                setLastFetch(new Date().toLocaleTimeString());
+                setIsOffline(false);
+                localStorage.setItem(`prayer_${city}`, JSON.stringify({ t: formatted, d: data.data.date.readable, lf: new Date().toLocaleTimeString() }));
+            } catch (e) {
+                const saved = localStorage.getItem(`prayer_${city}`);
+                if (saved) {
+                    const p = JSON.parse(saved);
+                    setTimes(p.t);
+                    setDataDate(p.d);
+                    setLastFetch(p.lf || "Bilinmiyor");
+                } else {
+                    setTimes({ Imsak: "05:00", Gunes: "06:30", Ogle: "12:30", Ikindi: "15:45", Aksam: "18:20", Yatsi: "19:50" });
+                }
+                setIsOffline(true);
+            }
+        };
+        fetchTimes();
+    }, [city]);
+
+    return (
+        <div className="p-4 pb-20 animate-fade-in space-y-4">
+            <div className="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl mb-4">
+                {["Mekke", "Medine"].map(c => ( <button key={c} onClick={() => setCity(c)} className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all ${city === c ? 'bg-white dark:bg-slate-600 shadow text-gold-600' : 'text-slate-500'}`}>{c}</button> ))}
+            </div>
+
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-5 text-white shadow-xl relative overflow-hidden">
+                <div className="relative z-10 text-center">
+                    <p className="text-xs text-gold-400 font-bold uppercase tracking-widest mb-1">{city}</p>
+                    <h2 className="text-xl font-serif font-bold mb-2">{todayStr}</h2>
+                    {nextPrayer && (
+                        <div className="mt-4 p-3 bg-white/10 rounded-xl backdrop-blur-sm border border-white/10 inline-block">
+                            <p className="text-xs text-slate-300 mb-1">{nextPrayer.name} Vaktine Kalan</p>
+                            <p className="text-3xl font-mono font-bold text-gold-400">{countdown}</p>
+                        </div>
+                    )}
+                </div>
+                <i data-lucide="moon" className="absolute -right-4 -top-4 w-32 h-32 text-white opacity-5"></i>
+            </div>
+
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden divide-y divide-slate-100 dark:divide-slate-700">
+                {times && Object.entries(times).map(([v, s]) => {
+                    const pOrder = ['Imsak', 'Gunes', 'Ogle', 'Ikindi', 'Aksam', 'Yatsi'];
+                    const nextIdx = nextPrayer ? pOrder.indexOf(nextPrayer.name) : -1;
+                    const currentIdx = nextIdx === 0 ? 5 : nextIdx - 1; 
+                    const isCurrent = pOrder[currentIdx] === v;
+                    return (
+                        <div key={v} className={`p-4 flex justify-between items-center transition-colors ${isCurrent ? 'bg-gold-50 dark:bg-gold-900/20' : ''}`}>
+                            <div className="flex items-center gap-3">
+                                <span className={`text-xs font-bold uppercase tracking-wider ${isCurrent ? 'text-gold-600 dark:text-gold-400' : 'text-slate-400'}`}>{v}</span>
+                                {isCurrent && <span className="flex h-2 w-2 relative"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2 w-2 bg-gold-500"></span></span>}
+                            </div>
+                            <span className={`font-mono text-xl font-bold ${isCurrent ? 'text-gold-700 dark:text-gold-300' : 'text-slate-800 dark:text-slate-200'}`}>{s}</span>
+                        </div>
+                    );
+                })}
+            </div>
+            
+            {isOffline && (
+                <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/50">
+                    <i data-lucide="wifi-off" className="w-4 h-4 text-red-500"></i>
+                    <div className="text-xs text-red-700 dark:text-red-300 leading-tight">
+                        <span className="font-bold block">Çevrimdışı Mod</span>
+                        Son güncelleme: {lastFetch}. Lütfen imsakiyenizi kontrol ediniz.
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// Döviz Modülü (Tam Sürüm)
+const CurrencyConverter = () => {
+    const [amount, setAmount] = useState(1);
+    const [fromCurr, setFromCurr] = useState('SAR');
+    const [toCurr, setToCurr] = useState('TRY');
+    const [rates, setRates] = useState(null);
+    const [result, setResult] = useState(0);
+
+    useEffect(() => {
+        const fetchRates = async () => {
+            try {
+                const res = await fetch('https://api.exchangerate-api.com/v4/latest/SAR');
+                const data = await res.json();
+                setRates(data.rates);
+                localStorage.setItem('rates_v2', JSON.stringify(data.rates));
+            } catch (e) {
+                setRates(JSON.parse(localStorage.getItem('rates_v2')));
+            }
+        };
+        fetchRates();
+    }, []);
+
+    useEffect(() => {
+        if (!rates) return;
+        const fromRate = rates[fromCurr];
+        const toRate = rates[toCurr];
+        if (fromRate && toRate) {
+            const inSar = amount / fromRate;
+            const finalVal = inSar * toRate;
+            setResult(finalVal.toFixed(2));
+        }
+    }, [amount, fromCurr, toCurr, rates]);
+
+    const swap = () => {
+        setFromCurr(toCurr);
+        setToCurr(fromCurr);
+    };
+
+    return (
+        <div className="p-6 animate-fade-in space-y-6">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 relative">
+                <h3 className="font-bold text-slate-800 dark:text-white mb-6 flex items-center gap-2"><i data-lucide="arrow-left-right" className="w-5 h-5 text-gold-500"></i> Döviz Çevirici</h3>
+                
+                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 mb-2">
+                    <label className="text-[10px] uppercase font-bold text-slate-400 mb-1">Dönüştürülecek Tutar</label>
+                    <div className="flex justify-between items-center">
+                        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="bg-transparent text-2xl font-bold text-slate-800 dark:text-slate-100 focus:outline-none w-1/2" />
+                        <select value={fromCurr} onChange={(e) => setFromCurr(e.target.value)} className="bg-white dark:bg-slate-800 font-bold text-slate-700 dark:text-slate-200 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 outline-none">
+                            <option value="SAR">🇸🇦 SAR</option>
+                            <option value="USD">🇺🇸 USD</option>
+                            <option value="TRY">🇹🇷 TRY</option>
+                            <option value="EUR">🇪🇺 EUR</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="absolute left-1/2 top-[55%] -translate-x-1/2 -translate-y-1/2 z-10">
+                    <button onClick={swap} className="w-10 h-10 bg-gold-500 rounded-full flex items-center justify-center text-white shadow-lg border-4 border-white dark:border-slate-800 hover:scale-110 transition-transform">
+                        <i data-lucide="arrow-down-up" className="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-700 mt-2">
+                    <label className="text-[10px] uppercase font-bold text-slate-400 mb-1">Karşılık</label>
+                    <div className="flex justify-between items-center">
+                        <div className="text-2xl font-bold text-gold-600 dark:text-gold-400">{result}</div>
+                        <select value={toCurr} onChange={(e) => setToCurr(e.target.value)} className="bg-white dark:bg-slate-800 font-bold text-slate-700 dark:text-slate-200 p-2 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 outline-none">
+                            <option value="SAR">🇸🇦 SAR</option>
+                            <option value="USD">🇺🇸 USD</option>
+                            <option value="TRY">🇹🇷 TRY</option>
+                            <option value="EUR">🇪🇺 EUR</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Gezilecek Yerler (Tam Sürüm)
+const PlacesDetail = () => {
+    const [activeTab, setActiveTab] = useState(0);
+    const [userLoc, setUserLoc] = useState(null);
+
+    useEffect(() => {
+        if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => setUserLoc({ lat: p.coords.latitude, lng: p.coords.longitude }));
+    }, []);
+
+    const openMap = (lat, lng) => window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+
+    return (
+        <div className="p-4 pb-24 animate-fade-in space-y-4">
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                {PLACES_DATA.map((c, i) => (
+                    <button key={i} onClick={() => setActiveTab(i)} className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-bold border ${activeTab === i ? 'bg-gold-500 border-gold-500 text-slate-900' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200'}`}>{c.category}</button>
+                ))}
+            </div>
+            <div className="space-y-4">
+                {PLACES_DATA[activeTab].items.map(p => {
+                    const dist = userLoc ? calculateDistance(userLoc.lat, userLoc.lng, p.lat, p.lng) : null;
+                    return (
+                        <div key={p.id} className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700">
+                            <div className="h-40 bg-slate-200 dark:bg-slate-700 relative flex items-center justify-center">
+                                {p.image.startsWith('[') ? (
+                                    <div className="text-slate-400 text-xs flex flex-col items-center gap-2"><i data-lucide="image" className="w-8 h-8 opacity-50"></i><span>{p.title}</span></div>
+                                ) : (
+                                    <img src={p.image} className="w-full h-full object-cover" />
+                                )}
+                                {dist && <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-full">{dist} km</div>}
+                            </div>
+                            <div className="p-4">
+                                <h3 className="font-bold text-lg text-slate-800 dark:text-slate-100">{p.title}</h3>
+                                <p className="text-xs text-slate-500 mb-4">{p.desc}</p>
+                                <button onClick={() => openMap(p.lat, p.lng)} className="w-full py-2 bg-gold-50 text-gold-700 font-bold text-xs rounded-xl flex items-center justify-center gap-2"><i data-lucide="map" className="w-4 h-4"></i> Yol Tarifi</button>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
 
 // 9. DİĞER KÜÇÜK BİLEŞENLER (Aynen korundu)
 const AnnouncementBar = () => {
@@ -727,8 +1072,8 @@ const App = () => {
             case 'guide': return <UmrahGuideDetail />;
             case 'places': return <PlacesDetail />;
             case 'compass': return <QiblaCompass />;
-            case 'times': return <PrayerTimesDetail />; // Not: Tam kod için önceki App.js'den kopyalayın
-            case 'currency': return <CurrencyConverter />; // Not: Tam kod için önceki App.js'den kopyalayın
+            case 'times': return <PrayerTimesDetail />;
+            case 'currency': return <CurrencyConverter />;
             case 'luggage': return <PremiumChecklist type="luggage" title="İhtiyaç Listesi" />;
             case 'documents': return <PremiumChecklist type="documents" title="Resmi Evraklar" />;
             case 'contacts': return <PremiumContacts />;
@@ -752,4 +1097,3 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
-
