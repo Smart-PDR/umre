@@ -5,10 +5,13 @@ const { useState, useEffect, useRef } = React;
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
 const AUDIO_TELBIYE = "audio/Telbiye.mp3"; 
 const AUDIO_LABBAIK = "audio/labbaik.mp3";
-const APP_VERSION = "v2.5.0";
+
+// ÖNEMLİ: Güncelleme yaptığınızda burayı değiştirin (örn: v2.6.0 yapın).
+// Kullanıcılar siteye girdiğinde otomatik olarak "Güncellendi" uyarısı alacaklar.
+const APP_VERSION = "v2.6.0";
 
 // YENİ: Site Başlığı (Header'ın ortasında yazar)
-const SITE_TITLE = "umre.com"; 
+const SITE_TITLE = "umre.men"; 
 
 // YENİ: Geri Bildirim Formu Linki (Google Form linkinizi buraya yapıştırın)
 const FEEDBACK_FORM_URL = "https://forms.google.com/your-link-here";
@@ -233,6 +236,34 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                     <div className="text-center">
                         <span className="text-[10px] text-slate-400 font-mono tracking-widest">{APP_VERSION}</span>
                     </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// YENİ BİLEŞEN: Sürüm Güncelleme Bildirimi
+const UpdateModal = ({ show, onClose, version }) => {
+    if (!show) return null;
+    return (
+        <div className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-white dark:bg-slate-900 w-full max-w-sm rounded-2xl p-6 shadow-2xl border border-gold-500/20 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold-400 to-gold-600"></div>
+                <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-gold-50 dark:bg-gold-900/20 rounded-full flex items-center justify-center mb-4 animate-pulse-gold">
+                        <i data-lucide="sparkles" className="w-8 h-8 text-gold-500"></i>
+                    </div>
+                    <h3 className="text-xl font-serif font-bold text-slate-800 dark:text-white mb-2">Yenilikler Var!</h3>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                        Uygulamanız daha iyi bir deneyim için güncellendi.
+                    </p>
+                    <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-lg mb-6">
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Yeni Sürüm</span>
+                        <div className="text-lg font-mono font-bold text-gold-600 dark:text-gold-400">{version}</div>
+                    </div>
+                    <button onClick={onClose} className="w-full py-3 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-gold-500/30 active:scale-95">
+                        Harika, Devam Et
+                    </button>
                 </div>
             </div>
         </div>
@@ -932,10 +963,24 @@ const App = () => {
     const [installPrompt, setInstallPrompt] = useState(null);
     const [showBanner, setShowBanner] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+    const [showUpdateModal, setShowUpdateModal] = useState(false); // Yeni state
     const [settings, setSettings] = useState(() => JSON.parse(localStorage.getItem('sets')) || { fontSize: 'medium', theme: 'light', notifications: false, location: false });
 
     useEffect(() => { if(window.lucide) window.lucide.createIcons(); }, [view, showSettings, showBanner, settings]);
+    
+    // YENİ: Otomatik Güncelleme Kontrolü
     useEffect(() => {
+        const savedVersion = localStorage.getItem('app_saved_version');
+        const currentVersion = APP_VERSION;
+
+        // Eğer daha önce kaydedilmiş bir versiyon varsa ve şimdikiyle farklıysa
+        if (savedVersion && savedVersion !== currentVersion) {
+            setShowUpdateModal(true); // Modal'ı göster
+        }
+
+        // Her durumda yeni versiyonu kaydet ki bir sonraki açılışta tekrar sormasın
+        localStorage.setItem('app_saved_version', currentVersion);
+        
         localStorage.setItem('sets', JSON.stringify(settings));
         document.documentElement.className = settings.theme === 'dark' ? 'dark' : '';
         document.documentElement.classList.remove('text-sm', 'text-base', 'text-lg');
@@ -1000,6 +1045,7 @@ const App = () => {
             <main className="max-w-3xl mx-auto">{renderView()}</main>
             {view !== 'dashboard' && <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40"><button onClick={() => setView('dashboard')} className="bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-md text-gold-400 px-6 py-3 rounded-full shadow-2xl border border-gold-500/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all"><i data-lucide="layout-grid" className="w-5 h-5"></i><span className="font-bold text-sm">Ana Menü</span></button></div>}
             <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} settings={settings} updateSettings={updateSettings} installPrompt={installPrompt} onInstall={handleInstall} />
+            <UpdateModal show={showUpdateModal} onClose={() => setShowUpdateModal(false)} version={APP_VERSION} />
             <InstallBanner show={showBanner} onInstall={handleInstall} onClose={() => {setShowBanner(false); localStorage.setItem('dismiss_v2', 'true');}} />
         </div>
     );
