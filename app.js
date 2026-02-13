@@ -1,18 +1,17 @@
 const { useState, useEffect, useRef } = React;
 
 // --- SABİTLER VE AYARLAR ---
-// NOT: Resim, ses ve linkleri buradan değiştirebilirsiniz.
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
 const AUDIO_TELBIYE = "audio/Telbiye.mp3"; 
+const AUDIO_LABBAIK = "audio/labbaik.mp3";
 
-// ÖNEMLİ: Güncelleme yaptığınızda burayı değiştirin (örn: v2.6.0 yapın).
-// Kullanıcılar siteye girdiğinde otomatik olarak "Güncellendi" uyarısı alacaklar.
+// SÜRÜM BİLGİSİ
 const APP_VERSION = "v2.7.0";
 
-// YENİ: Site Başlığı (Header'ın ortasında yazar)
+// HEADER AYARLARI
 const SITE_TITLE = "umre.men"; 
 
-// YENİ: Geri Bildirim Formu Linki (Google Form linkinizi buraya yapıştırın)
+// GERİ BİLDİRİM LİNKİ
 const FEEDBACK_FORM_URL = "https://forms.gle/XiPcqdDAsDMxijiJ9";
 
 // --- YARDIMCI FONKSİYONLAR ---
@@ -28,7 +27,6 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 // --- REHBER VERİLERİ ---
-// İPUCU: Yeni bir rehber maddesi eklemek için aşağıdaki listeye yeni bir { } bloğu ekleyin.
 const GUIDE_DATA = [
     {
         id: "g1",
@@ -91,7 +89,6 @@ const MIQAT_DATA = [
 ];
 
 // --- SÖZLÜK VERİLERİ ---
-// İPUCU: Yeni kelime eklemek için items: [ ... ] içine { tr: "Türkçe", ar: "Arapça", en: "İngilizce" } ekleyin.
 const DICTIONARY_DATA = [
     { cat: "Acil / Sağlık", items: [
         { tr: "Yardım edin!", ar: "Sa'iduni!", en: "Help me!" },
@@ -136,20 +133,20 @@ const ANNOUNCEMENTS = [
     "💊 Kronik ilaçlarınızı yedekli almayı unutmayın."
 ];
 
-// İPUCU: Rota duraklarını buradan düzenleyebilirsiniz.
-const ROUTE_STOPS = [
-    { id: 1, name: "Cilvegözü", desc: "Hatay / Çıkış Kapısı", type: "border", km: 0 },
-    { id: 2, name: "İdlib", desc: "Suriye Geçişi", type: "city", km: 45 },
-    { id: 3, name: "Humus", desc: "Transit Güzergah", type: "city", km: 160 },
-    { id: 4, name: "Şam", desc: "Suriye Başkenti", type: "capital", km: 320 },
-    { id: 5, name: "Nassib", desc: "Ürdün Giriş Kapısı", type: "border", km: 430 },
-    { id: 6, name: "Amman", desc: "Ürdün - Mola", type: "capital", km: 520 },
-    { id: 7, name: "Tebük", desc: "Suudi Giriş & Yakıt", type: "city", km: 1200 },
-    { id: 8, name: "Medine", desc: "Vuslat Şehri", type: "holy", km: 1850 },
-    { id: 9, name: "Mekke", desc: "Kabe-i Muazzama", type: "holy", km: 2250 }
+// YENİ: REHBER PDF İÇERİĞİNE GÖRE DETAYLI ROTA VERİSİ
+const ROUTE_SIMULATION_DATA = [
+    { id: 1, city: "Hatay / Cilvegözü", action: "Çıkış", desc: "Türkiye'den çıkış işlemleri. Ruhsat sahibi araçta olmalı.", type: "start", color: "red" },
+    { id: 2, city: "Bab-al Hawa (Suriye)", action: "Giriş", desc: "Araç karnesi ve vize ödemeleri (Nakit).", type: "border", warning: "Sadece gündüz sürüşü yapın.", color: "amber" },
+    { id: 3, city: "İdlib - Hama - Humus", action: "Transit", desc: "M5 Otoyolu üzerinden güneye iniş.", type: "road", color: "slate" },
+    { id: 4, city: "Şam (Dera)", action: "Geçiş", desc: "Şam çevre yolundan Dera yönüne devam.", type: "road", color: "slate" },
+    { id: 5, city: "Nassib / Jaber", action: "Sınır", desc: "Suriye çıkış, Ürdün giriş. X-Ray kontrolü.", type: "border", color: "blue" },
+    { id: 6, city: "Amman - Ma'an", action: "Mola", desc: "Ürdün içi transit. İhtiyaç molası verilebilir.", type: "city", color: "slate" },
+    { id: 7, city: "Halat Ammar", action: "Giriş", desc: "Suudi Arabistan'a giriş. Parmak izi ve göz taraması.", type: "border", color: "green" },
+    { id: 8, city: "Tebük", action: "Yakıt", desc: "Depoyu mutlaka fulleyin. Çöl geçişi başlıyor.", type: "fuel", warning: "Sonraki 400km benzinlik yok.", color: "red" },
+    { id: 9, city: "Teyma - Hayber", action: "Tarih", desc: "Tarihi kaleler ve vaha bölgeleri. Bölünmüş yol.", type: "sight", color: "slate" },
+    { id: 10, city: "Medine-i Münevvere", action: "Varış", desc: "Peygamber Efendimiz'e (s.a.v) vuslat.", type: "holy", color: "emerald" }
 ];
 
-// İPUCU: Kontrol listesi maddelerini buradan ekleyip çıkarabilirsiniz.
 const CHECKLISTS_DATA = {
     luggage: [
         { id: "l1", label: "İhram (2 Takım)", desc: "Erkekler için dikişsiz ihram bezi. Kirlenme ihtimaline karşı yedekli.", checked: false },
@@ -177,6 +174,103 @@ const EMERGENCY_NUMBERS = [
 ];
 
 // --- BİLEŞENLER ---
+
+// YENİ BİLEŞEN: Rota Simülasyonu
+const RouteSimulation = () => {
+    const [activeStep, setActiveStep] = useState(0);
+    const scrollRef = useRef(null);
+
+    const handleNext = () => {
+        if (activeStep < ROUTE_SIMULATION_DATA.length - 1) {
+            setActiveStep(prev => prev + 1);
+            // Otomatik scroll
+            const element = document.getElementById(`step-${activeStep + 1}`);
+            if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+
+    const handlePrev = () => {
+        if (activeStep > 0) {
+            setActiveStep(prev => prev - 1);
+            const element = document.getElementById(`step-${activeStep - 1}`);
+            if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+
+    return (
+        <div className="p-4 pb-24 animate-fade-in space-y-4">
+            <div className="bg-slate-900 text-white p-6 rounded-2xl relative overflow-hidden shadow-xl">
+                <div className="relative z-10">
+                    <h2 className="text-2xl font-serif font-bold mb-1">Rota Simülasyonu</h2>
+                    <p className="text-slate-400 text-sm">Adım adım yolculuk rehberi.</p>
+                </div>
+                <div className="absolute right-4 top-4 w-12 h-12 rounded-full border-2 border-dashed border-slate-700 flex items-center justify-center">
+                    <div className="text-xl font-mono font-bold text-gold-500">{activeStep + 1}/{ROUTE_SIMULATION_DATA.length}</div>
+                </div>
+            </div>
+
+            <div className="relative">
+                {/* Dikey Çizgi */}
+                <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-slate-200 dark:bg-slate-700"></div>
+
+                <div className="space-y-6">
+                    {ROUTE_SIMULATION_DATA.map((step, index) => {
+                        const isActive = index === activeStep;
+                        const isPast = index < activeStep;
+
+                        return (
+                            <div key={step.id} id={`step-${index}`} 
+                                className={`relative flex gap-4 transition-all duration-500 ${isActive ? 'scale-105' : 'opacity-60'}`}
+                                onClick={() => setActiveStep(index)}
+                            >
+                                {/* İkon */}
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 z-10 border-4 transition-colors ${
+                                    isActive ? 'bg-gold-500 border-gold-200 text-white shadow-lg shadow-gold-500/30' : 
+                                    isPast ? 'bg-slate-800 border-slate-600 text-slate-400' : 'bg-white border-slate-200 text-slate-300'
+                                }`}>
+                                    <i data-lucide={step.type === 'border' ? 'flag' : step.type === 'fuel' ? 'fuel' : step.type === 'holy' ? 'moon' : 'map-pin'} className="w-5 h-5"></i>
+                                </div>
+
+                                {/* İçerik Kartı */}
+                                <div className={`flex-1 p-4 rounded-xl border transition-all cursor-pointer ${
+                                    isActive ? 'bg-white dark:bg-slate-800 border-gold-500 shadow-md ring-1 ring-gold-500/20' : 
+                                    'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
+                                }`}>
+                                    <div className="flex justify-between items-start mb-1">
+                                        <h4 className={`font-bold ${isActive ? 'text-slate-800 dark:text-white' : 'text-slate-500'}`}>{step.city}</h4>
+                                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${
+                                            step.type === 'border' ? 'bg-red-100 text-red-600' : 
+                                            step.type === 'fuel' ? 'bg-amber-100 text-amber-600' : 
+                                            'bg-slate-100 text-slate-500'
+                                        }`}>{step.action}</span>
+                                    </div>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{step.desc}</p>
+                                    
+                                    {step.warning && (
+                                        <div className="flex items-center gap-2 text-xs text-red-500 font-bold bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
+                                            <i data-lucide="alert-triangle" className="w-4 h-4"></i>
+                                            {step.warning}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Navigasyon Butonları */}
+            <div className="fixed bottom-6 left-0 right-0 p-4 z-50 flex justify-center gap-4 pointer-events-none">
+                <button onClick={handlePrev} disabled={activeStep === 0} className="pointer-events-auto bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-6 py-3 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 font-bold flex items-center gap-2">
+                    <i data-lucide="arrow-left" className="w-4 h-4"></i> Geri
+                </button>
+                <button onClick={handleNext} disabled={activeStep === ROUTE_SIMULATION_DATA.length - 1} className="pointer-events-auto bg-gold-500 text-white px-8 py-3 rounded-full shadow-lg shadow-gold-500/30 font-bold flex items-center gap-2 hover:bg-gold-600 transition-colors">
+                    İlerle <i data-lucide="arrow-right" className="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    );
+};
 
 const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPrompt, onInstall }) => {
     if (!isOpen) return null;
@@ -241,7 +335,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
     );
 };
 
-// YENİ BİLEŞEN: Sürüm Güncelleme Bildirimi
+// Sürüm Güncelleme Bildirimi
 const UpdateModal = ({ show, onClose, version }) => {
     if (!show) return null;
     return (
@@ -254,7 +348,7 @@ const UpdateModal = ({ show, onClose, version }) => {
                     </div>
                     <h3 className="text-xl font-serif font-bold text-slate-800 dark:text-white mb-2">Yenilikler Var!</h3>
                     <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                        Uygulamanız daha iyi bir deneyim için güncellendi.
+                        Uygulamanıza yeni <b>"Rota Simülasyonu"</b> özelliği eklendi.
                     </p>
                     <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-lg mb-6">
                         <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Yeni Sürüm</span>
@@ -314,7 +408,6 @@ const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => {
     );
 };
 
-// --- YENİ MODÜL: KAPSAMLI SEYAHAT REHBERİ ---
 const ComprehensiveGuide = () => {
     const [expanded, setExpanded] = useState(null);
 
@@ -365,12 +458,10 @@ const ComprehensiveGuide = () => {
     );
 };
 
-// --- YENİ MODÜL: MALİYET HESAPLAYICI ---
 const CostCalculator = () => {
     const [passengers, setPassengers] = useState(1);
     const [total, setTotal] = useState(0);
 
-    // PDF Verilerine Göre Sabitler (USD Bazlı)
     const CAR_COSTS = {
         syria_carnet: 20,
         syria_exit_car: 5,
@@ -429,16 +520,16 @@ const CostCalculator = () => {
     );
 };
 
-// --- ÖNE ÇIKAN KARTLAR (GÜNCELLENDİ) ---
 const FeaturedCards = ({ setActiveView }) => {
     const [activeIndex, setActiveIndex] = useState(0);
     const scrollRef = useRef(null);
     const [isPaused, setIsPaused] = useState(false);
 
     const cards = [
-        { id: 'c1', title: 'Seyahat Rehberi', sub: 'Sınır geçişleri & Belgeler', icon: 'book-open', bg: 'bg-gradient-to-br from-emerald-800 to-emerald-900', text: 'text-emerald-100', act: () => setActiveView('travelGuide') },
-        { id: 'c2', title: 'Maliyet Hesapla', sub: 'Vize ve Araç Giderleri', icon: 'calculator', bg: 'bg-gradient-to-br from-slate-900 to-slate-800', text: 'text-white', act: () => setActiveView('costCalc') },
-        { id: 'c3', title: 'Mikat Kontrol', sub: 'İhram sınırına yaklaşınca uyar', icon: 'map-pin', bg: 'bg-gradient-to-br from-indigo-800 to-indigo-900', text: 'text-indigo-100', act: () => setActiveView('miqat') }
+        { id: 'c1', title: 'Rota Simülasyonu', sub: 'Adım adım yol tarifi', icon: 'map', bg: 'bg-gradient-to-br from-cyan-800 to-cyan-900', text: 'text-cyan-100', act: () => setActiveView('routeSim') },
+        { id: 'c2', title: 'Seyahat Rehberi', sub: 'Sınır geçişleri & Belgeler', icon: 'book-open', bg: 'bg-gradient-to-br from-emerald-800 to-emerald-900', text: 'text-emerald-100', act: () => setActiveView('travelGuide') },
+        { id: 'c3', title: 'Maliyet Hesapla', sub: 'Vize ve Araç Giderleri', icon: 'calculator', bg: 'bg-gradient-to-br from-slate-900 to-slate-800', text: 'text-white', act: () => setActiveView('costCalc') },
+        { id: 'c4', title: 'Mikat Kontrol', sub: 'İhram sınırına yaklaşınca uyar', icon: 'map-pin', bg: 'bg-gradient-to-br from-indigo-800 to-indigo-900', text: 'text-indigo-100', act: () => setActiveView('miqat') }
     ];
 
     useEffect(() => {
@@ -479,8 +570,6 @@ const FeaturedCards = ({ setActiveView }) => {
         </div>
     );
 };
-
-// --- DİĞER MODÜLLER (KORUNANLAR) ---
 
 const MiqatModule = () => {
     const [userLoc, setUserLoc] = useState(null);
@@ -657,41 +746,8 @@ const PremiumContacts = () => (
 );
 
 const RouteVisualizer = () => {
-    const [visibleStops, setVisibleStops] = useState(0);
-    useEffect(() => {
-        let current = 0;
-        const interval = setInterval(() => {
-            if (current <= ROUTE_STOPS.length) { setVisibleStops(current); current++; } 
-            else { clearInterval(interval); }
-        }, 500);
-        return () => clearInterval(interval);
-    }, []);
-    const progressHeight = Math.max(0, ((visibleStops - 1) / (ROUTE_STOPS.length - 1)) * 100);
-    return (
-        <div className="p-6 pb-20 animate-fade-in">
-            <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white mb-8 shadow-xl relative overflow-hidden border border-gold-500/20">
-                <div className="relative z-10"><h3 className="font-serif text-2xl font-bold text-gold-400 mb-1">Mübarek Yolculuk</h3><p className="text-slate-400 text-sm">Türkiye - Mekke Güzergahı</p></div>
-                <i data-lucide="map" className="absolute right-4 bottom-4 w-24 h-24 text-white opacity-5"></i>
-            </div>
-            <div className="relative pl-2">
-                <div className="absolute left-[1.1rem] top-0 bottom-0 w-1 bg-slate-200 dark:bg-slate-700"></div>
-                <div className="absolute left-[1.1rem] top-0 w-1 bg-gold-500 transition-all duration-500" style={{ height: `${progressHeight}%` }}></div>
-                <div className="space-y-8 relative z-10">
-                    {ROUTE_STOPS.map((stop, index) => (
-                        <div key={stop.id} className={`flex items-start gap-4 transition-all duration-500 transform ${index < visibleStops ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border-4 z-20 ${index < visibleStops ? 'border-gold-500 bg-white dark:bg-slate-800' : 'border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'} ${stop.type === 'holy' && index < visibleStops ? 'animate-pulse-gold' : ''}`}>
-                                <i data-lucide={stop.type === 'holy' ? 'moon' : stop.type === 'border' ? 'flag' : 'map-pin'} className={`w-4 h-4 ${index < visibleStops ? 'text-gold-600' : 'text-slate-300'}`}></i>
-                            </div>
-                            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex-1">
-                                <div className="flex justify-between items-center mb-1"><h4 className="font-bold text-slate-800 dark:text-slate-100">{stop.name}</h4><span className="text-xs font-mono bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded text-slate-500">{stop.km} km</span></div>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">{stop.desc}</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
+    // Legacy visualizer component - retained for backward compatibility if needed, but RouteSimulation is superior.
+    return null;
 };
 
 const UmrahGuideDetail = () => {
@@ -962,7 +1018,7 @@ const App = () => {
     const [installPrompt, setInstallPrompt] = useState(null);
     const [showBanner, setShowBanner] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
-    const [showUpdateModal, setShowUpdateModal] = useState(false); // Yeni state
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [settings, setSettings] = useState(() => JSON.parse(localStorage.getItem('sets')) || { fontSize: 'medium', theme: 'light', notifications: false, location: false });
 
     useEffect(() => { if(window.lucide) window.lucide.createIcons(); }, [view, showSettings, showBanner, settings]);
@@ -1021,6 +1077,7 @@ const App = () => {
                     <MenuCard icon="info" label="Hakkında" subLabel="Künye" colorClass="bg-slate-400 text-slate-500" onClick={() => setView('about')} />
                 </div>
             );
+            case 'routeSim': return <RouteSimulation />; // YENİ
             case 'route': return <RouteVisualizer />;
             case 'travelGuide': return <ComprehensiveGuide />;
             case 'costCalc': return <CostCalculator />;
@@ -1052,6 +1109,3 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
-
-
-
