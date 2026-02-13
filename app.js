@@ -4,6 +4,7 @@ const { useState, useEffect, useRef } = React;
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
 const AUDIO_TELBIYE = "audio/Telbiye.mp3"; 
 const AUDIO_LABBAIK = "audio/labbaik.mp3";
+const APP_VERSION = "v2.4.0";
 
 // --- YARDIMCI FONKSİYONLAR ---
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -17,7 +18,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
     return Math.round(R * c);
 };
 
-// --- REHBER VERİLERİ (PDF KAYNAKLI) ---
+// --- REHBER VERİLERİ ---
 const GUIDE_DATA = [
     {
         id: "g1",
@@ -138,19 +139,19 @@ const ROUTE_STOPS = [
 
 const CHECKLISTS_DATA = {
     luggage: [
-        { id: "l1", label: "İhram (2 Takım)", checked: false },
-        { id: "l2", label: "Ortopedik Terlik & Sandalet", checked: false },
-        { id: "l3", label: "Lastik Tamir Kiti & Kompresör (Zorunlu)", checked: false },
-        { id: "l4", label: "Bel Çantası (Para Kemeri)", checked: false },
-        { id: "l5", label: "Güneş Gözlüğü & Şapka", checked: false },
-        { id: "l6", label: "İlk Yardım Çantası", checked: false }
+        { id: "l1", label: "İhram (2 Takım)", desc: "Erkekler için dikişsiz ihram bezi. Kirlenme ihtimaline karşı yedekli.", checked: false },
+        { id: "l2", label: "Ortopedik Terlik & Sandalet", desc: "Uzun yürüyüşler ve tavaf sırasında ayak sağlığı için kritik.", checked: false },
+        { id: "l3", label: "Lastik Tamir Kiti & Kompresör", desc: "Çöl yollarında lastik patlaması durumunda hayati önem taşır.", checked: false },
+        { id: "l4", label: "Bel Çantası (Para Kemeri)", desc: "İhram altı/üstü para ve pasaport güvenliği için.", checked: false },
+        { id: "l5", label: "Güneş Gözlüğü & Şapka", desc: "Gündüz sürüşleri ve beyaz mermer yansımasına karşı.", checked: false },
+        { id: "l6", label: "İlk Yardım Çantası", desc: "Ağrı kesici, yara bandı, pişik kremi ve kronik ilaçlar.", checked: false }
     ],
     documents: [
-        { id: "d1", label: "Pasaport (En az 6 ay geçerli)", checked: false },
-        { id: "d2", label: "Suudi Arabistan E-Vizesi", checked: false },
-        { id: "d3", label: "Araç Ruhsatı (Veya Vekaletname)", checked: false },
-        { id: "d4", label: "Uluslararası Sigorta (Yeşil Kart)", checked: false },
-        { id: "d5", label: "Otel Rezervasyonları", checked: false }
+        { id: "d1", label: "Pasaport", desc: "En az 6 ay geçerlilik süresi olmalı.", checked: false },
+        { id: "d2", label: "Suudi Arabistan E-Vizesi", desc: "Çıktısı mutlaka yanınızda bulunmalı.", checked: false },
+        { id: "d3", label: "Araç Ruhsatı (Veya Vekalet)", desc: "Araç sahibi yoksa noter onaylı vekaletname şarttır.", checked: false },
+        { id: "d4", label: "Uluslararası Sigorta (Yeşil Kart)", desc: "Yurtdışı teminatı eklenmiş trafik sigortası.", checked: false },
+        { id: "d5", label: "Otel Rezervasyonları", desc: "Sınır kapılarında ibraz etmek gerekebilir.", checked: false }
     ]
 };
 
@@ -174,28 +175,52 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                     <h2 className="text-xl font-serif font-bold text-slate-800 dark:text-gold-400">Ayarlar</h2>
                     <button onClick={onClose} className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full"><i data-lucide="x" className="w-5 h-5"></i></button>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-4 overflow-y-auto pr-2">
                     <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl">
                         <label className="text-sm font-bold flex items-center gap-2 mb-2"><i data-lucide="type" className="w-4 h-4 text-gold-500"></i> Yazı Boyutu</label>
                         <div className="flex bg-slate-200 dark:bg-slate-700 p-1 rounded-lg">
                             {['small', 'medium', 'large'].map(s => (
-                                <button key={s} onClick={() => updateSettings('fontSize', s)} className={`flex-1 py-1.5 rounded-md text-xs font-bold transition-all ${settings.fontSize === s ? 'bg-white text-gold-600 shadow' : 'text-slate-400'}`}>{s}</button>
+                                <button key={s} onClick={() => updateSettings('fontSize', s)} className={`flex-1 py-1.5 rounded-md text-xs font-bold transition-all ${settings.fontSize === s ? 'bg-white text-gold-600 shadow' : 'text-slate-400'}`}>
+                                    {s === 'small' ? 'Küçük' : s === 'medium' ? 'Orta' : 'Büyük'}
+                                </button>
                             ))}
                         </div>
                     </div>
                     {[
-                        { k: 'theme', l: 'Gece Modu', i: 'moon' },
-                        { k: 'notifications', l: 'Bildirimler', i: 'bell' },
-                        { k: 'location', l: 'Konum', i: 'map-pin' }
+                        { k: 'theme', l: 'Gece Modu', i: 'moon', desc: 'Göz yormayan karanlık tema' },
+                        { k: 'notifications', l: 'Bildirimler', i: 'bell', desc: 'Mikat alarmı ve namaz vakitleri için' },
+                        { k: 'location', l: 'Konum İzni', i: 'map-pin', desc: 'Kabe ve Mikat mesafe hesaplaması için' }
                     ].map(t => (
                         <div key={t.k} className="flex items-center justify-between p-3 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl">
-                            <div className="flex items-center gap-3"><div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg"><i data-lucide={t.i} className="w-5 h-5 text-slate-600 dark:text-slate-300"></i></div><span className="font-bold text-sm text-slate-700 dark:text-slate-200">{t.l}</span></div>
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg"><i data-lucide={t.i} className="w-5 h-5 text-slate-600 dark:text-slate-300"></i></div>
+                                <div className="flex flex-col">
+                                    <span className="font-bold text-sm text-slate-700 dark:text-slate-200">{t.l}</span>
+                                    <span className="text-[10px] text-slate-400">{t.desc}</span>
+                                </div>
+                            </div>
                             <button onClick={() => t.k === 'theme' ? updateSettings('theme', settings.theme === 'dark' ? 'light' : 'dark') : handleToggle(t.k)} className={`w-10 h-6 rounded-full p-1 transition-colors ${((t.k === 'theme' && settings.theme === 'dark') || (t.k !== 'theme' && settings[t.k])) ? 'bg-gold-500' : 'bg-slate-300'}`}><div className={`w-4 h-4 bg-white rounded-full shadow transform transition-transform ${((t.k === 'theme' && settings.theme === 'dark') || (t.k !== 'theme' && settings[t.k])) ? 'translate-x-4' : ''}`}></div></button>
                         </div>
                     ))}
+                    
+                    {/* Gizlilik ve Güvenlik */}
+                    <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800 flex items-start gap-3">
+                         <i data-lucide="shield-check" className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"></i>
+                         <div>
+                             <h4 className="font-bold text-sm text-emerald-800 dark:text-emerald-300">Güvenlik & Gizlilik</h4>
+                             <p className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-1 leading-relaxed">
+                                 Bu uygulama tamamen güvenlidir. Kişisel verileriniz, konum bilginiz veya işaretlediğiniz listeler yalnızca kendi telefonunuzda (tarayıcı hafızasında) saklanır. Hiçbir sunucuya veri transferi yapılmaz.
+                             </p>
+                         </div>
+                    </div>
+
                     <div className="bg-slate-900 dark:bg-slate-800 p-4 rounded-xl border border-gold-500/30 text-white">
                         <div className="flex items-center gap-3 mb-3"><i data-lucide="smartphone" className="w-5 h-5 text-gold-500"></i><div><h4 className="font-bold text-sm">Uygulamayı Yükle</h4><p className="text-[10px] text-slate-300">İnternetsiz erişim.</p></div></div>
                         <button onClick={onInstall} disabled={!installPrompt} className={`w-full py-2 rounded-lg font-bold text-xs ${installPrompt ? 'bg-gold-500 text-black' : 'bg-slate-700 text-slate-500'}`}>{installPrompt ? 'Yükle' : 'Zaten Yüklü'}</button>
+                    </div>
+
+                    <div className="text-center">
+                        <span className="text-[10px] text-slate-400 font-mono tracking-widest">{APP_VERSION}</span>
                     </div>
                 </div>
             </div>
@@ -204,6 +229,22 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
 };
 
 const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const audioRef = useRef(null);
+
+    useEffect(() => {
+        audioRef.current = new Audio(AUDIO_TELBIYE);
+        audioRef.current.onended = () => setIsPlaying(false);
+        return () => { if(audioRef.current) { audioRef.current.pause(); } };
+    }, []);
+
+    const togglePlay = () => {
+        if (!audioRef.current) return;
+        if (isPlaying) { audioRef.current.pause(); } 
+        else { audioRef.current.play().catch(e => alert("Ses dosyası çalınamıyor.")); }
+        setIsPlaying(!isPlaying);
+    };
+
     return (
         <div className="sticky top-0 z-50 glass-header px-4 py-3 flex items-center justify-between shadow-sm min-h-[70px]">
             <div className="flex items-center gap-3">
@@ -212,7 +253,16 @@ const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => {
                     <div className="flex flex-col"><span className="text-[10px] font-bold text-gold-600 dark:text-gold-500 tracking-[0.2em] uppercase">Karayolu İle</span><span className="text-lg font-serif font-bold dark:text-white">Umre Rehberi</span></div>
                 ) : <h1 className="text-lg font-serif font-bold dark:text-gold-400">{title}</h1>}
             </div>
-            {showSettingsBtn && <button onClick={onOpenSettings} className="p-2 rounded-full bg-slate-100 dark:bg-slate-800"><i data-lucide="settings" className="w-5 h-5"></i></button>}
+            {showSettingsBtn && (
+                <div className="flex items-center gap-2">
+                    <button onClick={togglePlay} className={`p-2 rounded-full transition-all border ${isPlaying ? 'bg-gold-500 border-gold-500 text-white animate-pulse-gold' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}>
+                        <i data-lucide={isPlaying ? "pause" : "play"} className="w-4 h-4 fill-current"></i>
+                    </button>
+                    <button onClick={onOpenSettings} className="p-2 rounded-full bg-slate-100 dark:bg-slate-800 border border-transparent hover:border-slate-300 dark:hover:border-slate-600 transition-colors">
+                        <i data-lucide="settings" className="w-5 h-5"></i>
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
@@ -419,13 +469,43 @@ const MiqatModule = () => {
     return (
         <div className="p-4 pb-24 animate-fade-in space-y-6">
             <div className="bg-indigo-900 text-white p-5 rounded-2xl relative overflow-hidden shadow-lg">
-                <div className="relative z-10"><h3 className="font-serif font-bold text-xl mb-2 text-indigo-200">Mikat Nedir?</h3><p className="text-sm text-indigo-100 opacity-90">Harem bölgesine ihramsız geçilmemesi gereken sınırlar.</p></div>
+                <div className="relative z-10">
+                    <h3 className="font-serif font-bold text-xl mb-2 text-indigo-200">Mikat Nedir?</h3>
+                    <p className="text-sm text-indigo-100 opacity-90 leading-relaxed">
+                        Harem bölgesine (Mekke) girmek isteyenlerin, ihramsız geçmemeleri gereken sınır noktalarıdır. 
+                        Peygamber Efendimiz (s.a.v) tarafından belirlenmiştir. Bu sınırı geçmeden önce ihrama girilmeli ve niyet edilmelidir.
+                    </p>
+                </div>
                 <i data-lucide="map-pin" className="absolute -right-4 -bottom-4 w-24 h-24 text-white opacity-10 rotate-12"></i>
             </div>
-            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-center">
-                <h4 className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2"><i data-lucide="bell-ring" className="w-4 h-4 text-gold-500"></i> Yaklaşma Alarmı ({alertDist} km)</h4>
-                <button onClick={() => setIsActive(!isActive)} className={`w-10 h-6 rounded-full p-1 transition-colors ${isActive ? 'bg-green-500' : 'bg-slate-300'}`}><div className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${isActive ? 'translate-x-4' : ''}`}></div></button>
+
+            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                        <i data-lucide="bell-ring" className="w-4 h-4 text-gold-500"></i> Yaklaşma Alarmı
+                    </h4>
+                    <button 
+                        onClick={() => setIsActive(!isActive)}
+                        className={`w-10 h-6 rounded-full p-1 transition-colors ${isActive ? 'bg-green-500' : 'bg-slate-300'}`}
+                    >
+                        <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${isActive ? 'translate-x-4' : ''}`}></div>
+                    </button>
+                </div>
+                {isActive && (
+                    <div className="flex gap-2">
+                        {[10, 20, 50, 100].map(km => (
+                            <button 
+                                key={km} 
+                                onClick={() => setAlertDist(km)}
+                                className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${alertDist === km ? 'bg-indigo-50 border-indigo-500 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300' : 'border-slate-200 text-slate-500 dark:border-slate-700'}`}
+                            >
+                                {km} km
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
+
             <div className="space-y-4">
                 {MIQAT_DATA.map(m => {
                     const dist = userLoc ? calculateDistance(userLoc.lat, userLoc.lng, m.lat, m.lng) : null;
@@ -501,9 +581,12 @@ const PremiumChecklist = ({ type, title }) => {
             <div className="grid gap-3">
                 {items.map(i => (
                     <div key={i.id} onClick={() => toggle(i.id)} className={`group relative p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${i.checked ? 'bg-slate-900 border-slate-900 shadow-lg' : 'bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:border-gold-200'}`}>
-                        <div className="flex items-center justify-between">
-                            <span className={`font-medium transition-colors ${i.checked ? 'text-white line-through opacity-50' : 'text-slate-700 dark:text-slate-200'}`}>{i.label}</span>
-                            <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${i.checked ? 'bg-gold-500 text-slate-900' : 'bg-slate-100 dark:bg-slate-700 text-slate-300'}`}><i data-lucide="check" className="w-3.5 h-3.5"></i></div>
+                        <div className="flex items-start justify-between">
+                            <div className="flex flex-col pr-4">
+                                <span className={`font-medium transition-colors ${i.checked ? 'text-white line-through opacity-50' : 'text-slate-700 dark:text-slate-200'}`}>{i.label}</span>
+                                {i.desc && <span className={`text-[10px] mt-1 ${i.checked ? 'text-slate-500' : 'text-slate-500 dark:text-slate-400'}`}>{i.desc}</span>}
+                            </div>
+                            <div className={`w-6 h-6 rounded-full shrink-0 flex items-center justify-center transition-all ${i.checked ? 'bg-gold-500 text-slate-900' : 'bg-slate-100 dark:bg-slate-700 text-slate-300'}`}><i data-lucide="check" className="w-3.5 h-3.5"></i></div>
                         </div>
                     </div>
                 ))}
