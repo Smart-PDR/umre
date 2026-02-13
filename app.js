@@ -2,8 +2,7 @@ const { useState, useEffect, useRef } = React;
 
 // --- SABİTLER VE AYARLAR ---
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
-const AUDIO_TELBIYE = "audio/Telbiye.mp3"; 
-const AUDIO_LABBAIK = "audio/labbaik.mp3";
+const AUDIO_TELBIYE = "audio/Telbiye.mp3";
 
 // --- YARDIMCI FONKSİYONLAR ---
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -753,3 +752,4 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
