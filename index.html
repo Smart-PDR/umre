@@ -46,6 +46,19 @@
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- Google Analytics (HEAD etiketinin içine, en alta ekleyin) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SENIN_KODUN"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-0JZ52BKPGN');
+</script>
+
+
+    
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-500 bg-islamic-pattern">
     <div id="root"></div>
@@ -64,4 +77,5 @@
     <!-- Ana Uygulama Kodu -->
     <script type="text/babel" src="app.js"></script>
 </body>
+
 </html>
