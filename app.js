@@ -3,9 +3,10 @@ const { useState, useEffect, useRef } = React;
 // --- SABİTLER VE AYARLAR ---
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
 const AUDIO_TELBIYE = "audio/Telbiye.mp3"; 
+const AUDIO_LABBAIK = "audio/labbaik.mp3";
 
 // SÜRÜM BİLGİSİ
-const APP_VERSION = "v2.8.0";
+const APP_VERSION = "v2.7.0";
 
 // HEADER AYARLARI
 const SITE_TITLE = "umre.men"; 
@@ -1022,19 +1023,31 @@ const App = () => {
 
     useEffect(() => { if(window.lucide) window.lucide.createIcons(); }, [view, showSettings, showBanner, settings]);
     
-    // YENİ: Otomatik Güncelleme Kontrolü
+    // --- GOOGLE ANALYTICS ENTEGRASYONU ---
+    // Her ekran (view) değiştiğinde Google'a bildirim gönderir
+    useEffect(() => {
+        if (window.gtag) {
+            window.gtag('event', 'page_view', {
+                page_title: view,
+                page_path: `/${view}` // Raporlarda /dashboard, /costCalc vb. olarak görünür
+            });
+        }
+    }, [view]);
+
+    // --- OTOMATİK GÜNCELLEME VE AYAR YÖNETİMİ ---
     useEffect(() => {
         const savedVersion = localStorage.getItem('app_saved_version');
         const currentVersion = APP_VERSION;
 
         // Eğer daha önce kaydedilmiş bir versiyon varsa ve şimdikiyle farklıysa
         if (savedVersion && savedVersion !== currentVersion) {
-            setShowUpdateModal(true); // Modal'ı göster
+            setShowUpdateModal(true); // "Yenilikler Var" penceresini aç
         }
 
-        // Her durumda yeni versiyonu kaydet ki bir sonraki açılışta tekrar sormasın
+        // Her durumda yeni versiyonu kaydet
         localStorage.setItem('app_saved_version', currentVersion);
         
+        // Tema ve Yazı Boyutu Ayarlarını Uygula
         localStorage.setItem('sets', JSON.stringify(settings));
         document.documentElement.className = settings.theme === 'dark' ? 'dark' : '';
         document.documentElement.classList.remove('text-sm', 'text-base', 'text-lg');
@@ -1108,4 +1121,3 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
-
