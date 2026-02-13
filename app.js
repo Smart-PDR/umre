@@ -2,7 +2,7 @@ const { useState, useEffect, useRef } = React;
 
 // --- SABİTLER VE AYARLAR ---
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
-const AUDIO_SRC = "audio/Tebliye.mp3"; 
+const AUDIO_SRC = "audio/Telbiye.mp3"; 
 
 // --- YARDIMCI FONKSİYONLAR ---
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
@@ -84,11 +84,64 @@ const CHECKLISTS_DATA = {
     ]
 };
 
+const EMERGENCY_NUMBERS = [
+    { title: "T.C. Cidde Başkonsolosluğu", number: "+966126601607", icon: "building-2" },
+    { title: "T.C. Riyad Büyükelçiliği", number: "+966114820101", icon: "flag" },
+    { title: "Mekke Diyanet Ekibi", number: "+966500000000", icon: "phone" },
+    { title: "Suudi Arabistan Polis", number: "999", icon: "alert-triangle" },
+    { title: "Suudi Arabistan Ambulans", number: "997", icon: "ambulance" },
+    { title: "Trafik Kazası", number: "993", icon: "car" }
+];
+
 // --- BİLEŞENLER ---
 
 // 1. AYARLAR MODALI
 const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPrompt, onInstall }) => {
     if (!isOpen) return null;
+
+    // Gerçek izin isteme mantığı
+    const handleToggle = (key) => {
+        const currentVal = settings[key];
+        const newVal = !currentVal;
+
+        if (newVal) {
+            // İzin açılmak isteniyor
+            if (key === 'notifications') {
+                if ("Notification" in window) {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === "granted") {
+                            updateSettings(key, true);
+                        } else {
+                            alert("Bildirim izni reddedildi.");
+                            updateSettings(key, false);
+                        }
+                    });
+                } else {
+                    alert("Tarayıcınız bildirimleri desteklemiyor.");
+                }
+            } else if (key === 'location') {
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            console.log("Konum alındı:", position);
+                            updateSettings(key, true);
+                        },
+                        (error) => {
+                            alert("Konum izni alınamadı.");
+                            updateSettings(key, false);
+                        }
+                    );
+                } else {
+                    alert("Tarayıcınız konumu desteklemiyor.");
+                }
+            } else {
+                updateSettings(key, newVal);
+            }
+        } else {
+            // İzin kapatılıyor
+            updateSettings(key, false);
+        }
+    };
 
     return (
         <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center animate-fade-in">
@@ -129,7 +182,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                             <div className="p-2 bg-rose-50 dark:bg-rose-900/20 text-rose-500 rounded-lg"><i data-lucide="bell" className="w-5 h-5"></i></div>
                             <div><h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Bildirimler</h4><p className="text-[10px] text-slate-400">Namaz vakti.</p></div>
                         </div>
-                        <button onClick={() => updateSettings('notifications', !settings.notifications)} className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.notifications ? 'bg-gold-500' : 'bg-slate-300'}`}>
+                        <button onClick={() => handleToggle('notifications')} className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.notifications ? 'bg-gold-500' : 'bg-slate-300'}`}>
                             <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settings.notifications ? 'translate-x-6' : ''}`}></div>
                         </button>
                     </div>
@@ -139,7 +192,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                             <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-lg"><i data-lucide="map-pin" className="w-5 h-5"></i></div>
                             <div><h4 className="font-bold text-slate-700 dark:text-slate-200 text-sm">Konum</h4><p className="text-[10px] text-slate-400">Mesafe hesabı.</p></div>
                         </div>
-                        <button onClick={() => updateSettings('location', !settings.location)} className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.location ? 'bg-gold-500' : 'bg-slate-300'}`}>
+                        <button onClick={() => handleToggle('location')} className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 ${settings.location ? 'bg-gold-500' : 'bg-slate-300'}`}>
                             <div className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-transform duration-300 ${settings.location ? 'translate-x-6' : ''}`}></div>
                         </button>
                     </div>
@@ -170,13 +223,27 @@ const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => {
     useEffect(() => {
         audioRef.current = new Audio(AUDIO_SRC);
         audioRef.current.onended = () => setIsPlaying(false);
+        audioRef.current.onerror = (e) => console.log("Ses dosyası yüklenemedi", e);
         return () => { if(audioRef.current) { audioRef.current.pause(); audioRef.current = null; } };
     }, []);
 
     const togglePlay = () => {
         if (!audioRef.current) return;
-        if (isPlaying) audioRef.current.pause();
-        else audioRef.current.play().catch(e => console.log("Ses hatası:", e));
+        
+        if (isPlaying) {
+            audioRef.current.pause();
+        } else {
+            // Promise hatasını yakala (Tarayıcı politikaları için)
+            const playPromise = audioRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise
+                    .catch(e => {
+                        console.log("Otomatik oynatma engellendi veya dosya yok:", e);
+                        alert("Ses dosyası çalınamıyor. Lütfen dosyanın 'audio/Telbiye.mp3' konumunda olduğundan emin olun.");
+                        setIsPlaying(false);
+                    });
+            }
+        }
         setIsPlaying(!isPlaying);
     };
 
@@ -223,7 +290,6 @@ const PrayerTimesDetail = () => {
         const fetchTimes = async () => {
             setLoading(true);
             try {
-                const today = new Date();
                 const response = await fetch(`https://api.aladhan.com/v1/timingsByCity?city=${city}&country=Saudi Arabia&method=4`);
                 if (!response.ok) throw new Error("API Hatası");
                 const data = await response.json();
@@ -379,7 +445,11 @@ const PlacesDetail = () => {
                     return (
                         <div key={p.id} className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700">
                             <div className="h-40 bg-slate-200 dark:bg-slate-700 relative flex items-center justify-center">
-                                <div className="text-slate-400 text-xs flex flex-col items-center gap-2"><i data-lucide="image" className="w-8 h-8 opacity-50"></i><span>{p.title}</span></div>
+                                {p.image.startsWith('[') ? (
+                                    <div className="text-slate-400 text-xs flex flex-col items-center gap-2"><i data-lucide="image" className="w-8 h-8 opacity-50"></i><span>{p.title}</span></div>
+                                ) : (
+                                    <img src={p.image} className="w-full h-full object-cover" />
+                                )}
                                 {dist && <div className="absolute top-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-full">{dist} km</div>}
                             </div>
                             <div className="p-4">
@@ -395,7 +465,7 @@ const PlacesDetail = () => {
     );
 };
 
-// 7. KIBLE PUSULASI
+// 7. PREMIUM KIBLE PUSULASI
 const QiblaCompass = () => {
     const [heading, setHeading] = useState(0);
     const [qibla, setQibla] = useState(0);
@@ -411,31 +481,90 @@ const QiblaCompass = () => {
     };
 
     const start = () => {
-        if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => setQibla(calcQibla(p.coords.latitude, p.coords.longitude)));
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(p => setQibla(calcQibla(p.coords.latitude, p.coords.longitude)));
+        } else {
+            alert("Konum servisi kapalı.");
+        }
+
         if (typeof DeviceOrientationEvent?.requestPermission === 'function') {
-            DeviceOrientationEvent.requestPermission().then(r => { if(r === 'granted') { setPerm(true); window.addEventListener('deviceorientation', handleOr); }});
-        } else { setPerm(true); window.addEventListener('deviceorientation', handleOr); }
+            DeviceOrientationEvent.requestPermission().then(r => { 
+                if(r === 'granted') { 
+                    setPerm(true); 
+                    window.addEventListener('deviceorientation', handleOr); 
+                } else {
+                    alert("Pusula izni verilmedi.");
+                }
+            });
+        } else { 
+            setPerm(true); 
+            window.addEventListener('deviceorientation', handleOr); 
+        }
     };
     
-    const handleOr = (e) => setHeading(e.webkitCompassHeading || Math.abs(e.alpha - 360));
+    const handleOr = (e) => {
+        const h = e.webkitCompassHeading || Math.abs(e.alpha - 360);
+        setHeading(h);
+    };
+    
     useEffect(() => () => window.removeEventListener('deviceorientation', handleOr), []);
 
+    // İbreyi hesapla
+    const needleRotation = (qibla - heading + 360) % 360;
+
     return (
-        <div className="flex flex-col items-center justify-center h-[calc(100vh-140px)] p-6">
+        <div className="flex flex-col items-center justify-center h-[calc(100vh-140px)] p-6 animate-fade-in">
             {!perm ? (
-                <div className="text-center">
-                    <button onClick={start} className="px-8 py-3 bg-gold-500 text-white font-bold rounded-xl shadow-lg">Pusulayı Başlat</button>
-                    <p className="text-xs text-slate-400 mt-4">Pusula için izin verin ve konumu açın.</p>
+                <div className="text-center space-y-4">
+                    <div className="w-24 h-24 bg-gold-100 dark:bg-gold-900/20 rounded-full flex items-center justify-center mx-auto animate-pulse">
+                        <i data-lucide="compass" className="w-12 h-12 text-gold-600"></i>
+                    </div>
+                    <h3 className="font-bold text-xl text-slate-800 dark:text-slate-200">Kıble Pusulası</h3>
+                    <p className="text-sm text-slate-500 max-w-xs mx-auto">
+                        Anlık konum ve sensör verileriyle en doğru kıble yönünü bulmak için pusulayı başlatın.
+                    </p>
+                    <button 
+                        onClick={start}
+                        className="px-8 py-3 bg-gold-500 hover:bg-gold-600 text-white font-bold rounded-xl shadow-lg shadow-gold-500/30 transition-all active:scale-95"
+                    >
+                        Pusulayı Başlat
+                    </button>
                 </div>
             ) : (
                 <div className="relative">
-                    <div className="w-72 h-72 rounded-full border-8 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-2xl flex items-center justify-center transition-transform" style={{ transform: `rotate(${-heading}deg)` }}>
-                        <span className="absolute top-2 text-red-500 font-bold">N</span>
-                        <div className="absolute inset-0 flex items-center justify-center" style={{ transform: `rotate(${(qibla - heading + 360 + heading)%360}deg)` }}>
-                            <div className="h-32 w-1 bg-gold-500 origin-bottom relative -top-16"><i data-lucide="moon" className="absolute -top-4 -left-2 w-5 h-5 text-gold-500 fill-current"></i></div>
-                        </div>
+                    {/* Pusula Gövdesi - Döner */}
+                    <div className="w-72 h-72 rounded-full border-8 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-2xl relative flex items-center justify-center transition-transform duration-200 ease-out" style={{ transform: `rotate(${-heading}deg)` }}>
+                        {/* İç Dekorasyon (Yönler) */}
+                        <div className="absolute inset-0 rounded-full border border-slate-100 dark:border-slate-700 m-2"></div>
+                        <span className="absolute top-2 font-bold text-red-500 text-lg">N</span>
+                        <span className="absolute bottom-2 font-bold text-slate-400 text-sm">S</span>
+                        <span className="absolute left-2 font-bold text-slate-400 text-sm">W</span>
+                        <span className="absolute right-2 font-bold text-slate-400 text-sm">E</span>
+                        
+                        {/* Derece Çizgileri */}
+                        {[...Array(12)].map((_, i) => (
+                            <div key={i} className="absolute w-0.5 h-3 bg-slate-300 dark:bg-slate-600 top-0 left-1/2 -translate-x-1/2 origin-bottom" style={{ transform: `rotate(${i * 30}deg) translateY(0)` }}></div>
+                        ))}
                     </div>
-                    <div className="text-center mt-8"><div className="text-3xl font-mono font-bold text-slate-800 dark:text-gold-400">{Math.round(heading)}°</div></div>
+
+                    {/* Kabe İbresi (Sanal Sabit) */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ transform: `rotate(${needleRotation}deg)`, transition: 'transform 0.5s cubic-bezier(0.4, 2.5, 0.4, 0.8)' }}>
+                         {/* İbre Görseli */}
+                         <div className="h-32 w-1.5 bg-gradient-to-t from-transparent to-gold-500 rounded-full origin-bottom relative -top-16 shadow-[0_0_15px_rgba(234,179,8,0.6)]">
+                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6">
+                                <i data-lucide="moon" className="w-full h-full text-gold-500 fill-gold-500"></i>
+                            </div>
+                         </div>
+                    </div>
+
+                    {/* Merkez Nokta */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-slate-800 dark:bg-white rounded-full border-2 border-gold-500 z-20"></div>
+                    
+                    {/* Bilgi Kutusu */}
+                    <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 text-center w-full">
+                        <div className="text-3xl font-mono font-bold text-slate-800 dark:text-gold-400">{Math.round(heading)}°</div>
+                        <div className="text-xs text-slate-400">Kıble Açısı: {Math.round(qibla)}°</div>
+                    </div>
                 </div>
             )}
         </div>
@@ -453,16 +582,25 @@ const FeaturedCards = ({ setActiveView }) => {
     }, []);
 
     const cards = [
-        { id: 'c1', title: 'Yolculuk Rotası', sub: 'Cilvegözü ➔ Mekke', icon: 'map', bg: 'bg-slate-900', text: 'text-white', act: () => setActiveView('route') },
-        { id: 'c2', title: 'Mesafe Durumu', sub: dist.mk ? `Mekke'ye ${dist.mk} km` : 'Konum Bekleniyor...', icon: 'navigation', bg: 'bg-emerald-800', text: 'text-white', act: () => setActiveView('places') }
+        { id: 'c1', title: 'Yolculuk Rotası', sub: 'Cilvegözü ➔ Mekke', icon: 'map', bg: 'bg-gradient-to-br from-slate-900 to-slate-800', text: 'text-white', act: () => setActiveView('route') },
+        { id: 'c2', title: 'Mesafe Durumu', sub: dist.mk ? `Mekke'ye ${dist.mk} km` : 'Konum Bekleniyor...', icon: 'navigation', bg: 'bg-gradient-to-br from-emerald-800 to-emerald-900', text: 'text-emerald-100', act: () => setActiveView('places') }
     ];
 
     return (
         <div className="col-span-2 mb-2 flex gap-3 overflow-x-auto pb-4 pt-1 px-1 snap-x scrollbar-hide">
             {cards.map(c => (
                 <div key={c.id} onClick={c.act} className={`relative overflow-hidden ${c.bg} rounded-2xl p-5 shadow-xl cursor-pointer border border-white/10 min-w-[85%] snap-center shrink-0 flex flex-col justify-between h-32`}>
-                    <div className="relative z-10"><h2 className={`text-2xl font-serif font-bold ${c.text} mb-0.5`}>{c.title}</h2><p className={`${c.text} text-xs opacity-70`}>{c.sub}</p></div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className={`px-2 py-0.5 rounded text-[10px] bg-white/10 ${c.text} font-bold uppercase tracking-wider`}>Öne Çıkan</span>
+                        </div>
+                        <h2 className={`text-2xl font-serif font-bold ${c.text} mb-0.5`}>{c.title}</h2>
+                        <p className={`${c.text} text-xs opacity-70`}>{c.sub}</p>
+                    </div>
                     <i data-lucide={c.icon} className={`absolute -right-2 -bottom-4 w-24 h-24 ${c.text} opacity-10 rotate-12`}></i>
+                    <div className="absolute bottom-4 right-4 w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-white">
+                        <i data-lucide="arrow-right" className="w-4 h-4"></i>
+                    </div>
                 </div>
             ))}
         </div>
@@ -472,11 +610,22 @@ const FeaturedCards = ({ setActiveView }) => {
 // 9. DİĞER KÜÇÜK BİLEŞENLER
 const AnnouncementBar = () => {
     const [idx, setIdx] = useState(0);
-    useEffect(() => { const i = setInterval(() => setIdx(p => (p + 1) % ANNOUNCEMENTS.length), 4000); return () => clearInterval(i); }, []);
+    const [fade, setFade] = useState(true);
+    useEffect(() => { 
+        const i = setInterval(() => {
+            setFade(false);
+            setTimeout(() => {
+                setIdx(p => (p + 1) % ANNOUNCEMENTS.length);
+                setFade(true);
+            }, 500);
+        }, 4000); 
+        return () => clearInterval(i); 
+    }, []);
     return (
-        <div className="col-span-2 my-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 h-12 flex items-center pr-2">
-            <div className="h-full bg-gold-500 w-12 flex items-center justify-center shrink-0"><i data-lucide="megaphone" className="w-5 h-5 text-white"></i></div>
-            <div className="flex-1 ml-4 text-sm font-medium text-slate-700 dark:text-slate-200 truncate">{ANNOUNCEMENTS[idx]}</div>
+        <div className="col-span-2 my-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 h-12 flex items-center pr-2 relative overflow-hidden">
+            <div className="h-full bg-gold-500 w-12 flex items-center justify-center shrink-0 relative z-10"><i data-lucide="megaphone" className="w-5 h-5 text-white animate-pulse-gold"></i></div>
+            <div className="w-0 h-0 border-t-[48px] border-t-gold-500 border-r-[20px] border-r-transparent absolute left-0 top-0 z-0"></div>
+            <div className={`flex-1 ml-4 text-sm font-medium text-slate-700 dark:text-slate-200 truncate transition-opacity duration-500 ${fade ? 'opacity-100' : 'opacity-0'}`}>{ANNOUNCEMENTS[idx]}</div>
         </div>
     );
 };
@@ -486,17 +635,21 @@ const MenuCard = ({ icon, label, subLabel, colorClass, onClick, featured }) => (
         <div className={`p-3 rounded-xl mb-3 ${colorClass} bg-opacity-10 dark:bg-opacity-20`}><i data-lucide={icon} className={`w-6 h-6 ${colorClass.replace('bg-', 'text-')}`}></i></div>
         <span className="text-sm font-bold text-slate-800 dark:text-slate-100">{label}</span>
         <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">{subLabel}</span>
+        <i data-lucide={icon} className="absolute -right-4 -bottom-4 w-20 h-20 opacity-[0.03] dark:opacity-[0.05] text-current transform rotate-12 pointer-events-none"></i>
     </button>
 );
 
 const InstallBanner = ({ onInstall, onClose, show }) => {
     if (!show) return null;
     return (
-        <div className="fixed bottom-0 left-0 right-0 z-[60] p-4">
+        <div className="fixed bottom-0 left-0 right-0 z-[60] p-4 animate-fade-in-up">
             <div className="bg-slate-900 dark:bg-slate-800 text-white p-4 rounded-2xl shadow-2xl border-t-4 border-gold-500 flex flex-col gap-3 relative">
                 <button onClick={onClose} className="absolute top-2 right-2 p-1 text-slate-400 hover:text-white bg-white/10 rounded-full"><i data-lucide="x" className="w-4 h-4"></i></button>
-                <div className="flex items-start gap-3"><div className="bg-gold-500 p-2.5 rounded-xl text-slate-900"><i data-lucide="download" className="w-6 h-6"></i></div><div><h4 className="font-bold text-gold-400">Uygulamayı Yükle</h4><p className="text-xs text-slate-300">İnternetsiz kullanım için.</p></div></div>
-                <button onClick={onInstall} className="w-full bg-gold-500 hover:bg-gold-600 text-slate-900 font-bold py-3 rounded-xl flex justify-center gap-2"><i data-lucide="smartphone" className="w-5 h-5"></i>Ücretsiz Yükle</button>
+                <div className="flex items-start gap-3 pr-6">
+                    <div className="bg-gold-500 p-2.5 rounded-xl text-slate-900 shrink-0 shadow-lg shadow-gold-500/20"><i data-lucide="download" className="w-6 h-6"></i></div>
+                    <div><h4 className="font-bold text-gold-400">Uygulamayı Yükle</h4><p className="text-xs text-slate-300 mt-1 leading-relaxed opacity-90">Çevrimdışı kullanım için rehberi telefonunuza indirin.</p></div>
+                </div>
+                <button onClick={onInstall} className="w-full bg-gradient-to-r from-gold-500 to-amber-500 hover:from-gold-400 hover:to-amber-400 active:scale-95 text-slate-900 font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"><i data-lucide="smartphone" className="w-5 h-5"></i>Ücretsiz Yükle</button>
             </div>
         </div>
     );
@@ -507,7 +660,10 @@ const RouteVisualizer = () => {
     useEffect(() => { const i = setInterval(() => setVis(c => c <= ROUTE_STOPS.length ? c + 1 : c), 500); return () => clearInterval(i); }, []);
     return (
         <div className="p-6 pb-20 animate-fade-in">
-            <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white mb-8 shadow-xl"><h3 className="font-bold text-gold-400">Mübarek Yolculuk</h3><p className="text-slate-400 text-sm">Türkiye - Mekke</p></div>
+            <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white mb-8 shadow-xl relative overflow-hidden border border-gold-500/20">
+                <div className="relative z-10"><h3 className="font-serif text-2xl font-bold text-gold-400 mb-1">Mübarek Yolculuk</h3><p className="text-slate-400 text-sm">Türkiye - Mekke</p></div>
+                <i data-lucide="map" className="absolute right-4 bottom-4 w-24 h-24 text-white opacity-5"></i>
+            </div>
             <div className="space-y-8 relative pl-2 border-l-2 border-slate-200 dark:border-slate-700 ml-4">
                 {ROUTE_STOPS.map((s, i) => (
                     <div key={s.id} className={`flex items-start gap-4 transition-all ${i < vis ? 'opacity-100' : 'opacity-0'}`}>
@@ -523,26 +679,67 @@ const RouteVisualizer = () => {
     );
 };
 
-const UmrahGuideDetail = () => (
-    <div className="p-4 space-y-3">
-        {[{t:"İhram", d:"Mikat'ta girilir."}, {t:"Tavaf", d:"7 şavt."}, {t:"Sa'y", d:"Safa-Merve arası."}, {t:"Tıraş", d:"İhramdan çıkış."}].map((s,i)=>(
-            <div key={i} className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-700"><h4 className="font-bold text-slate-800 dark:text-slate-100">{i+1}. {s.t}</h4><p className="text-sm text-slate-500">{s.d}</p></div>
-        ))}
-    </div>
-);
+const UmrahGuideDetail = () => {
+    const [active, setActive] = useState(null);
+    const steps = [
+        {t:"İhram ve Niyet", d:"Mikat'ta girilir, 2 rekat namaz kılınır.", icon:"shirt", text:"Allah'ım senin rızan için umre yapmak istiyorum."},
+        {t:"Tavaf", d:"Kabe sola alınarak 7 şavt dönülür.", icon:"repeat", text:"Bismillahi Allahu Ekber."},
+        {t:"Sa'y", d:"Safa ve Merve arasında 4 gidiş 3 geliş.", icon:"footprints", text:"İnnes-safa vel-mervete min şeairillah..."},
+        {t:"Tıraş ve Çıkış", d:"Saçlar kısaltılır, ihramdan çıkılır.", icon:"scissors", text:"Elhamdülillah."}
+    ];
+    return (
+        <div className="p-4 space-y-3 pb-24">
+            <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800 mb-4">
+                <h3 className="font-bold text-emerald-800 dark:text-emerald-400">Umre Rehberi</h3><p className="text-xs text-emerald-600">Adım adım ibadet rehberi</p>
+            </div>
+            {steps.map((s,i)=>(
+                <div key={i} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 overflow-hidden">
+                    <button onClick={() => setActive(active===i?null:i)} className="w-full flex items-center justify-between p-4 text-left">
+                        <div className="flex items-center gap-3"><div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center"><i data-lucide={s.icon} className="w-4 h-4 text-slate-500"></i></div><span className="font-bold text-sm text-slate-700 dark:text-slate-200">{i+1}. {s.t}</span></div>
+                        <i data-lucide="chevron-down" className={`w-4 h-4 transition-transform ${active===i?'rotate-180':''}`}></i>
+                    </button>
+                    {active===i && <div className="px-4 pb-4 pl-[3.25rem]"><p className="text-sm text-slate-600 mb-2">{s.d}</p><div className="p-2 bg-amber-50 rounded border-l-2 border-amber-400 text-xs italic text-slate-600">"{s.text}"</div></div>}
+                </div>
+            ))}
+        </div>
+    );
+};
 
 const About = () => (
-    <div className="p-4 pb-20 text-center space-y-4">
-        <div className="w-24 h-24 mx-auto rounded-full bg-slate-200 overflow-hidden"><img src={DEVELOPER_PHOTO_URL} className="w-full h-full object-cover" /></div>
-        <h2 className="text-xl font-bold text-slate-800 dark:text-white">Sami G.</h2>
-        <p className="text-slate-500 text-sm">Allah'ın misafirlerine hizmet etmek şereftir.</p>
+    <div className="p-4 pb-24 animate-fade-in space-y-6">
+        <div className="relative bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-xl border border-slate-100 dark:border-slate-700">
+            <div className="h-32 bg-gradient-to-r from-emerald-600 to-emerald-900 relative">
+                 <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]"></div>
+                 <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full border-4 border-white dark:border-slate-800 bg-gold-500 flex items-center justify-center text-3xl font-bold text-white shadow-lg overflow-hidden">
+                    <img src={DEVELOPER_PHOTO_URL} alt="SG" className="w-full h-full object-cover" />
+                 </div>
+            </div>
+            <div className="pt-12 pb-6 px-6 text-center">
+                <h2 className="text-2xl font-serif font-bold text-slate-800 dark:text-white">Sami G.</h2>
+                <span className="inline-block mt-2 px-3 py-1 rounded-full bg-gold-50 dark:bg-gold-900/30 text-gold-600 dark:text-gold-400 text-xs font-bold uppercase tracking-wider">Uygulama Geliştiricisi</span>
+                <div className="mt-6 text-left space-y-4">
+                     <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+                        <p className="font-serif text-lg text-emerald-800 dark:text-emerald-400 mb-2 text-center">﷽</p>
+                        <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed font-serif text-justify">
+                            <span className="font-bold block mb-2 text-slate-800 dark:text-slate-200 text-center">Esselamü Aleyküm ve Rahmetullah,</span>
+                            Kıymetli Allah'ın misafirleri; bu çalışma, Haremeyn-i Şerifeyn'e vuslat yolculuğunda sizlere rehberlik etmek, bu meşakkatli ama kutlu seferde yükünüzü bir nebze olsun hafifletmek gayesiyle "Sadaka-i Cariye" niyetiyle hazırlanmıştır.
+                        </p>
+                     </div>
+                </div>
+            </div>
+        </div>
     </div>
 );
 
 const EmergencyContacts = () => (
-    <div className="p-4 space-y-3">
-        {[{t:"Konsolosluk", n:"+966126601607"}, {t:"Ambulans", n:"997"}, {t:"Polis", n:"999"}].map((e,i)=>(
-            <div key={i} className="flex items-center p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700"><i data-lucide="phone" className="w-5 h-5 text-red-500 mr-4"></i><div><h4 className="font-bold text-slate-800 dark:text-slate-200">{e.t}</h4><span className="text-xs text-slate-500">{e.n}</span></div></div>
+    <div className="p-4 space-y-3 pb-24">
+        <h3 className="font-bold text-lg px-2">Önemli Numaralar</h3>
+        {EMERGENCY_NUMBERS.map((e,i)=>(
+            <a href={`tel:${e.number}`} key={i} className="flex items-center p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm active:scale-[0.98]">
+                <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center mr-4"><i data-lucide={e.icon} className="w-5 h-5"></i></div>
+                <div className="flex-1"><h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm">{e.title}</h4><span className="text-xs text-slate-500">{e.number}</span></div>
+                <div className="bg-green-50 p-2 rounded-full text-green-600"><i data-lucide="phone" className="w-4 h-4"></i></div>
+            </a>
         ))}
     </div>
 );
@@ -559,27 +756,25 @@ const App = () => {
     useEffect(() => {
         localStorage.setItem('sets', JSON.stringify(settings));
         document.documentElement.className = settings.theme === 'dark' ? 'dark' : '';
+        document.documentElement.classList.remove('text-sm', 'text-base', 'text-lg');
         document.documentElement.classList.add(settings.fontSize === 'small' ? 'text-sm' : settings.fontSize === 'large' ? 'text-lg' : 'text-base');
     }, [settings]);
 
     useEffect(() => {
-        const h = (e) => { e.preventDefault(); setInstallPrompt(e); if(!localStorage.getItem('dismiss')) setShowBanner(true); };
+        const h = (e) => { e.preventDefault(); setInstallPrompt(e); setShowBanner(true); }; // Always show on prompt
         window.addEventListener('beforeinstallprompt', h);
-        setTimeout(() => { if(!localStorage.getItem('dismiss')) setShowBanner(true); }, 3000);
+        // Force show for testing if not installed, mimicking "first launch" behavior more aggressively
+        const timer = setTimeout(() => { if(!localStorage.getItem('dismiss_v2')) setShowBanner(true); }, 3000);
         return () => window.removeEventListener('beforeinstallprompt', h);
     }, []);
 
     const handleInstall = () => {
-        if(!installPrompt) { alert("Gerçek cihazda yükleme açılır."); setShowBanner(false); localStorage.setItem('dismiss', 'true'); return; }
+        if(!installPrompt) { alert("Gerçek cihazda yükleme penceresi açılır."); setShowBanner(false); localStorage.setItem('dismiss_v2', 'true'); return; }
         installPrompt.prompt();
-        installPrompt.userChoice.then(r => { if(r.outcome === 'accepted') { setShowBanner(false); localStorage.setItem('dismiss', 'true'); } setInstallPrompt(null); });
+        installPrompt.userChoice.then(r => { if(r.outcome === 'accepted') { setShowBanner(false); localStorage.setItem('dismiss_v2', 'true'); } setInstallPrompt(null); });
     };
 
-    const updateSettings = (k, v) => {
-        if(k==='notifications' && v) Notification.requestPermission();
-        if(k==='location' && v) navigator.geolocation.getCurrentPosition(()=>{}, ()=>{});
-        setSettings(p => ({...p, [k]: v}));
-    };
+    const updateSettings = (k, v) => setSettings(p => ({...p, [k]: v}));
 
     const renderView = () => {
         switch(view) {
@@ -616,9 +811,9 @@ const App = () => {
         <div className="min-h-screen transition-colors duration-500 relative">
             <Header title={view === 'dashboard' ? 'LOGO_STYLE' : 'Rehber'} goBack={view !== 'dashboard' ? () => setView('dashboard') : null} onOpenSettings={() => setShowSettings(true)} showSettingsBtn={true} />
             <main className="max-w-3xl mx-auto">{renderView()}</main>
-            {view !== 'dashboard' && <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40"><button onClick={() => setView('dashboard')} className="bg-slate-900/90 text-gold-400 px-6 py-3 rounded-full shadow-2xl flex items-center gap-2"><i data-lucide="layout-grid" className="w-5 h-5"></i><span className="font-bold text-sm">Ana Menü</span></button></div>}
+            {view !== 'dashboard' && <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40"><button onClick={() => setView('dashboard')} className="bg-slate-900/90 dark:bg-slate-800/90 backdrop-blur-md text-gold-400 px-6 py-3 rounded-full shadow-2xl border border-gold-500/20 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all"><i data-lucide="layout-grid" className="w-5 h-5"></i><span className="font-bold text-sm">Ana Menü</span></button></div>}
             <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} settings={settings} updateSettings={updateSettings} installPrompt={installPrompt} onInstall={handleInstall} />
-            <InstallBanner show={showBanner} onInstall={handleInstall} onClose={() => {setShowBanner(false); localStorage.setItem('dismiss', 'true');}} />
+            <InstallBanner show={showBanner} onInstall={handleInstall} onClose={() => {setShowBanner(false); localStorage.setItem('dismiss_v2', 'true');}} />
         </div>
     );
 };
