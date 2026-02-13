@@ -3,10 +3,9 @@ const { useState, useEffect, useRef } = React;
 // --- SABİTLER VE AYARLAR ---
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
 const AUDIO_TELBIYE = "audio/Telbiye.mp3"; 
-const AUDIO_LABBAIK = "audio/labbaik.mp3";
 
 // SÜRÜM BİLGİSİ
-const APP_VERSION = "v2.7.0";
+const APP_VERSION = "v2.8.0";
 
 // HEADER AYARLARI
 const SITE_TITLE = "umre.men"; 
@@ -1109,3 +1108,4 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
