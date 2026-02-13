@@ -4,11 +4,10 @@ const { useState, useEffect, useRef } = React;
 // NOT: Resim, ses ve linkleri buradan değiştirebilirsiniz.
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
 const AUDIO_TELBIYE = "audio/Telbiye.mp3"; 
-const AUDIO_LABBAIK = "audio/labbaik.mp3";
 
 // ÖNEMLİ: Güncelleme yaptığınızda burayı değiştirin (örn: v2.6.0 yapın).
 // Kullanıcılar siteye girdiğinde otomatik olarak "Güncellendi" uyarısı alacaklar.
-const APP_VERSION = "v2.6.0";
+const APP_VERSION = "v2.7.0";
 
 // YENİ: Site Başlığı (Header'ın ortasında yazar)
 const SITE_TITLE = "umre.men"; 
@@ -1053,4 +1052,5 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
 
