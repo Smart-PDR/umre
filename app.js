@@ -2,14 +2,13 @@ const { useState, useEffect, useRef } = React;
 
 // --- SABİTLER VE AYARLAR ---
 const DEVELOPER_PHOTO_URL = "images/profil.png"; 
-const AUDIO_TELBIYE = "audio/Telbiye.mp3"; 
-const AUDIO_LABBAIK = "audio/labbaik.mp3";
+const AUDIO_TELBIYE = "audio/Telbiye.mp3";
 
 // SÜRÜM BİLGİSİ
-const APP_VERSION = "v2.7.0";
+const APP_VERSION = "v2.8.0";
 
 // HEADER AYARLARI
-const SITE_TITLE = "umre.men"; 
+const SITE_TITLE = "Umre Rehberi"; 
 
 // GERİ BİLDİRİM LİNKİ
 const FEEDBACK_FORM_URL = "https://forms.gle/XiPcqdDAsDMxijiJ9";
@@ -29,52 +28,103 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 // --- REHBER VERİLERİ ---
 const GUIDE_DATA = [
     {
-        id: "g1",
-        title: "1. Hazırlık ve Belgeler",
-        icon: "file-check",
-        color: "emerald",
-        content: [
-            { t: "Araç Ruhsat Durumu", d: "Araç sahibi araçta bulunmalıdır. Bulunmuyorsa noter onaylı vekaletname şarttır." },
-            { t: "Uluslararası Sigorta", d: "Türkiye'deki kaskonuza 'yurtdışı klozu' (Yeşil Kart) ekletin. Bu, Ürdün ve S. Arabistan'da geçerlidir ancak Suriye'de geçmez." },
-            { t: "Pasaport ve Vize", d: "Yeşil pasaportun sınır geçişlerinde vize muafiyeti yoktur. S. Arabistan e-vizesi yola çıkmadan alınmalıdır." },
-            { t: "Teknik Donanım", d: "Lastik onarım kiti, kompresör, yedek parça bulundurun. Bagajınızı X-Ray için valizlerde düzenli istifleyin." },
-            { t: "Navigasyon", d: "Suriye'de internet kısıtlıdır. Maps.me veya Google Maps çevrimdışı haritalarını mutlaka indirin." }
+        "id": "g1",
+        "title": "1. Hazırlık ve Belgeler",
+        "icon": "file-check",
+        "color": "emerald",
+        "content": [
+            {
+                "t": "Araç Ruhsat Durumu",
+                "d": "Araç sahibi araçta bulunmalıdır. Bulunmuyorsa noter onaylı vekaletname şarttır."
+            },
+            {
+                "t": "Uluslararası Sigorta",
+                "d": "Türkiye'deki kaskonuza 'yurtdışı klozu' (Yeşil Kart) ekletin. Bu, Ürdün ve S. Arabistan'da geçerlidir ancak Suriye'de geçmez."
+            },
+            {
+                "t": "Pasaport ve Vize",
+                "d": "Yeşil pasaportun sınır geçişlerinde vize muafiyeti yoktur. S. Arabistan e-vizesi yola çıkmadan alınmalıdır."
+            },
+            {
+                "t": "Teknik Donanım",
+                "d": "Lastik onarım kiti, kompresör, yedek parça bulundurun. Bagajınızı X-Ray için valizlerde düzenli istifleyin."
+            },
+            {
+                "t": "Navigasyon",
+                "d": "Suriye'de internet kısıtlıdır. Maps.me veya Google Maps çevrimdışı haritalarını mutlaka indirin."
+            }
         ]
     },
     {
-        id: "g2",
-        title: "2. Türkiye - Suriye Geçişi",
-        icon: "flag",
-        color: "amber",
-        content: [
-            { t: "Sınır Kapısı", d: "Bab El-Hawa (Cilvegözü) üzerinden geçiş yapılır." },
-            { t: "Maliyetler (Nakit)", d: "Araç Karnesi: 20$, Vize Harcı: 25$ (Kişi başı), Çıkış Pulu: 150 TL. Kredi kartı geçmez." },
-            { t: "Güvenlik Uyarısı", d: "İdlip - Hama - Humus - Şam - Dera rotası (M5) izlenir. Gece sürüşü yapmayın, yollarda aydınlatma yok." },
-            { t: "Yakıt", d: "Zorunlu kalmadıkça Suriye'den yakıt almayın." }
+        "id": "g2",
+        "title": "2. Türkiye - Suriye Geçişi",
+        "icon": "flag",
+        "color": "amber",
+        "content": [
+            {
+                "t": "Sınır Kapısı",
+                "d": "Bab El-Hawa (Cilvegözü) üzerinden geçiş yapılır."
+            },
+            {
+                "t": "Maliyetler (Nakit)",
+                "d": "Araç Karnesi: 20$, Vize Harcı: 25$ (Kişi başı), Çıkış Pulu: 150 TL. Kredi kartı geçmez."
+            },
+            {
+                "t": "Güvenlik Uyarısı",
+                "d": "İdlip - Hama - Humus - Şam - Dera rotası (M5) izlenir. Gece sürüşü yapmayın, yollarda aydınlatma yok."
+            },
+            {
+                "t": "Yakıt",
+                "d": "Zorunlu kalmadıkça Suriye'den yakıt almayın."
+            }
         ]
     },
     {
-        id: "g3",
-        title: "3. Suriye - Ürdün Geçişi",
-        icon: "shield-check",
-        color: "blue",
-        content: [
-            { t: "Sınır Kapısı", d: "Nassib - Jaber kapısı kullanılır. Yabancılar için 3. kanal tercih edilmelidir." },
-            { t: "Güvenlik Kontrolü", d: "Araçtaki TÜM eşyalar indirilip X-Ray'den geçirilir. Araç içi boş taratılır." },
-            { t: "Maliyetler", d: "Zorunlu Sigorta: ~55 JOD (80$), Araç Giriş Vergisi: 20 JOD. Sigorta poliçesini dönüş için saklayın." },
-            { t: "Vize", d: "Transit vize kapıda ücretsizdir. Genelde 24 saat süre verilir." }
+        "id": "g3",
+        "title": "3. Suriye - Ürdün Geçişi",
+        "icon": "shield-check",
+        "color": "blue",
+        "content": [
+            {
+                "t": "Sınır Kapısı",
+                "d": "Nassib - Jaber kapısı kullanılır. Yabancılar için 3. kanal tercih edilmelidir."
+            },
+            {
+                "t": "Güvenlik Kontrolü",
+                "d": "Araçtaki TÜM eşyalar indirilip X-Ray'den geçirilir. Araç içi boş taratılır."
+            },
+            {
+                "t": "Maliyetler",
+                "d": "Zorunlu Sigorta: ~55 JOD (80$), Araç Giriş Vergisi: 20 JOD. Sigorta poliçesini dönüş için saklayın."
+            },
+            {
+                "t": "Vize",
+                "d": "Transit vize kapıda ücretsizdir. Genelde 24 saat süre verilir."
+            }
         ]
     },
     {
-        id: "g4",
-        title: "4. Ürdün - Suudi Arabistan",
-        icon: "log-in",
-        color: "green",
-        content: [
-            { t: "Sınır Alternatifleri", d: "1. Durra (Akabe - Dinlenme imkanı), 2. Halat Ammar (Tebük Yolu), 3. Al Omar (En hızlı)." },
-            { t: "Giriş İşlemleri", d: "İşlemler hızlı ve profesyoneldir. X-Ray taraması yapılır." },
-            { t: "Zorunlu Sigorta", d: "Araç sigortası zorunludur (~80$). Kredi kartı geçerlidir." },
-            { t: "Yakıt İkmali", d: "Tebük şehrinde deponuzu tam doldurun, sonraki istasyonlar seyrektir." }
+        "id": "g4",
+        "title": "4. Ürdün - Suudi Arabistan",
+        "icon": "log-in",
+        "color": "green",
+        "content": [
+            {
+                "t": "Sınır Alternatifleri",
+                "d": "1. Durra (Akabe - Dinlenme imkanı), 2. Halat Ammar (Tebük Yolu), 3. Al Omar (En hızlı)."
+            },
+            {
+                "t": "Giriş İşlemleri",
+                "d": "İşlemler hızlı ve profesyoneldir. X-Ray taraması yapılır."
+            },
+            {
+                "t": "Zorunlu Sigorta",
+                "d": "Araç sigortası zorunludur (~80$). Kredi kartı geçerlidir."
+            },
+            {
+                "t": "Yakıt İkmali",
+                "d": "Tebük şehrinde deponuzu tam doldurun, sonraki istasyonlar seyrektir."
+            }
         ]
     }
 ];
@@ -109,42 +159,165 @@ const DICTIONARY_DATA = [
 // --- DİĞER VERİLER ---
 const PLACES_DATA = [
     {
-        category: "Mekke-i Mükerreme",
-        items: [
-            { id: "m1", title: "Mescid-i Haram", desc: "Kabe'nin de içinde bulunduğu en kutsal mescit.", lat: 21.422487, lng: 39.826206, image: "" },
-            { id: "m2", title: "Sevr Dağı", desc: "Hicret mağarası.", lat: 21.3779, lng: 39.8579, image: "" },
-            { id: "m3", title: "Arafat", desc: "Vakfe alanı.", lat: 21.3549, lng: 39.9841, image: "" }
+        "category": "Mekke-i Mükerreme",
+        "items": [
+            {
+                "id": "m1",
+                "title": "Mescid-i Haram",
+                "desc": "Kabe'nin de içinde bulunduğu en kutsal mescit.",
+                "lat": 21.422487,
+                "lng": 39.826206,
+                "image": ""
+            },
+            {
+                "id": "m2",
+                "title": "Sevr Dağı",
+                "desc": "Hicret mağarası.",
+                "lat": 21.3779,
+                "lng": 39.8579,
+                "image": ""
+            },
+            {
+                "id": "m3",
+                "title": "Arafat",
+                "desc": "Vakfe alanı.",
+                "lat": 21.3549,
+                "lng": 39.9841,
+                "image": ""
+            }
         ]
     },
     {
-        category: "Medine-i Münevvere",
-        items: [
-            { id: "md1", title: "Mescid-i Nebevi", desc: "Hz. Peygamber'in kabri.", lat: 24.4672, lng: 39.6109, image: "" },
-            { id: "md2", title: "Kuba Mescidi", desc: "İlk mescit.", lat: 24.4393, lng: 39.6173, image: "" },
-            { id: "md3", title: "Uhud Dağı", desc: "Uhud Savaşı alanı.", lat: 24.5034, lng: 39.6117, image: "" }
+        "category": "Medine-i Münevvere",
+        "items": [
+            {
+                "id": "md1",
+                "title": "Mescid-i Nebevi",
+                "desc": "Hz. Peygamber'in kabri.",
+                "lat": 24.4672,
+                "lng": 39.6109,
+                "image": ""
+            },
+            {
+                "id": "md2",
+                "title": "Kuba Mescidi",
+                "desc": "İlk mescit.",
+                "lat": 24.4393,
+                "lng": 39.6173,
+                "image": ""
+            },
+            {
+                "id": "md3",
+                "title": "Uhud Dağı",
+                "desc": "Uhud Savaşı alanı.",
+                "lat": 24.5034,
+                "lng": 39.6117,
+                "image": ""
+            }
         ]
     }
 ];
 
 const ANNOUNCEMENTS = [
-    "📢 Suriye geçişi sadece gündüz yapılmalıdır!",
-    "⚠️ Yeşil kart sigortanızı gitmeden yaptırın.",
-    "🚗 Suriye sınırında ödemeler sadece NAKİT alınır.",
-    "💊 Kronik ilaçlarınızı yedekli almayı unutmayın."
+    "بِسْــــــــــــــــــمِ اﷲِالرَّحْمَنِ اارَّحِيم",
+    "📢 Suriye geçişinin gündüz yapılması önerilmektedir!",
+    "🪪 Araç sahibi seyahatte bulunmuyorsa, noter onaylı vekaletname olmadan sınır geçişi mümkün değildir.",
+    "💵 Suriye sınırında kredi kartı geçerli değildir, nakit (USD veya TL) bulundurulmalıdır.",
+    "🤲 Allah umrenizi kabul eylesin ve kolaylaştırsın."
 ];
 
 // YENİ: REHBER PDF İÇERİĞİNE GÖRE DETAYLI ROTA VERİSİ
 const ROUTE_SIMULATION_DATA = [
-    { id: 1, city: "Hatay / Cilvegözü", action: "Çıkış", desc: "Türkiye'den çıkış işlemleri. Ruhsat sahibi araçta olmalı.", type: "start", color: "red" },
-    { id: 2, city: "Bab-al Hawa (Suriye)", action: "Giriş", desc: "Araç karnesi ve vize ödemeleri (Nakit).", type: "border", warning: "Sadece gündüz sürüşü yapın.", color: "amber" },
-    { id: 3, city: "İdlib - Hama - Humus", action: "Transit", desc: "M5 Otoyolu üzerinden güneye iniş.", type: "road", color: "slate" },
-    { id: 4, city: "Şam (Dera)", action: "Geçiş", desc: "Şam çevre yolundan Dera yönüne devam.", type: "road", color: "slate" },
-    { id: 5, city: "Nassib / Jaber", action: "Sınır", desc: "Suriye çıkış, Ürdün giriş. X-Ray kontrolü.", type: "border", color: "blue" },
-    { id: 6, city: "Amman - Ma'an", action: "Mola", desc: "Ürdün içi transit. İhtiyaç molası verilebilir.", type: "city", color: "slate" },
-    { id: 7, city: "Halat Ammar", action: "Giriş", desc: "Suudi Arabistan'a giriş. Parmak izi ve göz taraması.", type: "border", color: "green" },
-    { id: 8, city: "Tebük", action: "Yakıt", desc: "Depoyu mutlaka fulleyin. Çöl geçişi başlıyor.", type: "fuel", warning: "Sonraki 400km benzinlik yok.", color: "red" },
-    { id: 9, city: "Teyma - Hayber", action: "Tarih", desc: "Tarihi kaleler ve vaha bölgeleri. Bölünmüş yol.", type: "sight", color: "slate" },
-    { id: 10, city: "Medine-i Münevvere", action: "Varış", desc: "Peygamber Efendimiz'e (s.a.v) vuslat.", type: "holy", color: "emerald" }
+    {
+        "id": 1,
+        "city": "Hatay / Cilvegözü",
+        "action": "Türkiye'den Çıkış",
+        "desc": "Türkiye'den çıkış işlemleri. Ruhsat sahibi araçta olmalı.",
+        "type": "start",
+        "color": "red"
+    },
+    {
+        "id": 2,
+        "city": "Bab-al Hawa (Suriye)",
+        "action": "Suriye'ye Giriş",
+        "desc": "Araç karnesi ve vize ödemeleri (Nakit).",
+        "type": "border",
+        "warning": "Sadece gündüz sürüşü yapın.",
+        "color": "amber"
+    },
+    {
+        "id": 3,
+        "city": "İdlib - Hama - Humus",
+        "action": "Transit Geçiş",
+        "desc": "M5 Otoyolu üzerinden güneye iniş.",
+        "type": "road",
+        "color": "slate"
+    },
+    {
+        "id": 4,
+        "city": "Şam (Dera)",
+        "action": "Geçiş",
+        "desc": "Şam çevre yolundan Dera yönüne devam.",
+        "type": "road",
+        "color": "slate"
+    },
+    {
+        "id": 5,
+        "city": "Nassib / Jaber",
+        "action": "Ürdün'e Giriş",
+        "desc": "Suriye çıkış, Ürdün giriş. X-Ray kontrolü.",
+        "type": "border",
+        "color": "blue"
+    },
+    {
+        "id": 6,
+        "city": "Amman - Ma'an",
+        "action": "Mola",
+        "desc": "Ürdün içi transit. İhtiyaç molası verilebilir.",
+        "type": "city",
+        "color": "slate"
+    },
+    {
+        "id": 7,
+        "city": "Halat Ammar",
+        "action": "Giriş",
+        "desc": "Suudi Arabistan'a giriş. Parmak izi ve göz taraması.",
+        "type": "border",
+        "color": "green"
+    },
+    {
+        "id": 8,
+        "city": "Tebük",
+        "action": "Yakıt",
+        "desc": "Depoyu mutlaka fulleyin. Çöl geçişi başlıyor.",
+        "type": "fuel",
+        "warning": "Sonraki 400km benzinlik yok.",
+        "color": "red"
+    },
+    {
+        "id": 9,
+        "city": "Teyma - Hayber",
+        "action": "Tarih",
+        "desc": "Tarihi kaleler ve vaha bölgeleri. Bölünmüş yol.",
+        "type": "sight",
+        "color": "slate"
+    },
+    {
+        "id": 10,
+        "city": "Medine-i Münevvere",
+        "action": "Varış",
+        "desc": "Peygamber Efendimiz'e (s.a.v) vuslat.",
+        "type": "holy",
+        "color": "emerald"
+    },
+    {
+        "id": 1771101825974,
+        "city": "Mekke-i Mükerreme",
+        "action": "Kutsak Belde",
+        "desc": "Yer yüzündeki en şerefli mabet: Mescid-i Haram.",
+        "type": "holy",
+        "km": 0
+    }
 ];
 
 const CHECKLISTS_DATA = {
@@ -526,10 +699,10 @@ const FeaturedCards = ({ setActiveView }) => {
     const [isPaused, setIsPaused] = useState(false);
 
     const cards = [
-        { id: 'c1', title: 'Rota Simülasyonu', sub: 'Adım adım yol tarifi', icon: 'map', bg: 'bg-gradient-to-br from-cyan-800 to-cyan-900', text: 'text-cyan-100', act: () => setActiveView('routeSim') },
-        { id: 'c2', title: 'Seyahat Rehberi', sub: 'Sınır geçişleri & Belgeler', icon: 'book-open', bg: 'bg-gradient-to-br from-emerald-800 to-emerald-900', text: 'text-emerald-100', act: () => setActiveView('travelGuide') },
-        { id: 'c3', title: 'Maliyet Hesapla', sub: 'Vize ve Araç Giderleri', icon: 'calculator', bg: 'bg-gradient-to-br from-slate-900 to-slate-800', text: 'text-white', act: () => setActiveView('costCalc') },
-        { id: 'c4', title: 'Mikat Kontrol', sub: 'İhram sınırına yaklaşınca uyar', icon: 'map-pin', bg: 'bg-gradient-to-br from-indigo-800 to-indigo-900', text: 'text-indigo-100', act: () => setActiveView('miqat') }
+    { id: 'c1', title: 'Rota Simülasyonu', sub: 'Adım adım yol tarifi', icon: 'map', bg: 'bg-gradient-to-br from-cyan-800 to-cyan-900', text: 'text-cyan-100', act: () => setActiveView('undefined') },
+    { id: 'c2', title: 'Seyahat Rehberi', sub: 'Sınır geçişleri & Belgeler', icon: 'book-open', bg: 'bg-gradient-to-br from-emerald-800 to-emerald-900', text: 'text-emerald-100', act: () => setActiveView('undefined') },
+    { id: 'c3', title: 'Maliyet Hesapla', sub: 'Vize ve Araç Giderleri', icon: 'calculator', bg: 'bg-gradient-to-br from-slate-900 to-slate-800', text: 'text-white', act: () => setActiveView('undefined') },
+    { id: 'c4', title: 'Mikat Kontrol', sub: 'İhram sınırına yaklaşınca uyar', icon: 'map-pin', bg: 'bg-gradient-to-br from-indigo-800 to-indigo-900', text: 'text-indigo-100', act: () => setActiveView('undefined') }
     ];
 
     useEffect(() => {
@@ -1121,3 +1294,5 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
+
