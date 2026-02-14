@@ -175,7 +175,7 @@ const PLACES_DATA = [
                 "desc": "Hicret mağarası.",
                 "lat": 21.3779,
                 "lng": 39.8579,
-                "image": ""
+                "image": "/images/sevrdagi.jpg"
             },
             {
                 "id": "m3",
@@ -1296,6 +1296,7 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
 
 
 
