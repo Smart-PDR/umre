@@ -5,10 +5,10 @@ const DEVELOPER_PHOTO_URL = "images/profil.png";
 const AUDIO_TELBIYE = "audio/Telbiye.mp3";
 
 // SÜRÜM BİLGİSİ
-const APP_VERSION = "v2.8.0";
+const APP_VERSION = "v2.9.0";
 
 // HEADER AYARLARI
-const SITE_TITLE = "Umre Rehberi"; 
+const SITE_TITLE = "بِسْــــــــــــــــــمِ اﷲِالرَّحْمَنِ اارَّحِيم"; 
 
 // GERİ BİLDİRİM LİNKİ
 const FEEDBACK_FORM_URL = "https://forms.gle/XiPcqdDAsDMxijiJ9";
@@ -224,6 +224,10 @@ const ANNOUNCEMENTS = [
     "🪪 Araç sahibi seyahatte bulunmuyorsa, noter onaylı vekaletname olmadan sınır geçişi mümkün değildir.",
     "💵 Suriye sınırında kredi kartı geçerli değildir, nakit (USD veya TL) bulundurulmalıdır.",
     "🤲 Allah umrenizi kabul eylesin ve kolaylaştırsın."
+];
+
+const NEW_FEATURES = [
+    "\"Rota Simülasyonu\" eklendi."
 ];
 
 // YENİ: REHBER PDF İÇERİĞİNE GÖRE DETAYLI ROTA VERİSİ
@@ -699,10 +703,11 @@ const FeaturedCards = ({ setActiveView }) => {
     const [isPaused, setIsPaused] = useState(false);
 
     const cards = [
-    { id: 'c1', title: 'Rota Simülasyonu', sub: 'Adım adım yol tarifi', icon: 'map', bg: 'bg-gradient-to-br from-cyan-800 to-cyan-900', text: 'text-cyan-100', act: () => setActiveView('undefined') },
-    { id: 'c2', title: 'Seyahat Rehberi', sub: 'Sınır geçişleri & Belgeler', icon: 'book-open', bg: 'bg-gradient-to-br from-emerald-800 to-emerald-900', text: 'text-emerald-100', act: () => setActiveView('undefined') },
-    { id: 'c3', title: 'Maliyet Hesapla', sub: 'Vize ve Araç Giderleri', icon: 'calculator', bg: 'bg-gradient-to-br from-slate-900 to-slate-800', text: 'text-white', act: () => setActiveView('undefined') },
-    { id: 'c4', title: 'Mikat Kontrol', sub: 'İhram sınırına yaklaşınca uyar', icon: 'map-pin', bg: 'bg-gradient-to-br from-indigo-800 to-indigo-900', text: 'text-indigo-100', act: () => setActiveView('undefined') }
+    { id: 'c1', title: 'Rota Simülasyonu', sub: 'Adım adım yol tarifi', icon: 'map', bg: 'bg-gradient-to-br from-cyan-800 to-cyan-900', text: 'text-cyan-100', act: () => setActiveView('route') },
+    { id: 'c2', title: 'Seyahat Rehberi', sub: 'Sınır geçişleri & Belgeler', icon: 'book-open', bg: 'bg-gradient-to-br from-emerald-800 to-emerald-900', text: 'text-emerald-100', act: () => setActiveView('guide') },
+    { id: 'c3', title: 'Maliyet Hesapla', sub: 'Vize ve Araç Giderleri', icon: 'calculator', bg: 'bg-gradient-to-br from-slate-800 to-slate-900', text: 'text-slate-100', act: () => setActiveView('times') },
+    { id: 'c4', title: 'Mikat Kontrol', sub: 'İhram sınırına yaklaşınca uyar', icon: 'map-pin', bg: 'bg-gradient-to-br from-indigo-800 to-indigo-900', text: 'text-indigo-100', act: () => setActiveView('miqat') },
+    { id: '1771103612463', title: 'Hakkında', sub: 'Alt Başlık', icon: 'star', bg: 'bg-gradient-to-br from-slate-800 to-slate-900', text: 'text-slate-100', act: () => setActiveView('about') }
     ];
 
     useEffect(() => {
@@ -1294,5 +1299,6 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
 
 
