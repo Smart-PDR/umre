@@ -497,7 +497,7 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                     </div>
 
                     <div className="bg-slate-900 dark:bg-slate-800 p-4 rounded-xl border border-gold-500/30 text-white">
-                        <div className="flex items-center gap-3 mb-3"><i data-lucide="smartphone" className="w-5 h-5 text-gold-500"></i><div><h4 className="font-bold text-sm">Uygulamayı Yükle</h4><p className="text-[10px] text-slate-300">İnternetsiz erişim.</p></div></div>
+                        <div className="flex items-center gap-3 mb-3"><i data-lucide="smartphone" className="w-5 h-5 text-gold-500"></i><div><h4 className="font-bold text-sm">Uygulamayı Yükle</h4><p className="text-[10px] text-slate-300">İnternetin çekmeyeceği yerlerde de kullanabilmek için yükleyebilirsiniz.</p></div></div>
                         <button onClick={onInstall} disabled={!installPrompt} className={`w-full py-2 rounded-lg font-bold text-xs ${installPrompt ? 'bg-gold-500 text-black' : 'bg-slate-700 text-slate-500'}`}>{installPrompt ? 'Yükle' : 'Zaten Yüklü'}</button>
                     </div>
 
@@ -1297,6 +1297,7 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
 
 
 
