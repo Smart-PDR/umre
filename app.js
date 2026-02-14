@@ -167,7 +167,7 @@ const PLACES_DATA = [
                 "desc": "Kabe'nin de içinde bulunduğu en kutsal mescit.",
                 "lat": 21.422487,
                 "lng": 39.826206,
-                "image": ""
+                "image": "/images/mescidiharam.jpg"
             },
             {
                 "id": "m2",
@@ -1296,5 +1296,6 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
 
 
