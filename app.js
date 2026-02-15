@@ -784,7 +784,7 @@ const MiqatModule = () => {
                     <h3 className="font-serif font-bold text-xl mb-2 text-indigo-200">Mikat Nedir?</h3>
                     <p className="text-sm text-indigo-100 opacity-90 leading-relaxed">
                         Harem bölgesine (Mekke) girmek isteyenlerin, ihramsız geçmemeleri gereken sınır noktalarıdır. 
-                        Peygamber Efendimiz (s.a.v) tarafından belirlenmiştir. Bu sınırı geçmeden önce ihrama girilmeli ve niyet edilmelidir. Bu sınırları niyet etmeden ve ihrama girmeden kurban kesme cezası vardır.
+                        Peygamber Efendimiz (s.a.v) tarafından belirlenmiştir. Bu sınırı geçmeden önce ihrama girilmeli ve niyet edilmelidir. Bu sınırları niyet etmeden ve ihrama girmeden geçmenin kurban kesme cezası vardır.
                     </p>
                 </div>
                 <i data-lucide="map-pin" className="absolute -right-4 -bottom-4 w-24 h-24 text-white opacity-10 rotate-12"></i>
@@ -1297,6 +1297,7 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
 
 
 
