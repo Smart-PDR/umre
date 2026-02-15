@@ -132,7 +132,7 @@ const GUIDE_DATA = [
 // --- MİKAT VERİLERİ ---
 const MIQAT_DATA = [
     { id: "mq1", title: "Zülhuleyfe (Ebâ Ali)", desc: "Medine yönünden gelenlerin mikat mahallidir. (Mekke'ye ~450km).", lat: 24.4136, lng: 39.5447, image: "/images/zulhuleyfe_mikat.jpg" },
-    { id: "mq2", title: "Cuhfe (Râbiğ)", desc: "Şam, Mısır ve Türkiye yönünden gelenlerin mikatıdır. (Mekke'ye ~187km).", lat: 22.6957, lng: 39.1444, image: "" },
+    { id: "mq2", title: "Cuhfe (Râbiğ)", desc: "Şam, Mısır ve Türkiye yönünden gelenlerin mikatıdır. (Mekke'ye ~187km).", lat: 22.6957, lng: 39.1444, image: "/images/cuhfe_mikat.jpg" },
     { id: "mq3", title: "Karnü'l-Menâzil", desc: "Necid ve Kuveyt yönü mikatıdır. (Mekke'ye ~94km).", lat: 21.6344, lng: 40.4239, image: "" },
     { id: "mq4", title: "Yelemlem", desc: "Yemen yönü mikatıdır. (Mekke'ye ~54km).", lat: 20.5178, lng: 39.8703, image: "" },
     { id: "mq5", title: "Zât-i Irk", desc: "Irak yönü mikatıdır. (Mekke'ye ~94km).", lat: 21.9333, lng: 40.4333, image: "" }
@@ -1297,6 +1297,7 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
 
 
 
