@@ -8,7 +8,7 @@ const AUDIO_TELBIYE = "audio/Telbiye.mp3";
 const APP_VERSION = "v2.8.0";
 
 // HEADER AYARLARI
-const SITE_TITLE = "umreGO"; 
+const SITE_TITLE = "UmreGO"; 
 
 // GERİ BİLDİRİM LİNKİ
 const FEEDBACK_FORM_URL = "https://forms.gle/XiPcqdDAsDMxijiJ9";
@@ -1297,6 +1297,7 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
 
 
 
