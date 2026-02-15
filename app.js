@@ -5,7 +5,7 @@ const DEVELOPER_PHOTO_URL = "images/profil.png";
 const AUDIO_TELBIYE = "audio/Telbiye.mp3";
 
 // SÜRÜM BİLGİSİ
-const APP_VERSION = "v2.8.0";
+const APP_VERSION = "v3.0.0 Pro";
 
 // HEADER AYARLARI
 const SITE_TITLE = "UmreGO"; 
@@ -225,9 +225,6 @@ const ANNOUNCEMENTS = [
     "🤲 Allah umrenizi kabul eylesin ve kolaylaştırsın."
 ];
 
-// Sürüm Güncelleme Bildirimi
-const UPDATE_NOTES = [];
-
 // YENİ: REHBER PDF İÇERİĞİNE GÖRE DETAYLI ROTA VERİSİ
 const ROUTE_SIMULATION_DATA = [
     {
@@ -358,7 +355,6 @@ const RouteSimulation = () => {
     const handleNext = () => {
         if (activeStep < ROUTE_SIMULATION_DATA.length - 1) {
             setActiveStep(prev => prev + 1);
-            // Otomatik scroll
             const element = document.getElementById(`step-${activeStep + 1}`);
             if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -385,28 +381,22 @@ const RouteSimulation = () => {
             </div>
 
             <div className="relative">
-                {/* Dikey Çizgi */}
                 <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-slate-200 dark:bg-slate-700"></div>
-
                 <div className="space-y-6">
                     {ROUTE_SIMULATION_DATA.map((step, index) => {
                         const isActive = index === activeStep;
                         const isPast = index < activeStep;
-
                         return (
                             <div key={step.id} id={`step-${index}`} 
                                 className={`relative flex gap-4 transition-all duration-500 ${isActive ? 'scale-105' : 'opacity-60'}`}
                                 onClick={() => setActiveStep(index)}
                             >
-                                {/* İkon */}
                                 <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 z-10 border-4 transition-colors ${
                                     isActive ? 'bg-gold-500 border-gold-200 text-white shadow-lg shadow-gold-500/30' : 
                                     isPast ? 'bg-slate-800 border-slate-600 text-slate-400' : 'bg-white border-slate-200 text-slate-300'
                                 }`}>
                                     <i data-lucide={step.type === 'border' ? 'flag' : step.type === 'fuel' ? 'fuel' : step.type === 'holy' ? 'moon' : 'map-pin'} className="w-5 h-5"></i>
                                 </div>
-
-                                {/* İçerik Kartı */}
                                 <div className={`flex-1 p-4 rounded-xl border transition-all cursor-pointer ${
                                     isActive ? 'bg-white dark:bg-slate-800 border-gold-500 shadow-md ring-1 ring-gold-500/20' : 
                                     'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
@@ -420,7 +410,6 @@ const RouteSimulation = () => {
                                         }`}>{step.action}</span>
                                     </div>
                                     <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{step.desc}</p>
-                                    
                                     {step.warning && (
                                         <div className="flex items-center gap-2 text-xs text-red-500 font-bold bg-red-50 dark:bg-red-900/20 p-2 rounded-lg">
                                             <i data-lucide="alert-triangle" className="w-4 h-4"></i>
@@ -434,7 +423,6 @@ const RouteSimulation = () => {
                 </div>
             </div>
 
-            {/* Navigasyon Butonları */}
             <div className="fixed bottom-6 left-0 right-0 p-4 z-50 flex justify-center gap-4 pointer-events-none">
                 <button onClick={handlePrev} disabled={activeStep === 0} className="pointer-events-auto bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-6 py-3 rounded-full shadow-lg border border-slate-200 dark:border-slate-700 disabled:opacity-50 font-bold flex items-center gap-2">
                     <i data-lucide="arrow-left" className="w-4 h-4"></i> Geri
@@ -523,7 +511,7 @@ const UpdateModal = ({ show, onClose, version }) => {
                     </div>
                     <h3 className="text-xl font-serif font-bold text-slate-800 dark:text-white mb-2">Yenilikler Var!</h3>
                     <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-                        Uygulamanıza yeni <b>"Geri Bildirim & Öneri"</b> özelliği eklendi.
+                        Maliyet hesaplama modülü baştan aşağı yenilendi! Artık otel, yakıt ve diğer giderleri de ekleyebilir, araç sahibi muafiyeti (Driver Exemption) seçeneği ile adil hesaplama yapabilirsiniz.
                     </p>
                     <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-lg mb-6">
                         <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Yeni Sürüm</span>
@@ -633,64 +621,230 @@ const ComprehensiveGuide = () => {
     );
 };
 
+// --- GELİŞMİŞ PREMIUM MALİYET HESAPLAYICI ---
 const CostCalculator = () => {
-    const [passengers, setPassengers] = useState(1);
-    const [total, setTotal] = useState(0);
+    const [passengers, setPassengers] = useState(4);
+    const [isDriverExempt, setIsDriverExempt] = useState(false);
+    const [activeTab, setActiveTab] = useState('input');
+    const [costs, setCosts] = useState({
+        fuel: 400, // Tahmini Yakıt
+        hotel: 500, // Toplam Otel
+        food: 300, // Toplam Yeme İçme
+        sim: 50 // Sim kart / iletişim
+    });
 
-    const CAR_COSTS = {
-        syria_carnet: 20,
-        syria_exit_car: 5,
-        jordan_entry: 28, // 20 JOD approx
-        jordan_insurance: 78, // 55 JOD approx
-        saudi_insurance: 80,
+    const CAR_FIXED_FEES = {
+        carnet: 20, // Suriye karne
+        syria_exit: 5, // Suriye çıkış pulu araba
+        jordan_entry: 28, // Ürdün giriş 20 JOD
+        jordan_insurance: 78, // Ürdün sigorta 55 JOD
+        saudi_insurance: 80 // Suudi sigorta
     };
+
+    const PERSON_FIXED_FEES = {
+        syria_visa: 25, // Giriş
+        syria_visa_out: 25, // Çıkış
+        saudi_visa: 110 // E-vize
+    };
+
+    // Toplam Sabit Araç Giderleri (Aracın kendisine ait masraflar)
+    const totalCarFixed = Object.values(CAR_FIXED_FEES).reduce((a, b) => a + b, 0);
     
-    const PERSON_COSTS = {
-        syria_visa_in: 25,
-        syria_visa_out: 25,
-        saudi_visa: 110, // Approx e-visa cost
+    // Toplam Kişisel Vize Masrafları (Kişi başı sabit)
+    const personFeeTotal = Object.values(PERSON_FIXED_FEES).reduce((a, b) => a + b, 0);
+
+    // Hesaplama Mantığı
+    const calculateShares = () => {
+        const totalFuel = Number(costs.fuel) || 0;
+        const totalHotel = Number(costs.hotel) || 0;
+        const totalFood = Number(costs.food) || 0;
+        const totalSim = Number(costs.sim) || 0;
+
+        // "Ortak" Masraflar: Araç Sabit Giderleri + Yakıt
+        const sharedPool = totalCarFixed + totalFuel;
+
+        let costPerPassenger = 0;
+        let costForDriver = 0;
+
+        // Kişisel Gider Payı (Otel + Yemek + Sim) - Herkes eşit ödüyor varsayımı
+        // Eğer otel/yemek masrafı toplam girildiyse kişi sayısına bölünür
+        const personalVariableShare = (totalHotel + totalFood + totalSim) / passengers;
+
+        if (isDriverExempt && passengers > 1) {
+            // Sürücü Muaf İse:
+            // Sürücü sadece kendi vizesini ve kendi yeme/otel payını öder.
+            // Araba masrafları ve yakıt, diğer yolculara (passengers - 1) bölünür.
+            
+            const payingPassengers = passengers - 1;
+            const sharedPerPaying = sharedPool / payingPassengers;
+
+            costForDriver = personFeeTotal + personalVariableShare;
+            costPerPassenger = personFeeTotal + personalVariableShare + sharedPerPaying;
+        } else {
+            // Herkes Eşit:
+            // Tüm masraflar toplanır ve kişi sayısına bölünür.
+            const totalTripCost = sharedPool + (personFeeTotal * passengers) + totalHotel + totalFood + totalSim;
+            costForDriver = totalTripCost / passengers;
+            costPerPassenger = totalTripCost / passengers;
+        }
+
+        return {
+            driver: Math.ceil(costForDriver),
+            passenger: Math.ceil(costPerPassenger),
+            totalTrip: Math.ceil(sharedPool + (personFeeTotal * passengers) + totalHotel + totalFood + totalSim)
+        };
     };
 
-    useEffect(() => {
-        const fixedCar = Object.values(CAR_COSTS).reduce((a, b) => a + b, 0);
-        const variablePerson = Object.values(PERSON_COSTS).reduce((a, b) => a + b, 0) * passengers;
-        setTotal(fixedCar + variablePerson);
-    }, [passengers]);
+    const result = calculateShares();
+
+    const InputField = ({ label, icon, value, field }) => (
+        <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500">
+                <i data-lucide={icon} className="w-5 h-5"></i>
+            </div>
+            <div className="flex-1">
+                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">{label} (USD)</label>
+                <input 
+                    type="number" 
+                    value={value} 
+                    onChange={(e) => setCosts({...costs, [field]: e.target.value})}
+                    className="w-full bg-transparent font-bold text-lg text-slate-800 dark:text-slate-100 focus:outline-none placeholder-slate-300"
+                    placeholder="0"
+                />
+            </div>
+        </div>
+    );
 
     return (
-        <div className="p-6 pb-24 animate-fade-in space-y-6">
-            <div className="bg-slate-900 text-white rounded-3xl p-8 text-center shadow-xl relative overflow-hidden">
+        <div className="p-4 pb-24 animate-fade-in space-y-4">
+            
+            {/* Header Card */}
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
                 <div className="relative z-10">
-                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Tahmini Yol Maliyeti</p>
-                    <div className="text-5xl font-mono font-bold text-gold-400 mb-2">${total}</div>
-                    <p className="text-xs text-slate-400">(Vize + Sınır + Sigorta)</p>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <h2 className="text-2xl font-serif font-bold text-gold-400">Akıllı Hesaplayıcı</h2>
+                            <p className="text-xs text-slate-400 mt-1">Yol, Vize, Yakıt ve Otel Masrafları</p>
+                        </div>
+                        <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                            <i data-lucide="calculator" className="w-6 h-6 text-gold-400"></i>
+                        </div>
+                    </div>
+                    <div className="mt-6 flex items-end gap-2">
+                        <span className="text-4xl font-mono font-bold text-white">${result.totalTrip}</span>
+                        <span className="text-xs text-slate-400 mb-1.5">Toplam Tahmini Maliyet</span>
+                    </div>
                 </div>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full blur-2xl"></div>
+                <div className="absolute top-0 right-0 w-48 h-48 bg-gold-500/10 rounded-full blur-3xl -translate-y-10 translate-x-10"></div>
             </div>
 
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-4">Yolcu Sayısı (Sürücü Dahil)</label>
-                <div className="flex items-center gap-4">
-                    <button onClick={() => setPassengers(Math.max(1, passengers - 1))} className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-600 transition"><i data-lucide="minus" className="w-5 h-5"></i></button>
-                    <div className="flex-1 text-center font-mono text-2xl font-bold dark:text-white">{passengers}</div>
-                    <button onClick={() => setPassengers(passengers + 1)} className="w-12 h-12 rounded-xl bg-gold-500 text-white flex items-center justify-center text-xl font-bold hover:bg-gold-600 transition shadow-lg shadow-gold-500/30"><i data-lucide="plus" className="w-5 h-5"></i></button>
-                </div>
+            {/* Tabs */}
+            <div className="flex p-1 bg-slate-200 dark:bg-slate-700 rounded-xl">
+                <button onClick={() => setActiveTab('input')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'input' ? 'bg-white shadow text-slate-800' : 'text-slate-500'}`}>Gider Kalemleri</button>
+                <button onClick={() => setActiveTab('result')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'result' ? 'bg-white shadow text-emerald-600' : 'text-slate-500'}`}>Sonuç & Paylaşım</button>
             </div>
 
-            <div className="space-y-3">
-                <h4 className="font-bold text-slate-800 dark:text-slate-200 px-2">Maliyet Detayı</h4>
-                <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl text-sm space-y-2 border border-slate-100 dark:border-slate-800">
-                    <div className="flex justify-between font-bold text-slate-700 dark:text-slate-300 border-b pb-2 border-slate-200 dark:border-slate-700"><span>Araç Giderleri (Sabit)</span><span>${Object.values(CAR_COSTS).reduce((a,b)=>a+b,0)}</span></div>
-                    <div className="flex justify-between text-slate-500"><span>Suriye Karne + Çıkış</span><span>$25</span></div>
-                    <div className="flex justify-between text-slate-500"><span>Ürdün Giriş + Sigorta</span><span>~$106</span></div>
-                    <div className="flex justify-between text-slate-500"><span>Suudi Sigorta</span><span>$80</span></div>
+            {activeTab === 'input' ? (
+                <div className="space-y-4 animate-fade-in">
                     
-                    <div className="flex justify-between font-bold text-slate-700 dark:text-slate-300 border-b pb-2 pt-2 border-slate-200 dark:border-slate-700"><span>Kişi Başı Gider ({passengers} Kişi)</span><span>${Object.values(PERSON_COSTS).reduce((a,b)=>a+b,0) * passengers}</span></div>
-                    <div className="flex justify-between text-slate-500"><span>Suriye Vize (Giriş+Çıkış)</span><span>$50 x {passengers}</span></div>
-                    <div className="flex justify-between text-slate-500"><span>Suudi Vize (Tahmini)</span><span>$110 x {passengers}</span></div>
+                    {/* Yolcu Sayısı */}
+                    <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
+                        <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4 block flex items-center gap-2"><i data-lucide="users" className="w-4 h-4 text-gold-500"></i> Yolcu Sayısı (Sürücü Dahil)</label>
+                        <div className="flex items-center gap-4">
+                            <button onClick={() => setPassengers(Math.max(1, passengers - 1))} className="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-xl font-bold hover:bg-slate-200 transition"><i data-lucide="minus" className="w-5 h-5"></i></button>
+                            <div className="flex-1 text-center font-mono text-3xl font-bold dark:text-white">{passengers}</div>
+                            <button onClick={() => setPassengers(passengers + 1)} className="w-12 h-12 rounded-xl bg-gold-500 text-white flex items-center justify-center text-xl font-bold hover:bg-gold-600 transition shadow-lg shadow-gold-500/30"><i data-lucide="plus" className="w-5 h-5"></i></button>
+                        </div>
+                    </div>
+
+                    {/* Manuel Giderler */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <InputField label="Tahmini Yakıt" icon="fuel" value={costs.fuel} field="fuel" />
+                        <InputField label="Toplam Otel" icon="bed-double" value={costs.hotel} field="hotel" />
+                        <InputField label="Yeme / İçme" icon="utensils" value={costs.food} field="food" />
+                        <InputField label="Diğer / Sim" icon="wifi" value={costs.sim} field="sim" />
+                    </div>
+
+                    {/* Sürücü Muafiyeti Toggle */}
+                    {passengers > 1 && (
+                        <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800 flex items-center justify-between cursor-pointer" onClick={() => setIsDriverExempt(!isDriverExempt)}>
+                            <div className="flex items-start gap-3">
+                                <div className={`mt-1 p-1.5 rounded-full ${isDriverExempt ? 'bg-indigo-500 text-white' : 'bg-indigo-200 text-indigo-700'}`}>
+                                    <i data-lucide="car" className="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-sm text-indigo-900 dark:text-indigo-200">Araç Sahibi Muafiyeti</h4>
+                                    <p className="text-[10px] text-indigo-700 dark:text-indigo-400 mt-0.5 max-w-[200px]">Aracı getiren kişi yakıt ve araç masraflarından muaf tutulur.</p>
+                                </div>
+                            </div>
+                            <div className={`w-10 h-6 rounded-full p-1 transition-colors ${isDriverExempt ? 'bg-indigo-500' : 'bg-slate-300'}`}>
+                                <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform ${isDriverExempt ? 'translate-x-4' : ''}`}></div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="text-center">
+                        <button onClick={() => setActiveTab('result')} className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
+                            Hesapla ve Sonucu Gör <i data-lucide="arrow-right" className="w-4 h-4"></i>
+                        </button>
+                    </div>
                 </div>
-                <p className="text-[10px] text-slate-400 px-2 italic">* Yakıt, yeme-içme ve otel konaklamaları dahil değildir. Ürdün ödemeleri JOD kuruna göre değişebilir.</p>
-            </div>
+            ) : (
+                <div className="space-y-4 animate-fade-in">
+                    
+                    {/* Sonuç Kartları */}
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className={`p-4 rounded-2xl border-2 flex flex-col items-center text-center ${isDriverExempt ? 'bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700' : 'bg-emerald-50 border-emerald-500 dark:bg-emerald-900/20 dark:border-emerald-600'}`}>
+                            <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Araç Sahibi Öder</span>
+                            <span className="text-2xl font-mono font-bold text-slate-800 dark:text-white">${result.driver}</span>
+                            {isDriverExempt && <span className="text-[10px] text-indigo-500 font-bold mt-1 bg-indigo-50 px-2 py-0.5 rounded-full">Muafiyetli</span>}
+                        </div>
+                        <div className="p-4 rounded-2xl border-2 border-gold-500 bg-white dark:bg-slate-800 flex flex-col items-center text-center relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-8 h-8 bg-gold-500 text-white flex items-center justify-center rounded-bl-xl text-xs font-bold">{passengers - (isDriverExempt ? 1 : 0)}x</div>
+                            <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Yolcu Başına</span>
+                            <span className="text-2xl font-mono font-bold text-gold-600 dark:text-gold-400">${result.passenger}</span>
+                        </div>
+                    </div>
+
+                    {/* Detay Tablosu */}
+                    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <div className="bg-slate-50 dark:bg-slate-700/50 p-3 border-b border-slate-200 dark:border-slate-700 font-bold text-xs text-slate-500 uppercase tracking-wider">Gider Detayları (Toplam)</div>
+                        <div className="divide-y divide-slate-100 dark:divide-slate-700 text-sm">
+                            <div className="p-3 flex justify-between">
+                                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><i data-lucide="file-check" className="w-3 h-3"></i> Araç Resmi Giderleri</span>
+                                <span className="font-bold text-slate-800 dark:text-white">${totalCarFixed}</span>
+                            </div>
+                            <div className="p-3 flex justify-between">
+                                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><i data-lucide="users" className="w-3 h-3"></i> Toplam Vize ({passengers} Kişi)</span>
+                                <span className="font-bold text-slate-800 dark:text-white">${personFeeTotal * passengers}</span>
+                            </div>
+                            <div className="p-3 flex justify-between bg-amber-50 dark:bg-amber-900/10">
+                                <span className="text-amber-800 dark:text-amber-400 flex items-center gap-2"><i data-lucide="fuel" className="w-3 h-3"></i> Yakıt Gideri</span>
+                                <span className="font-bold text-amber-900 dark:text-amber-400">${costs.fuel}</span>
+                            </div>
+                            <div className="p-3 flex justify-between">
+                                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><i data-lucide="bed-double" className="w-3 h-3"></i> Otel & Konaklama</span>
+                                <span className="font-bold text-slate-800 dark:text-white">${costs.hotel}</span>
+                            </div>
+                            <div className="p-3 flex justify-between">
+                                <span className="text-slate-600 dark:text-slate-300 flex items-center gap-2"><i data-lucide="utensils" className="w-3 h-3"></i> Yeme / İçme / Diğer</span>
+                                <span className="font-bold text-slate-800 dark:text-white">${Number(costs.food) + Number(costs.sim)}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800 flex gap-3">
+                        <i data-lucide="info" className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0"></i>
+                        <p className="text-xs text-blue-800 dark:text-blue-300 leading-relaxed">
+                            Bu hesaplama, girdiğiniz tahmini veriler ve 2026 resmi sınır ücretlerine dayanır. Araç sahibi muafiyeti seçildiğinde; yakıt ve araç resmi masrafları (sigorta, karne vb.) sadece yolculara paylaştırılır.
+                        </p>
+                    </div>
+
+                    <button onClick={() => setActiveTab('input')} className="w-full text-slate-500 py-3 text-xs font-bold hover:text-slate-800 dark:hover:text-slate-300 transition-colors">
+                        Ayarları Değiştir
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
@@ -1297,17 +1451,4 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
-
-
-
-
-
-
-
-
-
-
-
-
-
 
