@@ -5,7 +5,7 @@ const DEVELOPER_PHOTO_URL = "images/profil.png";
 const AUDIO_TELBIYE = "audio/Telbiye.mp3";
 
 // SÜRÜM BİLGİSİ
-const APP_VERSION = "v3.0.0 Pro";
+const APP_VERSION = "v3.0.2 Fix";
 
 // HEADER AYARLARI
 const SITE_TITLE = "UmreGO"; 
@@ -347,7 +347,6 @@ const EMERGENCY_NUMBERS = [
 
 // --- BİLEŞENLER ---
 
-// YENİ BİLEŞEN: Rota Simülasyonu
 const RouteSimulation = () => {
     const [activeStep, setActiveStep] = useState(0);
     const scrollRef = useRef(null);
@@ -473,7 +472,6 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
                         </div>
                     ))}
                     
-                    {/* Gizlilik ve Güvenlik */}
                     <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl border border-emerald-100 dark:border-emerald-800 flex items-start gap-3">
                          <i data-lucide="shield-check" className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"></i>
                          <div>
@@ -498,7 +496,6 @@ const SettingsModal = ({ isOpen, onClose, settings, updateSettings, installPromp
     );
 };
 
-// Sürüm Güncelleme Bildirimi
 const UpdateModal = ({ show, onClose, version }) => {
     if (!show) return null;
     return (
@@ -551,12 +548,9 @@ const Header = ({ title, goBack, onOpenSettings, showSettingsBtn }) => {
                     <div className="flex flex-col"><span className="text-[10px] font-bold text-gold-600 dark:text-gold-500 tracking-[0.2em] uppercase">Karayolu İle</span><span className="text-lg font-serif font-bold dark:text-white">Umre Rehberi</span></div>
                 ) : <h1 className="text-lg font-serif font-bold dark:text-gold-400">{title}</h1>}
             </div>
-
-            {/* ORTALANMIŞ SİTE BAŞLIĞI */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none">
                 <span className="font-serif font-bold text-slate-800 dark:text-slate-200 opacity-30 text-sm tracking-widest">{SITE_TITLE}</span>
             </div>
-
             {showSettingsBtn && (
                 <div className="flex items-center gap-2 relative z-10">
                     <button onClick={togglePlay} className={`p-2 rounded-full transition-all border ${isPlaying ? 'bg-gold-500 border-gold-500 text-white animate-pulse-gold' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'}`}>
@@ -621,68 +615,74 @@ const ComprehensiveGuide = () => {
     );
 };
 
-// --- GELİŞMİŞ PREMIUM MALİYET HESAPLAYICI ---
+// --- YENİDEN DÜZENLENMİŞ VE OPTİMİZE EDİLMİŞ MALİYET HESAPLAYICI ---
+
+// InputField bileşeni kesinlikle CostCalculator dışında tanımlanmalı
+const InputField = ({ label, icon, value, field, onChange }) => (
+    <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-3">
+        <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500">
+            <i data-lucide={icon} className="w-5 h-5"></i>
+        </div>
+        <div className="flex-1">
+            <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">{label} (USD)</label>
+            <input 
+                type="number" 
+                value={value} 
+                onChange={(e) => onChange(field, e.target.value)}
+                className="w-full bg-transparent font-bold text-lg text-slate-800 dark:text-slate-100 focus:outline-none placeholder-slate-300"
+                placeholder="0"
+                autoComplete="off"
+            />
+        </div>
+    </div>
+);
+
 const CostCalculator = () => {
     const [passengers, setPassengers] = useState(4);
     const [isDriverExempt, setIsDriverExempt] = useState(false);
     const [activeTab, setActiveTab] = useState('input');
     const [costs, setCosts] = useState({
-        fuel: 400, // Tahmini Yakıt
-        hotel: 500, // Toplam Otel
-        food: 300, // Toplam Yeme İçme
-        sim: 50 // Sim kart / iletişim
+        fuel: 400,
+        hotel: 500,
+        food: 300,
+        sim: 50
     });
 
     const CAR_FIXED_FEES = {
-        carnet: 20, // Suriye karne
-        syria_exit: 5, // Suriye çıkış pulu araba
-        jordan_entry: 28, // Ürdün giriş 20 JOD
-        jordan_insurance: 78, // Ürdün sigorta 55 JOD
-        saudi_insurance: 80 // Suudi sigorta
+        carnet: 20, 
+        syria_exit: 5, 
+        jordan_entry: 28, 
+        jordan_insurance: 78, 
+        saudi_insurance: 80 
     };
 
     const PERSON_FIXED_FEES = {
-        syria_visa: 25, // Giriş
-        syria_visa_out: 25, // Çıkış
-        saudi_visa: 110 // E-vize
+        syria_visa: 25, 
+        syria_visa_out: 25, 
+        saudi_visa: 110 
     };
 
-    // Toplam Sabit Araç Giderleri (Aracın kendisine ait masraflar)
     const totalCarFixed = Object.values(CAR_FIXED_FEES).reduce((a, b) => a + b, 0);
-    
-    // Toplam Kişisel Vize Masrafları (Kişi başı sabit)
     const personFeeTotal = Object.values(PERSON_FIXED_FEES).reduce((a, b) => a + b, 0);
 
-    // Hesaplama Mantığı
     const calculateShares = () => {
         const totalFuel = Number(costs.fuel) || 0;
         const totalHotel = Number(costs.hotel) || 0;
         const totalFood = Number(costs.food) || 0;
         const totalSim = Number(costs.sim) || 0;
 
-        // "Ortak" Masraflar: Araç Sabit Giderleri + Yakıt
         const sharedPool = totalCarFixed + totalFuel;
-
         let costPerPassenger = 0;
         let costForDriver = 0;
 
-        // Kişisel Gider Payı (Otel + Yemek + Sim) - Herkes eşit ödüyor varsayımı
-        // Eğer otel/yemek masrafı toplam girildiyse kişi sayısına bölünür
         const personalVariableShare = (totalHotel + totalFood + totalSim) / passengers;
 
         if (isDriverExempt && passengers > 1) {
-            // Sürücü Muaf İse:
-            // Sürücü sadece kendi vizesini ve kendi yeme/otel payını öder.
-            // Araba masrafları ve yakıt, diğer yolculara (passengers - 1) bölünür.
-            
             const payingPassengers = passengers - 1;
             const sharedPerPaying = sharedPool / payingPassengers;
-
             costForDriver = personFeeTotal + personalVariableShare;
             costPerPassenger = personFeeTotal + personalVariableShare + sharedPerPaying;
         } else {
-            // Herkes Eşit:
-            // Tüm masraflar toplanır ve kişi sayısına bölünür.
             const totalTripCost = sharedPool + (personFeeTotal * passengers) + totalHotel + totalFood + totalSim;
             costForDriver = totalTripCost / passengers;
             costPerPassenger = totalTripCost / passengers;
@@ -696,29 +696,10 @@ const CostCalculator = () => {
     };
 
     const result = calculateShares();
-
-    const InputField = ({ label, icon, value, field }) => (
-        <div className="bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500">
-                <i data-lucide={icon} className="w-5 h-5"></i>
-            </div>
-            <div className="flex-1">
-                <label className="text-[10px] uppercase font-bold text-slate-400 block mb-1">{label} (USD)</label>
-                <input 
-                    type="number" 
-                    value={value} 
-                    onChange={(e) => setCosts({...costs, [field]: e.target.value})}
-                    className="w-full bg-transparent font-bold text-lg text-slate-800 dark:text-slate-100 focus:outline-none placeholder-slate-300"
-                    placeholder="0"
-                />
-            </div>
-        </div>
-    );
+    const handleCostChange = (field, val) => setCosts({...costs, [field]: val});
 
     return (
         <div className="p-4 pb-24 animate-fade-in space-y-4">
-            
-            {/* Header Card */}
             <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
                 <div className="relative z-10">
                     <div className="flex justify-between items-start">
@@ -738,7 +719,6 @@ const CostCalculator = () => {
                 <div className="absolute top-0 right-0 w-48 h-48 bg-gold-500/10 rounded-full blur-3xl -translate-y-10 translate-x-10"></div>
             </div>
 
-            {/* Tabs */}
             <div className="flex p-1 bg-slate-200 dark:bg-slate-700 rounded-xl">
                 <button onClick={() => setActiveTab('input')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'input' ? 'bg-white shadow text-slate-800' : 'text-slate-500'}`}>Gider Kalemleri</button>
                 <button onClick={() => setActiveTab('result')} className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'result' ? 'bg-white shadow text-emerald-600' : 'text-slate-500'}`}>Sonuç & Paylaşım</button>
@@ -746,8 +726,6 @@ const CostCalculator = () => {
 
             {activeTab === 'input' ? (
                 <div className="space-y-4 animate-fade-in">
-                    
-                    {/* Yolcu Sayısı */}
                     <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl border border-slate-200 dark:border-slate-700">
                         <label className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-4 block flex items-center gap-2"><i data-lucide="users" className="w-4 h-4 text-gold-500"></i> Yolcu Sayısı (Sürücü Dahil)</label>
                         <div className="flex items-center gap-4">
@@ -757,15 +735,13 @@ const CostCalculator = () => {
                         </div>
                     </div>
 
-                    {/* Manuel Giderler */}
                     <div className="grid grid-cols-2 gap-3">
-                        <InputField label="Tahmini Yakıt" icon="fuel" value={costs.fuel} field="fuel" />
-                        <InputField label="Toplam Otel" icon="bed-double" value={costs.hotel} field="hotel" />
-                        <InputField label="Yeme / İçme" icon="utensils" value={costs.food} field="food" />
-                        <InputField label="Diğer / Sim" icon="wifi" value={costs.sim} field="sim" />
+                        <InputField key="fuel" label="Tahmini Yakıt" icon="fuel" value={costs.fuel} field="fuel" onChange={handleCostChange} />
+                        <InputField key="hotel" label="Toplam Otel" icon="bed-double" value={costs.hotel} field="hotel" onChange={handleCostChange} />
+                        <InputField key="food" label="Yeme / İçme" icon="utensils" value={costs.food} field="food" onChange={handleCostChange} />
+                        <InputField key="sim" label="Diğer / Sim" icon="wifi" value={costs.sim} field="sim" onChange={handleCostChange} />
                     </div>
 
-                    {/* Sürücü Muafiyeti Toggle */}
                     {passengers > 1 && (
                         <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800 flex items-center justify-between cursor-pointer" onClick={() => setIsDriverExempt(!isDriverExempt)}>
                             <div className="flex items-start gap-3">
@@ -791,8 +767,6 @@ const CostCalculator = () => {
                 </div>
             ) : (
                 <div className="space-y-4 animate-fade-in">
-                    
-                    {/* Sonuç Kartları */}
                     <div className="grid grid-cols-2 gap-3">
                         <div className={`p-4 rounded-2xl border-2 flex flex-col items-center text-center ${isDriverExempt ? 'bg-slate-50 border-slate-200 dark:bg-slate-800 dark:border-slate-700' : 'bg-emerald-50 border-emerald-500 dark:bg-emerald-900/20 dark:border-emerald-600'}`}>
                             <span className="text-[10px] uppercase font-bold text-slate-500 mb-1">Araç Sahibi Öder</span>
@@ -806,7 +780,6 @@ const CostCalculator = () => {
                         </div>
                     </div>
 
-                    {/* Detay Tablosu */}
                     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                         <div className="bg-slate-50 dark:bg-slate-700/50 p-3 border-b border-slate-200 dark:border-slate-700 font-bold text-xs text-slate-500 uppercase tracking-wider">Gider Detayları (Toplam)</div>
                         <div className="divide-y divide-slate-100 dark:divide-slate-700 text-sm">
@@ -1349,17 +1322,22 @@ const App = () => {
     const [showBanner, setShowBanner] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
-    const [settings, setSettings] = useState(() => JSON.parse(localStorage.getItem('sets')) || { fontSize: 'medium', theme: 'light', notifications: false, location: false });
+    const [settings, setSettings] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('sets')) || { fontSize: 'medium', theme: 'light', notifications: false, location: false };
+        } catch {
+            return { fontSize: 'medium', theme: 'light', notifications: false, location: false };
+        }
+    });
 
     useEffect(() => { if(window.lucide) window.lucide.createIcons(); }, [view, showSettings, showBanner, settings]);
     
     // --- GOOGLE ANALYTICS ENTEGRASYONU ---
-    // Her ekran (view) değiştiğinde Google'a bildirim gönderir
     useEffect(() => {
         if (window.gtag) {
             window.gtag('event', 'page_view', {
                 page_title: view,
-                page_path: `/${view}` // Raporlarda /dashboard, /costCalc vb. olarak görünür
+                page_path: `/${view}`
             });
         }
     }, [view]);
@@ -1369,15 +1347,12 @@ const App = () => {
         const savedVersion = localStorage.getItem('app_saved_version');
         const currentVersion = APP_VERSION;
 
-        // Eğer daha önce kaydedilmiş bir versiyon varsa ve şimdikiyle farklıysa
         if (savedVersion && savedVersion !== currentVersion) {
-            setShowUpdateModal(true); // "Yenilikler Var" penceresini aç
+            setShowUpdateModal(true);
         }
 
-        // Her durumda yeni versiyonu kaydet
         localStorage.setItem('app_saved_version', currentVersion);
         
-        // Tema ve Yazı Boyutu Ayarlarını Uygula
         localStorage.setItem('sets', JSON.stringify(settings));
         document.documentElement.className = settings.theme === 'dark' ? 'dark' : '';
         document.documentElement.classList.remove('text-sm', 'text-base', 'text-lg');
@@ -1398,7 +1373,6 @@ const App = () => {
 
     const updateSettings = (k, v) => setSettings(p => ({...p, [k]: v}));
 
-    // İPUCU: Yeni bir menü veya sayfa eklemek isterseniz buradaki switch yapısına yeni bir case ekleyin.
     const renderView = () => {
         switch(view) {
             case 'dashboard': return (
@@ -1419,7 +1393,7 @@ const App = () => {
                     <MenuCard icon="info" label="Hakkında" subLabel="Künye" colorClass="bg-slate-400 text-slate-500" onClick={() => setView('about')} />
                 </div>
             );
-            case 'routeSim': return <RouteSimulation />; // YENİ
+            case 'routeSim': return <RouteSimulation />;
             case 'route': return <RouteVisualizer />;
             case 'travelGuide': return <ComprehensiveGuide />;
             case 'costCalc': return <CostCalculator />;
@@ -1449,6 +1423,11 @@ const App = () => {
     );
 };
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
-
+const container = document.getElementById('root');
+if (!container._reactRoot) {
+    const root = ReactDOM.createRoot(container);
+    container._reactRoot = root;
+    root.render(<App />);
+} else {
+    container._reactRoot.render(<App />);
+}
