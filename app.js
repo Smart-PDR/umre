@@ -5,7 +5,7 @@ const DEVELOPER_PHOTO_URL = "images/profil.png";
 const AUDIO_TELBIYE = "audio/Telbiye.mp3";
 
 // SÜRÜM BİLGİSİ
-const APP_VERSION = "v3.0.2 Fix";
+const APP_VERSION = "v3.0.3 Menu Update";
 
 // HEADER AYARLARI
 const SITE_TITLE = "UmreGO"; 
@@ -159,41 +159,70 @@ const DICTIONARY_DATA = [
 // --- DİĞER VERİLER ---
 const PLACES_DATA = [
     {
-        "category": "Mekke-i Mükerreme",
+        "category": "Suriye",
         "items": [
             {
-                "id": "m1",
-                "title": "Mescid-i Haram",
-                "desc": "Kabe'nin de içinde bulunduğu en kutsal mescit.",
-                "lat": 21.422487,
-                "lng": 39.826206,
-                "image": "/images/mescidiharam.jpg"
+                "id": "s1",
+                "title": "Şam Emevi Camii",
+                "desc": "İslam dünyasının en eski ve en büyük camilerinden biri.",
+                "lat": 33.5116,
+                "lng": 36.3065,
+                "image": ""
             },
             {
-                "id": "m2",
-                "title": "Sevr Dağı",
-                "desc": "Hicret mağarası.",
-                "lat": 21.3779,
-                "lng": 39.8579,
-                "image": "/images/sevrdagi.jpg"
+                "id": "s2",
+                "title": "Hama Su Dolapları",
+                "desc": "Asi Nehri üzerindeki tarihi su dolapları (Norias).",
+                "lat": 35.1354,
+                "lng": 36.7505,
+                "image": ""
             },
             {
-                "id": "m3",
-                "title": "Arafat",
-                "desc": "Vakfe alanı.",
-                "lat": 21.3549,
-                "lng": 39.9841,
+                "id": "s3",
+                "title": "Halep Kalesi",
+                "desc": "Dünyanın en eski ve en büyük kalelerinden biri.",
+                "lat": 36.1993,
+                "lng": 37.1628,
                 "image": ""
             }
         ]
     },
     {
-        "category": "Medine-i Münevvere",
+        "category": "Ürdün",
+        "items": [
+            {
+                "id": "j1",
+                "title": "Ashab-ı Kehf",
+                "desc": "Yedi Uyurlar Mağarası (Amman).",
+                "lat": 31.9288,
+                "lng": 35.9525,
+                "image": ""
+            },
+            {
+                "id": "j2",
+                "title": "Mute Savaşı Alanı",
+                "desc": "İslam ordusunun Bizans ile ilk karşılaştığı yer ve şehitlikler.",
+                "lat": 31.0556,
+                "lng": 35.7001,
+                "image": ""
+            },
+            {
+                "id": "j3",
+                "title": "Hicaz Demiryolu (Amman)",
+                "desc": "Tarihi Osmanlı tren istasyonu ve müzesi.",
+                "lat": 31.9705,
+                "lng": 35.9419,
+                "image": ""
+            }
+        ]
+    },
+    {
+        "category": "Medine",
         "items": [
             {
                 "id": "md1",
                 "title": "Mescid-i Nebevi",
-                "desc": "Hz. Peygamber'in kabri.",
+                "desc": "Hz. Peygamber'in kabr-i şerifi ve Ravza-i Mutahhara.",
                 "lat": 24.4672,
                 "lng": 39.6109,
                 "image": ""
@@ -201,17 +230,62 @@ const PLACES_DATA = [
             {
                 "id": "md2",
                 "title": "Kuba Mescidi",
-                "desc": "İlk mescit.",
+                "desc": "İslam tarihinde inşa edilen ilk mescit.",
                 "lat": 24.4393,
                 "lng": 39.6173,
                 "image": ""
             },
             {
                 "id": "md3",
-                "title": "Uhud Dağı",
-                "desc": "Uhud Savaşı alanı.",
+                "title": "Uhud Dağı ve Şehitliği",
+                "desc": "Hz. Hamza ve Uhud şehitlerinin medfun olduğu yer.",
                 "lat": 24.5034,
                 "lng": 39.6117,
+                "image": ""
+            },
+            {
+                "id": "md4",
+                "title": "Yedi Mescidler (Hendek)",
+                "desc": "Hendek Savaşı'nın yapıldığı bölge.",
+                "lat": 24.4782,
+                "lng": 39.5934,
+                "image": ""
+            }
+        ]
+    },
+    {
+        "category": "Mekke",
+        "items": [
+            {
+                "id": "m1",
+                "title": "Mescid-i Haram",
+                "desc": "Kabe-i Muazzama'nın bulunduğu en kutsal mescit.",
+                "lat": 21.422487,
+                "lng": 39.826206,
+                "image": "/images/mescidiharam.jpg"
+            },
+            {
+                "id": "m2",
+                "title": "Sevr Dağı",
+                "desc": "Hicret sırasında sığınılan Sevr Mağarası.",
+                "lat": 21.3779,
+                "lng": 39.8579,
+                "image": "/images/sevrdagi.jpg"
+            },
+            {
+                "id": "m3",
+                "title": "Arafat ve Cebel-i Rahme",
+                "desc": "Vakfe'nin yapıldığı, Hz. Adem ile Hz. Havva'nın buluştuğu tepe.",
+                "lat": 21.3549,
+                "lng": 39.9841,
+                "image": ""
+            },
+            {
+                "id": "m4",
+                "title": "Hira Mağarası (Nur Dağı)",
+                "desc": "İlk vahiyin indiği mağara.",
+                "lat": 21.4568,
+                "lng": 39.8593,
                 "image": ""
             }
         ]
@@ -1380,6 +1454,7 @@ const App = () => {
                     <FeaturedCards setActiveView={setView} />
                     <AnnouncementBar />
                     <MenuCard icon="book-open" label="Seyahat Rehberi" subLabel="Sınır & Prosedür" colorClass="bg-emerald-500 text-emerald-600" onClick={() => setView('travelGuide')} />
+                    <MenuCard icon="map" label="Rota Simülasyonu" subLabel="Yol Tarifi" colorClass="bg-cyan-500 text-cyan-600" onClick={() => setView('routeSim')} />
                     <MenuCard icon="calculator" label="Maliyet Hesapla" subLabel="Vize & Araç" colorClass="bg-slate-700 text-slate-800 dark:text-slate-100" onClick={() => setView('costCalc')} />
                     <MenuCard icon="moon" label="Umre İbadeti" subLabel="Adım adım" colorClass="bg-amber-500 text-amber-600" onClick={() => setView('guide')} />
                     <MenuCard icon="map-pin" label="Mikat Mahalleri" subLabel="Sınırlar & Alarm" colorClass="bg-indigo-500 text-indigo-600" onClick={() => setView('miqat')} />
