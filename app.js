@@ -131,11 +131,11 @@ const GUIDE_DATA = [
 
 // --- MİKAT VERİLERİ ---
 const MIQAT_DATA = [
-    { id: "mq1", title: "Zülhuleyfe (Ebâ Ali)", desc: "Medine yönünden gelenlerin mikat mahallidir. (Mekke'ye ~450km).", lat: 24.4136, lng: 39.5447, image: "" },
-    { id: "mq2", title: "Cuhfe", desc: "Şam, Mısır ve Türkiye rotasının mikatıdır. (Mekke'ye ~187km).", lat: 22.6957, lng: 39.1444, image: "" },
-    { id: "mq3", title: "Karnu'l-Menazil", desc: "Necid yönü mikatıdır. (Mekke'ye ~94km).", lat: 21.6344, lng: 40.4239, image: "" },
+    { id: "mq1", title: "Zülhuleyfe (Ebâ Ali)", desc: "Medine yönünden gelenlerin mikat mahallidir. (Mekke'ye ~450km).", lat: 24.4136, lng: 39.5447, image: "/images/zulhuleyfe_mikat.jpg" },
+    { id: "mq2", title: "Cuhfe (Râbiğ)", desc: "Şam, Mısır ve Türkiye yönünden gelenlerin mikatıdır. (Mekke'ye ~187km).", lat: 22.6957, lng: 39.1444, image: "" },
+    { id: "mq3", title: "Karnü'l-Menâzil", desc: "Necid ve Kuveyt yönü mikatıdır. (Mekke'ye ~94km).", lat: 21.6344, lng: 40.4239, image: "" },
     { id: "mq4", title: "Yelemlem", desc: "Yemen yönü mikatıdır. (Mekke'ye ~54km).", lat: 20.5178, lng: 39.8703, image: "" },
-    { id: "mq5", title: "Zat-ı Irk", desc: "Irak yönü mikatıdır. (Mekke'ye ~94km).", lat: 21.9333, lng: 40.4333, image: "" }
+    { id: "mq5", title: "Zât-i Irk", desc: "Irak yönü mikatıdır. (Mekke'ye ~94km).", lat: 21.9333, lng: 40.4333, image: "" }
 ];
 
 // --- SÖZLÜK VERİLERİ ---
@@ -784,7 +784,7 @@ const MiqatModule = () => {
                     <h3 className="font-serif font-bold text-xl mb-2 text-indigo-200">Mikat Nedir?</h3>
                     <p className="text-sm text-indigo-100 opacity-90 leading-relaxed">
                         Harem bölgesine (Mekke) girmek isteyenlerin, ihramsız geçmemeleri gereken sınır noktalarıdır. 
-                        Peygamber Efendimiz (s.a.v) tarafından belirlenmiştir. Bu sınırı geçmeden önce ihrama girilmeli ve niyet edilmelidir.
+                        Peygamber Efendimiz (s.a.v) tarafından belirlenmiştir. Bu sınırı geçmeden önce ihrama girilmeli ve niyet edilmelidir. Bu sınırları niyet etmeden ve ihrama girmeden kurban kesme cezası vardır.
                     </p>
                 </div>
                 <i data-lucide="map-pin" className="absolute -right-4 -bottom-4 w-24 h-24 text-white opacity-10 rotate-12"></i>
@@ -1297,6 +1297,7 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
 
 
 
